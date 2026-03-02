@@ -278,7 +278,7 @@
         <thead>
           <tr>
             <th>#</th><th>Lead</th><th>Owner</th><th>Etapa</th><th>Tipo</th>
-            <th>TAM</th><th>SOM</th><th>Días en Etapa</th><th>Días Totales</th>
+            <th>TAM</th><th>SOM</th><th>Prob.</th><th>SOM Pond.</th><th>Días en Etapa</th><th>Días Totales</th>
           </tr>
         </thead>
         <tbody id="leadsTableBody"></tbody>
@@ -479,12 +479,38 @@ function renderDashboard() {
   const totalSAM = active.reduce((s,l) => s + (Number(l.sam)||0), 0);
   const totalSOM = active.reduce((s,l) => s + (Number(l.som)||0), 0);
 
+  // Probabilidad de éxito por etapa
+  const PROB = { ID01:.10, ID02:.10, ID03:.25, ID04:.25, ID05:.50, ID06:.75, ID07:.75, ID08:.80, ID09:.80, ID10:1.0, GANADO:1.0, PERDIDO:0 };
+  // Etapas con aprobación de precios (Opción 1: ID06 en adelante)
+  const APROBADAS = ['ID06','ID07','ID08','ID09','ID10','GANADO'];
+
+  // Opción 1: suma solo leads con aprobación de precios (ID06+)
+  const opt1 = leads
+    .filter(l => APROBADAS.includes(l.stage))
+    .reduce((s,l) => s + (Number(l.som)||0), 0);
+
+  // Opción 2: valor ponderado = Σ(SOM × probabilidad etapa)
+  const opt2 = leads
+    .filter(l => l.stage !== 'PERDIDO')
+    .reduce((s,l) => s + (Number(l.som)||0) * (PROB[l.stage]||0), 0);
+
   // Metas fijas (USD miles)
-  const BRECHA_2026 = 639;
-  const VALOR_5YP   = 1918;
-  const brechaColor = totalSOM >= BRECHA_2026 ? 'var(--accent)' : totalSOM >= BRECHA_2026 * 0.6 ? 'var(--warn)' : 'var(--red)';
-  const pctBrecha = Math.min((totalSOM / BRECHA_2026) * 100, 100).toFixed(0);
-  const pct5YP    = Math.min((totalSOM / VALOR_5YP)   * 100, 100).toFixed(0);
+  const BRECHA_2026  = 639;
+  const META_FUNNEL  = BRECHA_2026 * 3; // 1,917k — pipeline requerido
+
+  function pctColor(val, meta) {
+    const r = val / meta;
+    return r >= 1 ? 'var(--accent)' : r >= 0.6 ? 'var(--warn)' : 'var(--red)';
+  }
+  function progressBar(val, meta, color) {
+    const pct = Math.min((val/meta)*100, 100).toFixed(0);
+    const falta = Math.max(meta - val, 0);
+    return `
+      <div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0 5px">
+        <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width .6s"></div>
+      </div>
+      <div class="stat-sub">${pct}% de meta · Falta $${falta.toFixed(0)}k USD</div>`;
+  }
 
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value">${leads.length}</div><div class="stat-sub">registrados</div></div>
@@ -494,42 +520,55 @@ function renderDashboard() {
   `;
 
   // Bloque estratégico
+  const c1 = pctColor(opt1, META_FUNNEL);
+  const c2 = pctColor(opt2, META_FUNNEL);
   document.getElementById('strategicGrid').innerHTML = `
-    <div class="stat-card" style="border-color:rgba(255,190,11,.3)">
-      <div class="stat-label" style="color:var(--warn)">⚡ Brecha 2026</div>
-      <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:4px">
-        <div class="stat-value" style="color:${brechaColor}">${fmtMoney(totalSOM*1000)}</div>
-        <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);padding-bottom:3px">/ $${BRECHA_2026}k USD</div>
+
+    <div class="stat-card" style="border-color:rgba(255,190,11,.4);grid-column:span 1">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div style="background:rgba(255,190,11,.15);border:1px solid rgba(255,190,11,.4);border-radius:6px;padding:3px 10px;font-size:10px;font-family:'DM Mono',monospace;color:var(--warn);font-weight:700">OPCIÓN 1</div>
+        <div style="font-size:11px;color:var(--text2);font-family:'DM Mono',monospace">Con aprobación (ID06+)</div>
       </div>
-      <div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0 6px">
-        <div style="height:100%;width:${pctBrecha}%;background:${brechaColor};border-radius:3px;transition:width .6s"></div>
+      <div class="stat-label">⚡ Brecha 2026 — Conservador</div>
+      <div style="display:flex;align-items:flex-end;gap:8px;margin-top:6px">
+        <div class="stat-value" style="color:${c1};font-size:24px">$${opt1.toFixed(0)}k</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);padding-bottom:3px">/ $${META_FUNNEL}k USD</div>
       </div>
-      <div class="stat-sub">${pctBrecha}% cubierto · Falta $${Math.max(BRECHA_2026 - totalSOM, 0).toFixed(0)}k USD</div>
+      ${progressBar(opt1, META_FUNNEL, c1)}
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;font-family:'DM Mono',monospace;color:var(--text2)">
+        Meta = Brecha 2026 × 3 = $${META_FUNNEL}k USD
+      </div>
     </div>
-    <div class="stat-card" style="border-color:rgba(108,99,255,.3)">
-      <div class="stat-label" style="color:var(--accent3)">🎯 Valor Funnel 5YP</div>
-      <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:4px">
-        <div class="stat-value" style="color:var(--accent3)">${fmtMoney(totalSOM*1000)}</div>
-        <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);padding-bottom:3px">/ $${VALOR_5YP}k USD</div>
+
+    <div class="stat-card" style="border-color:rgba(108,99,255,.4);grid-column:span 1">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div style="background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.4);border-radius:6px;padding:3px 10px;font-size:10px;font-family:'DM Mono',monospace;color:var(--accent3);font-weight:700">OPCIÓN 2</div>
+        <div style="font-size:11px;color:var(--text2);font-family:'DM Mono',monospace">Valor ponderado por etapa</div>
       </div>
-      <div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0 6px">
-        <div style="height:100%;width:${pct5YP}%;background:var(--accent3);border-radius:3px;transition:width .6s"></div>
+      <div class="stat-label">🎯 Brecha 2026 — Esperado</div>
+      <div style="display:flex;align-items:flex-end;gap:8px;margin-top:6px">
+        <div class="stat-value" style="color:${c2};font-size:24px">$${opt2.toFixed(0)}k</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);padding-bottom:3px">/ $${META_FUNNEL}k USD</div>
       </div>
-      <div class="stat-sub">${pct5YP}% del objetivo · Meta $${VALOR_5YP}k USD</div>
+      ${progressBar(opt2, META_FUNNEL, c2)}
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;font-family:'DM Mono',monospace;color:var(--text2)">
+        Σ(SOM × prob.) · 10%→25%→50%→75%→80%→100%
+      </div>
     </div>
+
     <div class="stat-card">
       <div class="stat-label">📊 TAM Total Funnel</div>
-      <div class="stat-value" style="color:var(--text);font-size:22px">$${totalTAM.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:1})}k</div>
+      <div class="stat-value" style="color:var(--text);font-size:22px">$${totalTAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div>
       <div class="stat-sub">Mercado total addressable</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">📊 SAM Total Funnel</div>
-      <div class="stat-value" style="color:var(--text2);font-size:22px">$${totalSAM.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:1})}k</div>
+      <div class="stat-value" style="color:var(--text2);font-size:22px">$${totalSAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div>
       <div class="stat-sub">Mercado servible disponible</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">💰 SOM Total Funnel</div>
-      <div class="stat-value" style="color:var(--accent);font-size:22px">$${totalSOM.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:1})}k</div>
+      <div class="stat-value" style="color:var(--accent);font-size:22px">$${totalSOM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div>
       <div class="stat-sub">Mercado obtenible · USD</div>
     </div>
   `;
@@ -550,6 +589,7 @@ function renderDashboard() {
 
 // ─── TABLE ───────────────────────────────────────────────────────────────────
 function renderTable() {
+  const PROB = { ID01:.10, ID02:.10, ID03:.25, ID04:.25, ID05:.50, ID06:.75, ID07:.75, ID08:.80, ID09:.80, ID10:1.0, GANADO:1.0, PERDIDO:0 };
   const q      = (document.getElementById('globalSearch').value||'').toLowerCase();
   const fStage = document.getElementById('filterStage').value;
   const fType  = document.getElementById('filterType').value;
@@ -577,6 +617,8 @@ function renderTable() {
       <td><span class="type-badge type-${l.type||'organico'}">${l.type==='goget'?'Go-Get':'Orgánico'}</span></td>
       <td class="amount">${fmtMoney(l.tam)}</td>
       <td class="amount big">${fmtMoney(l.som)}</td>
+      <td><span class="days-badge" style="background:rgba(108,99,255,.12);color:var(--accent3)">${((PROB[l.stage]||0)*100).toFixed(0)}%</span></td>
+      <td class="amount" style="color:var(--warn)">$${((Number(l.som)||0)*(PROB[l.stage]||0)).toFixed(0)}k</td>
       <td><span class="days-badge ${dClass}">${daysInStage !== null ? daysInStage+'d' : '—'}</span></td>
       <td><span class="days-badge">${daysTotal !== null ? daysTotal+'d' : '—'}</span></td>
     </tr>`;
