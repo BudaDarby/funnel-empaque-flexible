@@ -68,11 +68,11 @@
   .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
   .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; position: relative; overflow: hidden; }
   .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-  .stat-card:nth-child(1)::before { background: var(--accent); }
-  .stat-card:nth-child(2)::before { background: var(--accent2); }
-  .stat-card:nth-child(3)::before { background: var(--accent3); }
-  .stat-card:nth-child(4)::before { background: var(--warn); }
-  .stat-card:nth-child(5)::before { background: var(--red); }
+  .stats-grid .stat-card:nth-child(1)::before { background: var(--accent); }
+  .stats-grid .stat-card:nth-child(2)::before { background: var(--accent2); }
+  .stats-grid .stat-card:nth-child(3)::before { background: var(--accent3); }
+  .stats-grid .stat-card:nth-child(4)::before { background: var(--warn); }
+  .stats-grid .stat-card:nth-child(5)::before { background: var(--red); }
   .stat-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: .1em; font-family: 'DM Mono', monospace; margin-bottom: 8px; }
   .stat-value { font-size: 28px; font-weight: 800; line-height: 1; }
   .stat-sub { font-size: 12px; color: var(--text2); margin-top: 6px; font-family: 'DM Mono', monospace; }
@@ -169,8 +169,9 @@
   .kanban-board { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 16px; min-height: 400px; }
   .kanban-col { min-width: 220px; max-width: 260px; flex-shrink: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
   .kanban-col-header { padding: 14px 16px; border-bottom: 1px solid var(--border); }
-  .kanban-col-title { font-size: 12px; font-weight: 700; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
-  .kanban-col-count { font-size: 11px; color: var(--text2); }
+  .kanban-col-title { font-size: 12px; font-weight: 700; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 2px; }
+  .kanban-col-subtitle { font-size: 10px; color: var(--text2); font-family: 'DM Mono', monospace; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kanban-col-count { font-size: 11px; color: var(--text3); }
   .kanban-cards { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
   .kanban-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; cursor: pointer; transition: all .2s; }
   .kanban-card:hover { border-color: var(--accent); transform: translateY(-1px); }
@@ -233,6 +234,10 @@
 <div class="views active" id="view-dashboard">
   <div class="main">
     <div class="stats-grid" id="statsGrid"></div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'DM Mono',monospace;margin-bottom:14px">// Métricas Estratégicas · USD (miles)</div>
+      <div class="stats-grid" id="strategicGrid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))"></div>
+    </div>
     <div class="funnel-container">
       <div class="funnel-title">// Distribución por Etapa</div>
       <div class="funnel-stages" id="funnelBars"></div>
@@ -323,9 +328,9 @@
     <div class="modal-section">
       <div class="modal-section-title">💰 Financieros & Capacidad</div>
       <div class="form-grid">
-        <div class="form-group"><label class="form-label">TAM (MXN / año)</label><input class="form-input" id="f_tam" type="number" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">SAM (MXN / año)</label><input class="form-input" id="f_sam" type="number" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">SOM (MXN / año)</label><input class="form-input" id="f_som" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">TAM (USD / año)</label><input class="form-input" id="f_tam" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">SAM (USD / año)</label><input class="form-input" id="f_sam" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">SOM (USD / año)</label><input class="form-input" id="f_som" type="number" placeholder="0"></div>
         <div class="form-group"><label class="form-label">TP (Precio de referencia)</label><input class="form-input" id="f_tp" placeholder="Precio por unidad/kg/etc"></div>
         <div class="form-group"><label class="form-label">Capacidad – Venta Anual</label><input class="form-input" id="f_capacidad" placeholder="Unidades / toneladas / etc"></div>
         <div class="form-group"><label class="form-label">Marketing – Volumen Anual</label><input class="form-input" id="f_mktVol" placeholder="Volumen proyectado"></div>
@@ -468,14 +473,65 @@ function renderDashboard() {
   const active  = leads.filter(l => l.stage !== 'GANADO' && l.stage !== 'PERDIDO');
   const ganados = leads.filter(l => l.stage === 'GANADO');
   const perdidos= leads.filter(l => l.stage === 'PERDIDO');
-  const activeSOM = active.reduce((s,l) => s + (Number(l.som)||0), 0);
+
+  // Totales financieros sumados de todos los leads activos
+  const totalTAM = active.reduce((s,l) => s + (Number(l.tam)||0), 0);
+  const totalSAM = active.reduce((s,l) => s + (Number(l.sam)||0), 0);
+  const totalSOM = active.reduce((s,l) => s + (Number(l.som)||0), 0);
+
+  // Metas fijas (USD miles)
+  const BRECHA_2026 = 639;
+  const VALOR_5YP   = 1918;
+  const brechaColor = totalSOM >= BRECHA_2026 ? 'var(--accent)' : totalSOM >= BRECHA_2026 * 0.6 ? 'var(--warn)' : 'var(--red)';
+  const pctBrecha = Math.min((totalSOM / BRECHA_2026) * 100, 100).toFixed(0);
+  const pct5YP    = Math.min((totalSOM / VALOR_5YP)   * 100, 100).toFixed(0);
 
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value">${leads.length}</div><div class="stat-sub">registrados</div></div>
     <div class="stat-card"><div class="stat-label">Activos</div><div class="stat-value">${active.length}</div><div class="stat-sub">en funnel</div></div>
     <div class="stat-card"><div class="stat-label">Ganados</div><div class="stat-value" style="color:var(--accent)">${ganados.length}</div><div class="stat-sub">cerrados won</div></div>
     <div class="stat-card"><div class="stat-label">Perdidos</div><div class="stat-value" style="color:var(--red)">${perdidos.length}</div><div class="stat-sub">cerrados lost</div></div>
-    <div class="stat-card"><div class="stat-label">SOM Pipeline</div><div class="stat-value" style="color:var(--warn);font-size:20px">${fmtMoney(activeSOM)}</div><div class="stat-sub">activos</div></div>
+  `;
+
+  // Bloque estratégico
+  document.getElementById('strategicGrid').innerHTML = `
+    <div class="stat-card" style="border-color:rgba(255,190,11,.3)">
+      <div class="stat-label" style="color:var(--warn)">⚡ Brecha 2026</div>
+      <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:4px">
+        <div class="stat-value" style="color:${brechaColor}">${fmtMoney(totalSOM*1000)}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);padding-bottom:3px">/ $${BRECHA_2026}k USD</div>
+      </div>
+      <div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0 6px">
+        <div style="height:100%;width:${pctBrecha}%;background:${brechaColor};border-radius:3px;transition:width .6s"></div>
+      </div>
+      <div class="stat-sub">${pctBrecha}% cubierto · Falta $${Math.max(BRECHA_2026 - totalSOM, 0).toFixed(0)}k USD</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(108,99,255,.3)">
+      <div class="stat-label" style="color:var(--accent3)">🎯 Valor Funnel 5YP</div>
+      <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:4px">
+        <div class="stat-value" style="color:var(--accent3)">${fmtMoney(totalSOM*1000)}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);padding-bottom:3px">/ $${VALOR_5YP}k USD</div>
+      </div>
+      <div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0 6px">
+        <div style="height:100%;width:${pct5YP}%;background:var(--accent3);border-radius:3px;transition:width .6s"></div>
+      </div>
+      <div class="stat-sub">${pct5YP}% del objetivo · Meta $${VALOR_5YP}k USD</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">📊 TAM Total Funnel</div>
+      <div class="stat-value" style="color:var(--text);font-size:22px">$${totalTAM.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:1})}k</div>
+      <div class="stat-sub">Mercado total addressable</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">📊 SAM Total Funnel</div>
+      <div class="stat-value" style="color:var(--text2);font-size:22px">$${totalSAM.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:1})}k</div>
+      <div class="stat-sub">Mercado servible disponible</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">💰 SOM Total Funnel</div>
+      <div class="stat-value" style="color:var(--accent);font-size:22px">$${totalSOM.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:1})}k</div>
+      <div class="stat-sub">Mercado obtenible · USD</div>
+    </div>
   `;
 
   const counts = {};
@@ -534,6 +590,7 @@ function renderKanban() {
     return `<div class="kanban-col">
       <div class="kanban-col-header" style="border-top:3px solid ${stage.color}">
         <div class="kanban-col-title" style="color:${stage.color}">${stage.short}</div>
+        <div class="kanban-col-subtitle">${stage.label.replace(/^ID\d+ – /,'').replace(/^Cerrado – /,'')}</div>
         <div class="kanban-col-count">${cards.length} lead${cards.length!==1?'s':''}</div>
       </div>
       <div class="kanban-cards">
