@@ -228,6 +228,7 @@
   <div class="nav-tab active" data-view="dashboard" onclick="switchView('dashboard')">Dashboard</div>
   <div class="nav-tab" data-view="table" onclick="switchView('table')">Leads</div>
   <div class="nav-tab" data-view="kanban" onclick="switchView('kanban')">Kanban</div>
+  <div class="nav-tab" data-view="prospectos" onclick="switchView('prospectos')" style="color:var(--accent2)">🎯 Prospectos</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -292,6 +293,143 @@
   <div class="main">
     <div class="section-header"><div class="section-title">Vista Kanban</div></div>
     <div class="kanban-board" id="kanbanBoard"></div>
+  </div>
+</div>
+
+<!-- PROSPECTOS VIEW -->
+<div class="views" id="view-prospectos">
+  <div class="main">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Prospectos</div>
+        <div style="font-size:12px;color:var(--text2);font-family:'DM Mono',monospace;margin-top:4px">Empresas y contactos antes del funnel</div>
+      </div>
+      <div class="filter-row">
+        <select class="filter-select" id="pFilterStatus" onchange="renderProspectos()">
+          <option value="">Todos los estados</option>
+          <option value="nuevo">Nuevo</option>
+          <option value="primer-toque">Primer Toque</option>
+          <option value="seguimiento-1">Seguimiento 1</option>
+          <option value="seguimiento-2">Seguimiento 2</option>
+          <option value="seguimiento-3">Seguimiento 3</option>
+          <option value="calificado">Calificado</option>
+          <option value="descartado">Descartado</option>
+        </select>
+        <input class="search-input" id="pSearch" placeholder="Buscar prospecto..." oninput="renderProspectos()" style="min-width:180px">
+        <button class="btn btn-primary" onclick="openProspectoModal(null)">+ Nuevo Prospecto</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Empresa</th><th>Contacto</th><th>Cargo</th><th>Sector</th><th>Ubicacion</th><th>Estado</th><th>Ultimo Toque</th><th>Dias sin contacto</th><th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="prospectoTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PROSPECTO -->
+<div class="modal-overlay" id="pModalOverlay" onclick="handlePOverlayClick(event)">
+  <div class="modal" id="pModal" style="max-width:940px">
+    <button class="modal-close" onclick="closePModal()">X</button>
+    <div class="modal-header">
+      <div id="pModalTitle" class="modal-lead-name">Nuevo Prospecto</div>
+      <div class="modal-meta" id="pModalMeta"></div>
+    </div>
+    <div style="display:flex;gap:0;margin-bottom:24px;border-bottom:1px solid var(--border)" id="pTabsBar">
+      <div class="p-tab" data-ptab="info" onclick="switchPTab('info')" style="padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--accent);border-bottom:2px solid var(--accent)">Datos</div>
+      <div class="p-tab" data-ptab="email" onclick="switchPTab('email')" style="padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent">Correo</div>
+      <div class="p-tab" data-ptab="bitacora" onclick="switchPTab('bitacora')" style="padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent">Bitacora</div>
+    </div>
+    <div id="ptab-info">
+      <div class="modal-section">
+        <div class="modal-section-title">Empresa</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Empresa *</label><input class="form-input" id="p_empresa" placeholder="Nombre de la empresa"></div>
+          <div class="form-group"><label class="form-label">Sector / Industria</label><input class="form-input" id="p_sector" placeholder="FMCG, Petroquimica, etc."></div>
+          <div class="form-group"><label class="form-label">Ubicacion</label><input class="form-input" id="p_ubicacion" placeholder="Ciudad, Pais"></div>
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select class="form-input" id="p_status">
+              <option value="nuevo">Nuevo</option>
+              <option value="primer-toque">Primer Toque</option>
+              <option value="seguimiento-1">Seguimiento 1</option>
+              <option value="seguimiento-2">Seguimiento 2</option>
+              <option value="seguimiento-3">Seguimiento 3</option>
+              <option value="calificado">Calificado</option>
+              <option value="descartado">Descartado</option>
+            </select>
+          </div>
+          <div class="form-group full"><label class="form-label">Atributos de Valor</label><textarea class="form-input" id="p_atributos" rows="2" placeholder="Que valora esta empresa? Precio, servicio, innovacion, velocidad..."></textarea></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Contacto Principal</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Nombre *</label><input class="form-input" id="p_nombre" placeholder="Nombre completo"></div>
+          <div class="form-group"><label class="form-label">Cargo</label><input class="form-input" id="p_cargo" placeholder="Director de Compras, etc."></div>
+          <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="p_email" type="email" placeholder="correo@empresa.com"></div>
+          <div class="form-group"><label class="form-label">Telefono</label><input class="form-input" id="p_tel" placeholder="+52 55 0000 0000"></div>
+          <div class="form-group full"><label class="form-label">LinkedIn / Redes</label><input class="form-input" id="p_linkedin" placeholder="linkedin.com/in/..."></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Contactos Adicionales</div>
+        <div id="p_extraContacts"></div>
+        <button class="btn btn-ghost" onclick="addExtraContact()" style="margin-top:8px;font-size:12px">+ Agregar contacto</button>
+      </div>
+    </div>
+    <div id="ptab-email" style="display:none">
+      <div class="modal-section">
+        <div class="modal-section-title">Generar Correo con IA</div>
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <button class="btn btn-ghost" onclick="generateEmail('primer-toque')" style="font-size:12px">Primer Toque</button>
+          <button class="btn btn-ghost" onclick="generateEmail('seguimiento-1')" style="font-size:12px">Seguimiento 1</button>
+          <button class="btn btn-ghost" onclick="generateEmail('seguimiento-2')" style="font-size:12px">Seguimiento 2</button>
+          <button class="btn btn-ghost" onclick="generateEmail('seguimiento-3')" style="font-size:12px">Seguimiento 3</button>
+        </div>
+        <div id="emailGenerating" style="display:none;text-align:center;padding:20px;color:var(--text2)">
+          <div class="loader-ring" style="margin:0 auto 10px"></div>
+          <div style="font-family:'DM Mono',monospace;font-size:13px">Generando con IA...</div>
+        </div>
+        <div id="emailOutput" style="display:none">
+          <div class="form-group" style="margin-bottom:12px">
+            <label class="form-label">Asunto</label>
+            <input class="form-input" id="emailSubject">
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label class="form-label">Cuerpo del correo (editable)</label>
+            <textarea class="form-input" id="emailBody" rows="12" style="line-height:1.7"></textarea>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="openGmail()">Abrir en Gmail</button>
+            <button class="btn btn-ghost" onclick="copyEmail()">Copiar texto</button>
+            <button class="btn btn-ghost" onclick="saveEmailToLog()" style="color:var(--accent)">Marcar como enviado</button>
+          </div>
+        </div>
+        <div id="emailHistory" style="margin-top:20px"></div>
+      </div>
+    </div>
+    <div id="ptab-bitacora" style="display:none">
+      <div class="modal-section">
+        <div class="modal-section-title">Bitacora de Eventos</div>
+        <div id="pBitacoraEntries"></div>
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <textarea class="form-input" id="pNewEntry" rows="2" placeholder="Registrar evento, llamada, reunion..."></textarea>
+          <button class="btn btn-ghost" onclick="addPBitacora()" style="align-self:flex-end">Agregar</button>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <button class="btn btn-ghost" onclick="convertToLead()" id="btnConvert" style="display:none;color:var(--accent);border-color:rgba(0,212,168,.4)">Convertir a Lead</button>
+      <button class="btn btn-danger" id="pBtnDelete" onclick="deleteProspecto()" style="display:none">Eliminar</button>
+      <button class="btn btn-ghost" onclick="closePModal()">Cancelar</button>
+      <button class="btn btn-primary" id="pBtnSave" onclick="saveProspecto()">Guardar Prospecto</button>
+    </div>
   </div>
 </div>
 
@@ -457,6 +595,7 @@ function refreshCurrentView() {
   if (currentView === 'dashboard') renderDashboard();
   if (currentView === 'table') renderTable();
   if (currentView === 'kanban') renderKanban();
+  if (currentView === 'prospectos') renderProspectos();
 }
 
 // ─── VIEW SWITCHING ──────────────────────────────────────────────────────────
@@ -852,6 +991,346 @@ window.deleteLead = async function() {
     closeModal();
   } catch(e) { showSync('err','Error al eliminar'); }
 };
+
+
+// ─── PROSPECTOS MODULE ────────────────────────────────────────────────────────
+let prospectos = [];
+let currentProspectoId = null;
+let currentEmailType = null;
+const prospectoCol = collection(db, 'prospectos');
+
+const P_STATUS_COLORS = {
+  'nuevo':         { bg: 'rgba(108,99,255,.15)', color: '#6c63ff' },
+  'primer-toque':  { bg: 'rgba(0,180,216,.15)',  color: '#00b4d8' },
+  'seguimiento-1': { bg: 'rgba(255,190,11,.15)', color: '#ffbe0b' },
+  'seguimiento-2': { bg: 'rgba(255,159,28,.15)', color: '#ff9f1c' },
+  'seguimiento-3': { bg: 'rgba(255,107,53,.15)', color: '#ff6b35' },
+  'calificado':    { bg: 'rgba(0,212,168,.15)',  color: '#00d4a8' },
+  'descartado':    { bg: 'rgba(255,71,87,.15)',   color: '#ff4757' },
+};
+
+onSnapshot(prospectoCol, (snap) => {
+  prospectos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  if (currentView === 'prospectos') renderProspectos();
+});
+
+window.renderProspectos = function() {
+  const q   = (document.getElementById('pSearch')?.value||'').toLowerCase();
+  const fSt = document.getElementById('pFilterStatus')?.value||'';
+  const filtered = prospectos.filter(p => {
+    if (fSt && p.status !== fSt) return false;
+    if (q && !(p.empresa||'').toLowerCase().includes(q) && !(p.nombre||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const tbody = document.getElementById('prospectoTableBody');
+  if (!tbody) return;
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="empty-state-icon">🎯</div><div>No hay prospectos. Agrega uno nuevo.</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map((p, i) => {
+    const sc = P_STATUS_COLORS[p.status] || P_STATUS_COLORS['nuevo'];
+    const lastTouch = p.bitacora?.length ? p.bitacora[p.bitacora.length-1].date : (p.createdDate||'—');
+    const lastTouchDate = p.bitacora?.length ? p.bitacora[p.bitacora.length-1].isoDate : p.createdDate;
+    const sinContacto = lastTouchDate ? daysBetween(lastTouchDate) : null;
+    const dcls = sinContacto === null ? '' : sinContacto > 14 ? 'days-late' : sinContacto > 7 ? 'days-warn' : 'days-ok';
+    return `<tr onclick="openProspectoModal('${p.id}')">
+      <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text3)">#${String(i+1).padStart(2,'0')}</span></td>
+      <td><div class="lead-name">${p.empresa||'—'}</div><div class="lead-owner">${p.sector||''}</div></td>
+      <td><div style="font-weight:600">${p.nombre||'—'}</div></td>
+      <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${p.cargo||'—'}</span></td>
+      <td><span style="font-size:12px;color:var(--text2)">${p.sector||'—'}</span></td>
+      <td><span style="font-size:12px;color:var(--text2)">${p.ubicacion||'—'}</span></td>
+      <td><span class="stage-badge" style="background:${sc.bg};color:${sc.color}">${p.status||'nuevo'}</span></td>
+      <td><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2)">${lastTouch}</span></td>
+      <td><span class="days-badge ${dcls}">${sinContacto !== null ? sinContacto+'d' : '—'}</span></td>
+      <td onclick="event.stopPropagation()" style="display:flex;gap:6px;align-items:center">
+        <button class="btn btn-ghost" onclick="openProspectoModal('${p.id}')" style="padding:5px 10px;font-size:11px">Editar</button>
+        ${p.status==='calificado' ? `<button class="btn btn-ghost" onclick="quickConvert('${p.id}')" style="padding:5px 10px;font-size:11px;color:var(--accent);border-color:rgba(0,212,168,.3)">→ Funnel</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+};
+
+window.openProspectoModal = function(id) {
+  currentProspectoId = id;
+  const p = id ? prospectos.find(x => x.id === id) : null;
+  document.getElementById('p_empresa').value   = p?.empresa||'';
+  document.getElementById('p_sector').value    = p?.sector||'';
+  document.getElementById('p_ubicacion').value = p?.ubicacion||'';
+  document.getElementById('p_status').value    = p?.status||'nuevo';
+  document.getElementById('p_atributos').value = p?.atributos||'';
+  document.getElementById('p_nombre').value    = p?.nombre||'';
+  document.getElementById('p_cargo').value     = p?.cargo||'';
+  document.getElementById('p_email').value     = p?.email||'';
+  document.getElementById('p_tel').value       = p?.tel||'';
+  document.getElementById('p_linkedin').value  = p?.linkedin||'';
+  document.getElementById('pModalTitle').textContent = p ? p.empresa||'Prospecto' : 'Nuevo Prospecto';
+  document.getElementById('pBtnDelete').style.display = p ? 'block' : 'none';
+  document.getElementById('btnConvert').style.display = p?.status==='calificado' ? 'block' : 'none';
+  // extra contacts
+  renderExtraContacts(p?.extraContacts||[]);
+  // email history
+  renderEmailHistory(p?.emailLog||[]);
+  // bitacora
+  renderPBitacora(p);
+  // reset to info tab
+  switchPTab('info');
+  // email output reset
+  document.getElementById('emailOutput').style.display = 'none';
+  document.getElementById('emailGenerating').style.display = 'none';
+  document.getElementById('pModalOverlay').classList.add('open');
+};
+
+function renderExtraContacts(contacts) {
+  const c = contacts||[];
+  document.getElementById('p_extraContacts').innerHTML = c.map((ct,i) => `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:end">
+      <input class="form-input" placeholder="Nombre" value="${ct.nombre||''}" oninput="updateExtraContact(${i},'nombre',this.value)" style="font-size:12px">
+      <input class="form-input" placeholder="Cargo" value="${ct.cargo||''}" oninput="updateExtraContact(${i},'cargo',this.value)" style="font-size:12px">
+      <input class="form-input" placeholder="Email" value="${ct.email||''}" oninput="updateExtraContact(${i},'email',this.value)" style="font-size:12px">
+      <input class="form-input" placeholder="Tel" value="${ct.tel||''}" oninput="updateExtraContact(${i},'tel',this.value)" style="font-size:12px">
+      <button class="btn btn-danger" onclick="removeExtraContact(${i})" style="padding:8px 10px">x</button>
+    </div>`).join('');
+}
+
+let _extraContacts = [];
+window.addExtraContact = function() {
+  const p = currentProspectoId ? prospectos.find(x => x.id === currentProspectoId) : null;
+  _extraContacts = [...(p?.extraContacts||[]), { nombre:'', cargo:'', email:'', tel:'' }];
+  renderExtraContacts(_extraContacts);
+};
+window.updateExtraContact = function(i, field, val) {
+  const p = currentProspectoId ? prospectos.find(x => x.id === currentProspectoId) : null;
+  _extraContacts = [...(p?.extraContacts||[])];
+  if (!_extraContacts[i]) _extraContacts[i] = {};
+  _extraContacts[i][field] = val;
+};
+window.removeExtraContact = function(i) {
+  const p = currentProspectoId ? prospectos.find(x => x.id === currentProspectoId) : null;
+  _extraContacts = [...(p?.extraContacts||[])];
+  _extraContacts.splice(i,1);
+  renderExtraContacts(_extraContacts);
+};
+
+window.switchPTab = function(tab) {
+  ['info','email','bitacora'].forEach(t => {
+    document.getElementById('ptab-'+t).style.display = t===tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.p-tab').forEach(el => {
+    const active = el.dataset.ptab === tab;
+    el.style.color = active ? 'var(--accent)' : 'var(--text2)';
+    el.style.borderBottom = active ? '2px solid var(--accent)' : '2px solid transparent';
+  });
+};
+
+// ─── EMAIL GENERATION ────────────────────────────────────────────────────────
+window.generateEmail = async function(type) {
+  currentEmailType = type;
+  const p = currentProspectoId ? prospectos.find(x => x.id === currentProspectoId) : null;
+  if (!p) { alert('Guarda el prospecto primero.'); return; }
+  document.getElementById('emailGenerating').style.display = 'block';
+  document.getElementById('emailOutput').style.display = 'none';
+
+  const typeLabels = { 'primer-toque':'primer contacto', 'seguimiento-1':'primer seguimiento', 'seguimiento-2':'segundo seguimiento', 'seguimiento-3':'tercer seguimiento' };
+  const prevEmails = (p.emailLog||[]).map(e => `- ${e.type} enviado el ${e.date}`).join('\n') || 'Ninguno';
+
+  const prompt = `Eres un ejecutivo comercial de una empresa de empaque flexible e innovación de packaging. Debes escribir un correo de ${typeLabels[type]} para prospectar a la siguiente empresa.
+
+DATOS DEL PROSPECTO:
+- Empresa: ${p.empresa||''}
+- Sector: ${p.sector||''}
+- Ubicación: ${p.ubicacion||''}
+- Contacto: ${p.nombre||''}, ${p.cargo||''}
+- Atributos de valor que aprecia: ${p.atributos||'no especificados'}
+
+HISTORIAL DE CONTACTOS PREVIOS:
+${prevEmails}
+
+INSTRUCCIONES:
+- Escribe en español, tono profesional pero cercano
+- El correo debe ser conciso (máximo 150 palabras en el cuerpo)
+- Para primer contacto: preséntate brevemente, menciona por qué contactas específicamente a esta empresa/sector, propón una llamada de 15 minutos
+- Para seguimientos: referencia el correo anterior, agrega un nuevo valor o insight relevante para su sector, reitera la propuesta de reunión
+- NO uses frases genéricas de ventas
+- Firma como: [Tu nombre] | Líder de Innovación & Empaque Flexible
+
+Responde SOLO en formato JSON así (sin markdown):
+{"subject":"asunto aquí","body":"cuerpo del correo aquí con saltos de línea como \\n"}`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await resp.json();
+    const raw = data.content[0].text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(raw);
+    document.getElementById('emailSubject').value = parsed.subject||'';
+    document.getElementById('emailBody').value = (parsed.body||'').replace(/\\n/g,'\n');
+    document.getElementById('emailGenerating').style.display = 'none';
+    document.getElementById('emailOutput').style.display = 'block';
+  } catch(e) {
+    document.getElementById('emailGenerating').style.display = 'none';
+    alert('Error generando correo: ' + e.message);
+  }
+};
+
+window.openGmail = function() {
+  const to = document.getElementById('p_email').value;
+  const subject = encodeURIComponent(document.getElementById('emailSubject').value);
+  const body = encodeURIComponent(document.getElementById('emailBody').value);
+  window.open(`https://mail.google.com/mail/?view=cm&to=${to}&su=${subject}&body=${body}`, '_blank');
+};
+
+window.copyEmail = function() {
+  const subject = document.getElementById('emailSubject').value;
+  const body = document.getElementById('emailBody').value;
+  navigator.clipboard.writeText(`Asunto: ${subject}\n\n${body}`);
+  showSync('ok','Correo copiado al portapapeles');
+};
+
+window.saveEmailToLog = async function() {
+  if (!currentProspectoId) return;
+  const p = prospectos.find(x => x.id === currentProspectoId);
+  const log = [...(p?.emailLog||[]), {
+    type: currentEmailType,
+    subject: document.getElementById('emailSubject').value,
+    date: new Date().toLocaleString('es-MX'),
+    isoDate: today()
+  }];
+  // also update status
+  const statusMap = { 'primer-toque':'primer-toque', 'seguimiento-1':'seguimiento-1', 'seguimiento-2':'seguimiento-2', 'seguimiento-3':'seguimiento-3' };
+  const newStatus = statusMap[currentEmailType] || p.status;
+  // add bitacora entry
+  const bitacora = [...(p?.bitacora||[]), {
+    date: new Date().toLocaleString('es-MX'),
+    isoDate: today(),
+    text: `Correo enviado: ${currentEmailType} — "${document.getElementById('emailSubject').value}"`
+  }];
+  showSync('saving','Guardando...');
+  try {
+    await setDoc(doc(db,'prospectos',currentProspectoId), { emailLog: log, status: newStatus, bitacora }, { merge: true });
+    showSync('ok','Registrado como enviado ✓');
+    renderEmailHistory(log);
+    renderPBitacora({ ...p, bitacora });
+  } catch(e) { showSync('err','Error'); }
+};
+
+function renderEmailHistory(log) {
+  const el = document.getElementById('emailHistory');
+  if (!el) return;
+  if (!log?.length) { el.innerHTML = ''; return; }
+  el.innerHTML = '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);font-family:'DM Mono',monospace;margin-bottom:10px">Historial de correos enviados</div>' +
+    [...log].reverse().map(e => `<div class="bitacora-entry" style="border-color:var(--accent3)">
+      <div class="bitacora-date">${e.date}</div>
+      <div class="bitacora-text" style="font-weight:600">${e.type} — ${e.subject}</div>
+    </div>`).join('');
+}
+
+function renderPBitacora(p) {
+  const entries = p?.bitacora||[];
+  const el = document.getElementById('pBitacoraEntries');
+  if (!el) return;
+  el.innerHTML = entries.length===0
+    ? '<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Sin eventos registrados.</div>'
+    : [...entries].reverse().map(e => `<div class="bitacora-entry">
+        <div class="bitacora-date">${e.date}</div>
+        <div class="bitacora-text">${e.text}</div>
+      </div>`).join('');
+}
+
+window.addPBitacora = async function() {
+  const text = document.getElementById('pNewEntry').value.trim();
+  if (!text || !currentProspectoId) return;
+  const p = prospectos.find(x => x.id === currentProspectoId);
+  const bitacora = [...(p?.bitacora||[]), { date: new Date().toLocaleString('es-MX'), isoDate: today(), text }];
+  document.getElementById('pNewEntry').value = '';
+  renderPBitacora({ bitacora });
+  showSync('saving','Guardando...');
+  try {
+    await setDoc(doc(db,'prospectos',currentProspectoId), { bitacora }, { merge: true });
+    showSync('ok','Guardado ✓');
+  } catch(e) { showSync('err','Error'); }
+};
+
+window.saveProspecto = async function() {
+  const empresa = document.getElementById('p_empresa').value.trim();
+  const nombre  = document.getElementById('p_nombre').value.trim();
+  if (!empresa) { alert('El nombre de la empresa es requerido.'); return; }
+  const btn = document.getElementById('pBtnSave');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  showSync('saving','Guardando...');
+
+  const p = currentProspectoId ? prospectos.find(x => x.id === currentProspectoId) : null;
+  // gather extra contacts from DOM
+  const extraInputs = document.querySelectorAll('#p_extraContacts > div');
+  const extraContacts = Array.from(extraInputs).map(row => {
+    const inputs = row.querySelectorAll('input');
+    return { nombre: inputs[0]?.value||'', cargo: inputs[1]?.value||'', email: inputs[2]?.value||'', tel: inputs[3]?.value||'' };
+  });
+
+  const data = {
+    empresa, nombre,
+    sector:    document.getElementById('p_sector').value,
+    ubicacion: document.getElementById('p_ubicacion').value,
+    status:    document.getElementById('p_status').value,
+    atributos: document.getElementById('p_atributos').value,
+    cargo:     document.getElementById('p_cargo').value,
+    email:     document.getElementById('p_email').value,
+    tel:       document.getElementById('p_tel').value,
+    linkedin:  document.getElementById('p_linkedin').value,
+    extraContacts,
+    updatedAt: serverTimestamp(),
+  };
+
+  try {
+    if (currentProspectoId) {
+      await setDoc(doc(db,'prospectos',currentProspectoId), data, { merge: true });
+    } else {
+      data.createdDate = today();
+      data.bitacora = [{ date: new Date().toLocaleString('es-MX'), isoDate: today(), text: 'Prospecto creado' }];
+      data.emailLog = [];
+      await setDoc(doc(db,'prospectos', Date.now().toString()), data);
+    }
+    showSync('ok','Guardado ✓');
+    closePModal();
+  } catch(e) {
+    showSync('err','Error al guardar');
+    alert('Error: ' + e.message);
+  }
+  btn.disabled = false; btn.textContent = 'Guardar Prospecto';
+};
+
+window.deleteProspecto = async function() {
+  if (!currentProspectoId || !confirm('Eliminar este prospecto?')) return;
+  try {
+    await deleteDoc(doc(db,'prospectos',currentProspectoId));
+    showSync('ok','Eliminado');
+    closePModal();
+  } catch(e) { showSync('err','Error'); }
+};
+
+window.convertToLead = function() { quickConvert(currentProspectoId); };
+
+window.quickConvert = function(pid) {
+  const p = prospectos.find(x => x.id === pid);
+  if (!p) return;
+  closePModal();
+  // Pre-fill lead modal with prospecto data
+  openModal(null);
+  document.getElementById('f_name').value     = p.empresa||'';
+  document.getElementById('f_owner').value    = '';
+  document.getElementById('f_contacts').value = p.nombre ? `${p.nombre}${p.cargo?' - '+p.cargo:''}` : '';
+  showSync('ok','Datos precargados — completa el lead y guarda');
+};
+
+window.closePModal = function() { document.getElementById('pModalOverlay').classList.remove('open'); };
+window.handlePOverlayClick = function(e) { if (e.target===document.getElementById('pModalOverlay')) closePModal(); };
+
+// refresh prospectos view
+const _origRefresh = refreshCurrentView;
 
 // Global search
 document.getElementById('globalSearch').addEventListener('input', () => {
