@@ -580,15 +580,28 @@ function showSync(state, msg) {
   if (state !== 'saving') setTimeout(() => bar.classList.remove('show'), 2500);
 }
 
-// ─── REALTIME LISTENER ───────────────────────────────────────────────────────
+// ─── REALTIME LISTENERS ─────────────────────────────────────────────────────
+// Both collections must load before hiding the loading screen
+let _leadsReady = false;
+let _prospectoCol = collection(db, 'prospectos');
+
 onSnapshot(leadsCol, (snapshot) => {
   leads = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  _leadsReady = true;
   document.getElementById('loadingScreen').classList.add('hide');
   refreshCurrentView();
 }, (err) => {
-  console.error(err);
+  console.error('leads error:', err);
   document.getElementById('loadingScreen').classList.add('hide');
-  showSync('err', 'Error de conexión');
+  showSync('err', 'Error de conexión: ' + err.code);
+});
+
+// Prospectos listener — defined here so it uses the same db instance
+onSnapshot(_prospectoCol, (snap) => {
+  prospectos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  if (currentView === 'prospectos') renderProspectos();
+}, (err) => {
+  console.error('prospectos error:', err);
 });
 
 function refreshCurrentView() {
@@ -997,8 +1010,6 @@ window.deleteLead = async function() {
 let prospectos = [];
 let currentProspectoId = null;
 let currentEmailType = null;
-const prospectoCol = collection(db, 'prospectos');
-
 const P_STATUS_COLORS = {
   'nuevo':         { bg: 'rgba(108,99,255,.15)', color: '#6c63ff' },
   'primer-toque':  { bg: 'rgba(0,180,216,.15)',  color: '#00b4d8' },
@@ -1008,11 +1019,6 @@ const P_STATUS_COLORS = {
   'calificado':    { bg: 'rgba(0,212,168,.15)',  color: '#00d4a8' },
   'descartado':    { bg: 'rgba(255,71,87,.15)',   color: '#ff4757' },
 };
-
-onSnapshot(prospectoCol, (snap) => {
-  prospectos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  if (currentView === 'prospectos') renderProspectos();
-});
 
 window.renderProspectos = function() {
   const q   = (document.getElementById('pSearch')?.value||'').toLowerCase();
