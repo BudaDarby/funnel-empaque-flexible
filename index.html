@@ -5,222 +5,149 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Funnel Manager — Empaque Flexible</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0c0f;
-    --surface: #111318;
-    --surface2: #181c24;
-    --border: #222830;
-    --accent: #00d4a8;
-    --accent2: #ff6b35;
-    --accent3: #6c63ff;
-    --warn: #ffbe0b;
-    --text: #e8eaf0;
-    --text2: #7a8190;
-    --text3: #454c5a;
-    --red: #ff4757;
-    --radius: 10px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; overflow-x: hidden; }
-  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; opacity: .4; }
-
-  /* LOADING SCREEN */
-  #loadingScreen { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity .4s; }
-  #loadingScreen.hide { opacity: 0; pointer-events: none; }
-  .loader-ring { width: 48px; height: 48px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loader-text { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text2); }
-
-  /* SYNC INDICATOR */
-  #syncBar { position: fixed; bottom: 20px; right: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-family: 'DM Mono', monospace; font-size: 12px; display: flex; align-items: center; gap: 8px; z-index: 500; transition: all .3s; opacity: 0; transform: translateY(8px); }
-  #syncBar.show { opacity: 1; transform: translateY(0); }
-  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); animation: pulse 1s infinite; }
-  .sync-dot.ok { background: var(--accent); animation: none; }
-  .sync-dot.err { background: var(--red); animation: none; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-  header { display: flex; align-items: center; justify-content: space-between; padding: 18px 32px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(10,12,15,.92); backdrop-filter: blur(12px); z-index: 100; }
-  .logo { display: flex; align-items: center; gap: 12px; }
-  .logo-mark { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent), var(--accent3)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #000; }
-  .logo-text { font-size: 15px; font-weight: 700; letter-spacing: .05em; }
-  .logo-sub { font-size: 11px; color: var(--text2); font-family: 'DM Mono', monospace; letter-spacing: .1em; text-transform: uppercase; }
-  .header-actions { display: flex; gap: 10px; align-items: center; }
-  .btn { padding: 8px 18px; border-radius: 7px; border: none; cursor: pointer; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; transition: all .2s; }
-  .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
-  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-primary { background: var(--accent); color: #000; }
-  .btn-primary:hover { background: #00f0c0; transform: translateY(-1px); }
-  .btn-danger { background: transparent; color: var(--red); border: 1px solid rgba(255,71,87,.3); }
-  .btn-danger:hover { background: rgba(255,71,87,.1); }
-
-  .views { display: none; }
-  .views.active { display: block; }
-
-  .nav-tabs { display: flex; gap: 4px; padding: 0 32px; border-bottom: 1px solid var(--border); background: var(--surface); overflow-x: auto; }
-  .nav-tab { padding: 14px 20px; font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; transition: all .2s; letter-spacing: .03em; white-space: nowrap; }
-  .nav-tab:hover { color: var(--text); }
-  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-  .main { padding: 28px 32px; }
-
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; position: relative; overflow: hidden; }
-  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-  .stats-grid .stat-card:nth-child(1)::before { background: var(--accent); }
-  .stats-grid .stat-card:nth-child(2)::before { background: var(--accent2); }
-  .stats-grid .stat-card:nth-child(3)::before { background: var(--accent3); }
-  .stats-grid .stat-card:nth-child(4)::before { background: var(--warn); }
-  .stats-grid .stat-card:nth-child(5)::before { background: var(--red); }
-  .stat-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: .1em; font-family: 'DM Mono', monospace; margin-bottom: 8px; }
-  .stat-value { font-size: 28px; font-weight: 800; line-height: 1; }
-  .stat-sub { font-size: 12px; color: var(--text2); margin-top: 6px; font-family: 'DM Mono', monospace; }
-
-  .funnel-container { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 28px; }
-  .funnel-title { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--text2); font-family: 'DM Mono', monospace; margin-bottom: 20px; }
-  .funnel-stages { display: flex; gap: 6px; align-items: flex-end; height: 100px; }
-  .funnel-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  .funnel-bar { width: 100%; border-radius: 4px 4px 0 0; transition: all .4s; cursor: pointer; min-height: 4px; }
-  .funnel-bar:hover { filter: brightness(1.3); }
-  .funnel-bar-label { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text2); text-align: center; }
-  .funnel-bar-count { font-size: 16px; font-weight: 800; text-align: center; }
-
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-  .section-title { font-size: 18px; font-weight: 700; }
-  .filter-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .filter-select { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 7px; font-family: 'Syne', sans-serif; font-size: 13px; cursor: pointer; }
-  .filter-select:focus { outline: none; border-color: var(--accent); }
-  .search-input { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 7px; font-family: 'DM Mono', monospace; font-size: 13px; min-width: 220px; }
-  .search-input:focus { outline: none; border-color: var(--accent); }
-  .search-input::placeholder { color: var(--text3); }
-
-  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
-  table { width: 100%; border-collapse: collapse; }
-  thead tr { background: var(--surface2); }
-  thead th { padding: 12px 16px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--text2); font-family: 'DM Mono', monospace; font-weight: 500; border-bottom: 1px solid var(--border); white-space: nowrap; }
-  tbody tr { background: var(--surface); border-bottom: 1px solid var(--border); transition: background .15s; cursor: pointer; }
-  tbody tr:hover { background: var(--surface2); }
-  tbody tr:last-child { border-bottom: none; }
-  td { padding: 13px 16px; font-size: 13px; vertical-align: middle; }
-  .lead-name { font-weight: 700; font-size: 14px; }
-  .lead-owner { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text2); }
-
-  .stage-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-family: 'DM Mono', monospace; font-weight: 500; white-space: nowrap; display: inline-block; }
-  .type-badge { padding: 3px 9px; border-radius: 5px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
-  .type-organico { background: rgba(0,212,168,.15); color: var(--accent); }
-  .type-goget { background: rgba(255,107,53,.15); color: var(--accent2); }
-
-  .amount { font-family: 'DM Mono', monospace; font-size: 13px; }
-  .amount.big { color: var(--accent); }
-
-  .days-badge { font-family: 'DM Mono', monospace; font-size: 12px; padding: 3px 8px; border-radius: 5px; }
-  .days-ok { background: rgba(0,212,168,.1); color: var(--accent); }
-  .days-warn { background: rgba(255,190,11,.1); color: var(--warn); }
-  .days-late { background: rgba(255,71,87,.1); color: var(--red); }
-
-  /* MODAL */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(6px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .25s; }
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
-  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; width: 100%; max-width: 860px; max-height: 90vh; overflow-y: auto; padding: 32px; position: relative; transform: translateY(20px); transition: transform .25s; }
-  .modal-overlay.open .modal { transform: translateY(0); }
-  .modal-close { position: absolute; top: 20px; right: 20px; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-  .modal-close:hover { color: var(--text); border-color: var(--text2); }
-  .modal-header { margin-bottom: 28px; }
-  .modal-lead-name { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
-  .modal-meta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
-  .form-group.full { grid-column: 1 / -1; }
-  .form-label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--text2); font-family: 'DM Mono', monospace; }
-  .form-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 13px; transition: border-color .2s; }
-  .form-input:focus { outline: none; border-color: var(--accent); }
-  .form-input::placeholder { color: var(--text3); }
-  textarea.form-input { resize: vertical; min-height: 80px; }
-
-  .modal-section { margin-bottom: 24px; }
-  .modal-section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); font-family: 'DM Mono', monospace; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-
-  .checklist { display: flex; flex-direction: column; gap: 8px; }
-  .check-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg); border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: border-color .2s; }
-  .check-item:hover { border-color: var(--accent); }
-  .check-item.done { opacity: .6; }
-  .check-item.done .check-text { text-decoration: line-through; color: var(--text2); }
-  .check-box { width: 18px; height: 18px; border-radius: 5px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; transition: all .2s; }
-  .check-item.done .check-box { background: var(--accent); border-color: var(--accent); color: #000; }
-  .check-text { font-size: 13px; flex: 1; }
-
-  .stage-selector { display: flex; flex-wrap: wrap; gap: 8px; }
-  .stage-option { padding: 7px 14px; border-radius: 7px; border: 1px solid var(--border); font-size: 12px; font-family: 'DM Mono', monospace; cursor: pointer; transition: all .2s; background: var(--bg); color: var(--text2); }
-  .stage-option:hover { border-color: var(--accent); color: var(--accent); }
-  .stage-option.selected { color: #000 !important; }
-
-  .time-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
-  .time-cell { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
-  .time-cell-label { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--text2); text-transform: uppercase; margin-bottom: 4px; }
-  .time-cell-value { font-size: 20px; font-weight: 800; font-family: 'DM Mono', monospace; }
-
-  .bitacora-entry { background: var(--bg); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 10px; }
-  .bitacora-date { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text2); margin-bottom: 4px; }
-  .bitacora-text { font-size: 13px; line-height: 1.6; }
-  .bitacora-add { display: flex; gap: 10px; margin-top: 12px; }
-
-  .kanban-board { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 16px; min-height: 400px; }
-  .kanban-col { min-width: 220px; max-width: 260px; flex-shrink: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
-  .kanban-col-header { padding: 14px 16px; border-bottom: 1px solid var(--border); }
-  .kanban-col-title { font-size: 12px; font-weight: 700; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 2px; }
-  .kanban-col-subtitle { font-size: 10px; color: var(--text2); font-family: 'DM Mono', monospace; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .kanban-col-count { font-size: 11px; color: var(--text3); }
-  .kanban-cards { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-  .kanban-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; cursor: pointer; transition: all .2s; }
-  .kanban-card:hover { border-color: var(--accent); transform: translateY(-1px); }
-  .kanban-card-name { font-weight: 700; font-size: 13px; margin-bottom: 6px; }
-  .kanban-card-meta { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text2); }
-
-  .progress-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 10px; }
-  .progress-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width .4s; }
-
-  .empty-state { text-align: center; padding: 60px 20px; color: var(--text3); }
-  .empty-state-icon { font-size: 40px; margin-bottom: 16px; }
-
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  @media (max-width: 768px) {
-    header { padding: 14px 16px; }
-    .main { padding: 20px 16px; }
-    .form-grid { grid-template-columns: 1fr; }
-    .header-actions .search-input { min-width: 130px; }
-  }
+:root{--bg:#0a0c0f;--surface:#111318;--surface2:#181c24;--border:#222830;--accent:#00d4a8;--accent2:#ff6b35;--accent3:#6c63ff;--warn:#ffbe0b;--text:#e8eaf0;--text2:#7a8190;--text3:#454c5a;--red:#ff4757;--radius:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
+#loadingScreen{position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .4s}
+#loadingScreen.hide{opacity:0;pointer-events:none}
+.loader-ring{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-family:'DM Mono',monospace;font-size:13px;color:var(--text2)}
+#syncBar{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-family:'DM Mono',monospace;font-size:12px;display:flex;align-items:center;gap:8px;z-index:500;transition:all .3s;opacity:0;transform:translateY(8px)}
+#syncBar.show{opacity:1;transform:translateY(0)}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--warn);animation:pulse 1s infinite}
+.sync-dot.ok{background:var(--accent);animation:none}.sync-dot.err{background:var(--red);animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,12,15,.93);backdrop-filter:blur(12px);z-index:100}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#000}
+.logo-text{font-size:15px;font-weight:700;letter-spacing:.05em}
+.logo-sub{font-size:11px;color:var(--text2);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase}
+.header-actions{display:flex;gap:10px;align-items:center}
+.btn{padding:8px 18px;border-radius:7px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-size:13px;font-weight:600;transition:all .2s}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-primary{background:var(--accent);color:#000}.btn-primary:hover{background:#00f0c0;transform:translateY(-1px)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid rgba(255,71,87,.3)}.btn-danger:hover{background:rgba(255,71,87,.1)}
+.views{display:none}.views.active{display:block}
+.nav-tabs{display:flex;gap:4px;padding:0 32px;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto}
+.nav-tab{padding:14px 20px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.nav-tab:hover{color:var(--text)}.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.main{padding:28px 32px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
+.section-title{font-size:18px;font-weight:700}
+.filter-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.filter-select{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:7px;font-family:'Syne',sans-serif;font-size:13px;cursor:pointer}
+.filter-select:focus{outline:none;border-color:var(--accent)}
+.search-input{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:7px;font-family:'DM Mono',monospace;font-size:13px;min-width:200px}
+.search-input:focus{outline:none;border-color:var(--accent)}.search-input::placeholder{color:var(--text3)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stats-grid .stat-card:nth-child(1)::before{background:var(--accent)}
+.stats-grid .stat-card:nth-child(2)::before{background:var(--accent2)}
+.stats-grid .stat-card:nth-child(3)::before{background:var(--accent3)}
+.stats-grid .stat-card:nth-child(4)::before{background:var(--warn)}
+.stat-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;font-family:'DM Mono',monospace;margin-bottom:8px}
+.stat-value{font-size:28px;font-weight:800;line-height:1}
+.stat-sub{font-size:12px;color:var(--text2);margin-top:6px;font-family:'DM Mono',monospace}
+.funnel-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:28px}
+.funnel-title{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'DM Mono',monospace;margin-bottom:20px}
+.funnel-stages{display:flex;gap:6px;align-items:flex-end;height:100px}
+.funnel-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.funnel-bar{width:100%;border-radius:4px 4px 0 0;transition:all .4s;cursor:pointer;min-height:4px}
+.funnel-bar:hover{filter:brightness(1.3)}
+.funnel-bar-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--text2);text-align:center}
+.funnel-bar-count{font-size:16px;font-weight:800;text-align:center}
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--surface2)}
+thead th{padding:12px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);font-family:'DM Mono',monospace;font-weight:500;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr{background:var(--surface);border-bottom:1px solid var(--border);transition:background .15s;cursor:pointer}
+tbody tr:hover{background:var(--surface2)}tbody tr:last-child{border-bottom:none}
+td{padding:13px 16px;font-size:13px;vertical-align:middle}
+.lead-name{font-weight:700;font-size:14px}.lead-owner{font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)}
+.stage-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-family:'DM Mono',monospace;font-weight:500;white-space:nowrap;display:inline-block}
+.type-badge{padding:3px 9px;border-radius:5px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.type-organico{background:rgba(0,212,168,.15);color:var(--accent)}.type-goget{background:rgba(255,107,53,.15);color:var(--accent2)}
+.amount{font-family:'DM Mono',monospace;font-size:13px}.amount.big{color:var(--accent)}
+.days-badge{font-family:'DM Mono',monospace;font-size:12px;padding:3px 8px;border-radius:5px}
+.days-ok{background:rgba(0,212,168,.1);color:var(--accent)}.days-warn{background:rgba(255,190,11,.1);color:var(--warn)}.days-late{background:rgba(255,71,87,.1);color:var(--red)}
+.kanban-board{display:flex;gap:14px;overflow-x:auto;padding-bottom:16px;min-height:400px}
+.kanban-col{min-width:220px;max-width:260px;flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+.kanban-col-header{padding:14px 16px;border-bottom:1px solid var(--border)}
+.kanban-col-title{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.kanban-col-subtitle{font-size:10px;color:var(--text2);font-family:'DM Mono',monospace;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kanban-col-count{font-size:11px;color:var(--text3)}
+.kanban-cards{padding:10px;display:flex;flex-direction:column;gap:8px}
+.kanban-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all .2s}
+.kanban-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.kanban-card-name{font-weight:700;font-size:13px;margin-bottom:6px}
+.kanban-card-meta{font-size:11px;font-family:'DM Mono',monospace;color:var(--text2)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:100%;max-width:860px;max-height:90vh;overflow-y:auto;padding:32px;position:relative;transform:translateY(20px);transition:transform .25s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-close{position:absolute;top:20px;right:20px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{color:var(--text)}
+.modal-header{margin-bottom:28px}
+.modal-lead-name{font-size:24px;font-weight:800;margin-bottom:6px}
+.modal-meta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.modal-section{margin-bottom:24px}
+.modal-section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-family:'DM Mono',monospace;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);font-family:'DM Mono',monospace}
+.form-input{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;transition:border-color .2s}
+.form-input:focus{outline:none;border-color:var(--accent)}.form-input::placeholder{color:var(--text3)}
+textarea.form-input{resize:vertical;min-height:80px}
+.stage-selector{display:flex;flex-wrap:wrap;gap:8px}
+.stage-option{padding:7px 14px;border-radius:7px;border:1px solid var(--border);font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .2s;background:var(--bg);color:var(--text2)}
+.stage-option:hover{border-color:var(--accent);color:var(--accent)}.stage-option.selected{color:#000!important}
+.checklist{display:flex;flex-direction:column;gap:8px}
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border-radius:8px;border:1px solid var(--border);cursor:pointer;transition:border-color .2s}
+.check-item:hover{border-color:var(--accent)}.check-item.done{opacity:.6}
+.check-item.done .check-text{text-decoration:line-through;color:var(--text2)}
+.check-box{width:18px;height:18px;border-radius:5px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s}
+.check-item.done .check-box{background:var(--accent);border-color:var(--accent);color:#000}
+.check-text{font-size:13px;flex:1}
+.time-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+.time-cell{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.time-cell-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--text2);text-transform:uppercase;margin-bottom:4px}
+.time-cell-value{font-size:20px;font-weight:800;font-family:'DM Mono',monospace}
+.bitacora-entry{background:var(--bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:10px}
+.bitacora-date{font-size:11px;font-family:'DM Mono',monospace;color:var(--text2);margin-bottom:4px}
+.bitacora-text{font-size:13px;line-height:1.6}
+.progress-bar{height:4px;background:var(--border);border-radius:2px;margin-top:10px}
+.progress-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .4s}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-state-icon{font-size:40px;margin-bottom:16px}
+.inner-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:24px}
+.inner-tab{padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;transition:all .2s}
+.inner-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@media(max-width:768px){header{padding:14px 16px}.main{padding:20px 16px}.form-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
 <div id="loadingScreen">
   <div class="loader-ring"></div>
-  <div class="loader-text">Conectando con Firebase...</div>
+  <div class="loader-text" id="loadMsg">Conectando con Firebase...</div>
+  <div id="loadDiag" style="font-family:'DM Mono',monospace;font-size:11px;color:#6c63ff;max-width:400px;text-align:center;line-height:1.8;margin-top:8px"></div>
 </div>
-
-<!-- SYNC BAR -->
-<div id="syncBar">
-  <div class="sync-dot" id="syncDot"></div>
-  <span id="syncText">Guardando...</span>
-</div>
+<div id="syncBar"><div class="sync-dot" id="syncDot"></div><span id="syncText">Guardando...</span></div>
 
 <header>
   <div class="logo">
     <div class="logo-mark">EF</div>
-    <div>
-      <div class="logo-text">Funnel Manager</div>
-      <div class="logo-sub">Empaque Flexible · Innovación</div>
-    </div>
+    <div><div class="logo-text">Funnel Manager</div><div class="logo-sub">Empaque Flexible · Innovación</div></div>
   </div>
   <div class="header-actions">
     <input class="search-input" id="globalSearch" placeholder="Buscar lead...">
-    <button class="btn btn-primary" onclick="openModal(null)">+ Nuevo Lead</button>
+    <button class="btn btn-primary" id="btnNewMain">+ Nuevo Lead</button>
   </div>
 </header>
 
@@ -254,36 +181,21 @@
       <div class="filter-row">
         <select class="filter-select" id="filterStage" onchange="renderTable()">
           <option value="">Todas las etapas</option>
-          <option value="ID01">ID01 – Identificación</option>
-          <option value="ID02">ID02 – Mapeo</option>
-          <option value="ID03">ID03 – Primer Acercamiento</option>
-          <option value="ID04">ID04 – Acceso TDDs</option>
-          <option value="ID05">ID05 – Cotización</option>
-          <option value="ID06">ID06 – Pruebas Técnicas</option>
-          <option value="ID07">ID07 – Lote Industrial</option>
-          <option value="ID08">ID08 – Uso y Firma</option>
-          <option value="ID09">ID09 – Primeras OC</option>
-          <option value="ID10">ID10 – Proyección</option>
-          <option value="GANADO">Cerrado – Ganado</option>
-          <option value="PERDIDO">Cerrado – Perdido</option>
+          <option value="ID01">ID01</option><option value="ID02">ID02</option><option value="ID03">ID03</option>
+          <option value="ID04">ID04</option><option value="ID05">ID05</option><option value="ID06">ID06</option>
+          <option value="ID07">ID07</option><option value="ID08">ID08</option><option value="ID09">ID09</option>
+          <option value="ID10">ID10</option><option value="GANADO">Ganado</option><option value="PERDIDO">Perdido</option>
         </select>
         <select class="filter-select" id="filterType" onchange="renderTable()">
-          <option value="">Todos los tipos</option>
-          <option value="organico">Orgánico</option>
-          <option value="goget">Go-Get</option>
+          <option value="">Todos los tipos</option><option value="organico">Orgánico</option><option value="goget">Go-Get</option>
         </select>
       </div>
     </div>
     <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th><th>Lead</th><th>Owner</th><th>Etapa</th><th>Tipo</th>
-            <th>TAM</th><th>SOM</th><th>Prob.</th><th>SOM Pond.</th><th>Días en Etapa</th><th>Días Totales</th>
-          </tr>
-        </thead>
-        <tbody id="leadsTableBody"></tbody>
-      </table>
+      <table><thead><tr>
+        <th>#</th><th>Lead</th><th>Owner</th><th>Etapa</th><th>Tipo</th>
+        <th>TAM</th><th>SOM</th><th>Prob.</th><th>SOM Pond.</th><th>Días Etapa</th><th>Días Total</th>
+      </tr></thead><tbody id="leadsTableBody"></tbody></table>
     </div>
   </div>
 </div>
@@ -296,7 +208,7 @@
   </div>
 </div>
 
-<!-- PROSPECTOS VIEW -->
+<!-- PROSPECTOS -->
 <div class="views" id="view-prospectos">
   <div class="main">
     <div class="section-header">
@@ -307,108 +219,151 @@
       <div class="filter-row">
         <select class="filter-select" id="pFilterStatus" onchange="renderProspectos()">
           <option value="">Todos los estados</option>
-          <option value="nuevo">Nuevo</option>
-          <option value="primer-toque">Primer Toque</option>
-          <option value="seguimiento-1">Seguimiento 1</option>
-          <option value="seguimiento-2">Seguimiento 2</option>
-          <option value="seguimiento-3">Seguimiento 3</option>
-          <option value="calificado">Calificado</option>
+          <option value="nuevo">Nuevo</option><option value="primer-toque">Primer Toque</option>
+          <option value="seguimiento-1">Seguimiento 1</option><option value="seguimiento-2">Seguimiento 2</option>
+          <option value="seguimiento-3">Seguimiento 3</option><option value="calificado">Calificado</option>
           <option value="descartado">Descartado</option>
         </select>
-        <input class="search-input" id="pSearch" placeholder="Buscar prospecto..." oninput="renderProspectos()" style="min-width:180px">
-        <button class="btn btn-primary" onclick="openProspectoModal(null)">+ Nuevo Prospecto</button>
+        <input class="search-input" id="pSearch" placeholder="Buscar prospecto..." oninput="renderProspectos()">
+        <button class="btn btn-primary" onclick="openPModal(null)">+ Nuevo Prospecto</button>
       </div>
     </div>
     <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th><th>Empresa</th><th>Contacto</th><th>Cargo</th><th>Sector</th><th>Ubicacion</th><th>Estado</th><th>Ultimo Toque</th><th>Dias sin contacto</th><th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="prospectoTableBody"></tbody>
-      </table>
+      <table><thead><tr>
+        <th>#</th><th>Empresa</th><th>Contacto</th><th>Cargo</th><th>Sector</th><th>Ubicación</th>
+        <th>Estado</th><th>Último Toque</th><th>Días sin contacto</th><th>Acción</th>
+      </tr></thead><tbody id="prospectoTableBody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LEAD -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-header">
+      <div id="modalLeadName" class="modal-lead-name">Nuevo Lead</div>
+      <div class="modal-meta" id="modalMeta"></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">📋 Información General</div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Nombre del Lead *</label><input class="form-input" id="f_name" placeholder="Empresa / Proyecto"></div>
+        <div class="form-group"><label class="form-label">Owner</label><input class="form-input" id="f_owner" placeholder="Responsable"></div>
+        <div class="form-group full"><label class="form-label">Contactos Clave</label><input class="form-input" id="f_contacts" placeholder="Nombre - Cargo, Nombre - Cargo"></div>
+        <div class="form-group"><label class="form-label">Tipo</label><select class="form-input" id="f_type"><option value="organico">Orgánico</option><option value="goget">Go-Get</option></select></div>
+        <div class="form-group"><label class="form-label">Fecha Inicio</label><input class="form-input" id="f_startDate" type="date"></div>
+        <div class="form-group"><label class="form-label">Fecha Go-Get</label><input class="form-input" id="f_goGetDate" type="date"></div>
+        <div class="form-group"><label class="form-label">Fecha Inicio Venta</label><input class="form-input" id="f_saleDate" type="date"></div>
+      </div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">🎯 Etapa del Funnel</div>
+      <div class="stage-selector" id="stageSelectorEl"></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">💰 Financieros & Capacidad</div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">TAM (USD/año)</label><input class="form-input" id="f_tam" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">SAM (USD/año)</label><input class="form-input" id="f_sam" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">SOM (USD/año)</label><input class="form-input" id="f_som" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">TP (Precio referencia)</label><input class="form-input" id="f_tp" placeholder="Precio/unidad"></div>
+        <div class="form-group"><label class="form-label">Capacidad Venta Anual</label><input class="form-input" id="f_capacidad" placeholder="Unidades/toneladas"></div>
+        <div class="form-group"><label class="form-label">Volumen Mkt Anual</label><input class="form-input" id="f_mktVol" placeholder="Volumen proyectado"></div>
+      </div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">✅ Checklist <span id="checklistStageLabel" style="color:var(--text2);font-size:11px;font-weight:400"></span></div>
+      <div class="checklist" id="checklistEl"></div>
+      <div class="progress-bar"><div class="progress-fill" id="checklistProgress" style="width:0%"></div></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">⏱ Tiempo en Funnel</div>
+      <div class="time-grid" id="timeGridEl"></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">📓 Bitácora</div>
+      <div id="bitacoraEntries"></div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <textarea class="form-input" id="newBitacoraEntry" rows="2" placeholder="Agregar nota..."></textarea>
+        <button class="btn btn-ghost" onclick="addBitacoraEntry()" style="align-self:flex-end">Agregar</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <button class="btn btn-danger" id="btnDelete" onclick="deleteLead()" style="display:none">Eliminar</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" id="btnSave" onclick="saveLead()">Guardar Lead</button>
     </div>
   </div>
 </div>
 
 <!-- MODAL PROSPECTO -->
-<div class="modal-overlay" id="pModalOverlay" onclick="handlePOverlayClick(event)">
-  <div class="modal" id="pModal" style="max-width:940px">
-    <button class="modal-close" onclick="closePModal()">X</button>
+<div class="modal-overlay" id="pModalOverlay" onclick="if(event.target===this)closePModal()">
+  <div class="modal" style="max-width:920px">
+    <button class="modal-close" onclick="closePModal()">✕</button>
     <div class="modal-header">
       <div id="pModalTitle" class="modal-lead-name">Nuevo Prospecto</div>
       <div class="modal-meta" id="pModalMeta"></div>
     </div>
-    <div style="display:flex;gap:0;margin-bottom:24px;border-bottom:1px solid var(--border)" id="pTabsBar">
-      <div class="p-tab" data-ptab="info" onclick="switchPTab('info')" style="padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--accent);border-bottom:2px solid var(--accent)">Datos</div>
-      <div class="p-tab" data-ptab="email" onclick="switchPTab('email')" style="padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent">Correo</div>
-      <div class="p-tab" data-ptab="bitacora" onclick="switchPTab('bitacora')" style="padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent">Bitacora</div>
+    <div class="inner-tabs">
+      <div class="inner-tab active" data-tab="info" onclick="switchPTab('info')">📋 Datos</div>
+      <div class="inner-tab" data-tab="email" onclick="switchPTab('email')">✉️ Correo</div>
+      <div class="inner-tab" data-tab="bitacora" onclick="switchPTab('bitacora')">📓 Bitácora</div>
     </div>
     <div id="ptab-info">
       <div class="modal-section">
-        <div class="modal-section-title">Empresa</div>
+        <div class="modal-section-title">🏢 Empresa</div>
         <div class="form-grid">
           <div class="form-group"><label class="form-label">Empresa *</label><input class="form-input" id="p_empresa" placeholder="Nombre de la empresa"></div>
-          <div class="form-group"><label class="form-label">Sector / Industria</label><input class="form-input" id="p_sector" placeholder="FMCG, Petroquimica, etc."></div>
-          <div class="form-group"><label class="form-label">Ubicacion</label><input class="form-input" id="p_ubicacion" placeholder="Ciudad, Pais"></div>
-          <div class="form-group">
-            <label class="form-label">Estado</label>
+          <div class="form-group"><label class="form-label">Sector / Industria</label><input class="form-input" id="p_sector" placeholder="FMCG, Petroquímica..."></div>
+          <div class="form-group"><label class="form-label">Ubicación</label><input class="form-input" id="p_ubicacion" placeholder="Ciudad, País"></div>
+          <div class="form-group"><label class="form-label">Estado</label>
             <select class="form-input" id="p_status">
-              <option value="nuevo">Nuevo</option>
-              <option value="primer-toque">Primer Toque</option>
-              <option value="seguimiento-1">Seguimiento 1</option>
-              <option value="seguimiento-2">Seguimiento 2</option>
-              <option value="seguimiento-3">Seguimiento 3</option>
-              <option value="calificado">Calificado</option>
+              <option value="nuevo">Nuevo</option><option value="primer-toque">Primer Toque</option>
+              <option value="seguimiento-1">Seguimiento 1</option><option value="seguimiento-2">Seguimiento 2</option>
+              <option value="seguimiento-3">Seguimiento 3</option><option value="calificado">Calificado ✓</option>
               <option value="descartado">Descartado</option>
             </select>
           </div>
-          <div class="form-group full"><label class="form-label">Atributos de Valor</label><textarea class="form-input" id="p_atributos" rows="2" placeholder="Que valora esta empresa? Precio, servicio, innovacion, velocidad..."></textarea></div>
+          <div class="form-group full"><label class="form-label">Atributos de Valor</label><textarea class="form-input" id="p_atributos" rows="2" placeholder="¿Qué valora esta empresa?"></textarea></div>
         </div>
       </div>
       <div class="modal-section">
-        <div class="modal-section-title">Contacto Principal</div>
+        <div class="modal-section-title">👤 Contacto Principal</div>
         <div class="form-grid">
           <div class="form-group"><label class="form-label">Nombre *</label><input class="form-input" id="p_nombre" placeholder="Nombre completo"></div>
-          <div class="form-group"><label class="form-label">Cargo</label><input class="form-input" id="p_cargo" placeholder="Director de Compras, etc."></div>
+          <div class="form-group"><label class="form-label">Cargo</label><input class="form-input" id="p_cargo" placeholder="Director de Compras..."></div>
           <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="p_email" type="email" placeholder="correo@empresa.com"></div>
-          <div class="form-group"><label class="form-label">Telefono</label><input class="form-input" id="p_tel" placeholder="+52 55 0000 0000"></div>
+          <div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" id="p_tel" placeholder="+52 55 0000 0000"></div>
           <div class="form-group full"><label class="form-label">LinkedIn / Redes</label><input class="form-input" id="p_linkedin" placeholder="linkedin.com/in/..."></div>
         </div>
       </div>
       <div class="modal-section">
-        <div class="modal-section-title">Contactos Adicionales</div>
+        <div class="modal-section-title">👥 Contactos Adicionales</div>
         <div id="p_extraContacts"></div>
         <button class="btn btn-ghost" onclick="addExtraContact()" style="margin-top:8px;font-size:12px">+ Agregar contacto</button>
       </div>
     </div>
     <div id="ptab-email" style="display:none">
       <div class="modal-section">
-        <div class="modal-section-title">Generar Correo con IA</div>
+        <div class="modal-section-title">✉️ Generar Correo con IA</div>
         <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-          <button class="btn btn-ghost" onclick="generateEmail('primer-toque')" style="font-size:12px">Primer Toque</button>
-          <button class="btn btn-ghost" onclick="generateEmail('seguimiento-1')" style="font-size:12px">Seguimiento 1</button>
-          <button class="btn btn-ghost" onclick="generateEmail('seguimiento-2')" style="font-size:12px">Seguimiento 2</button>
-          <button class="btn btn-ghost" onclick="generateEmail('seguimiento-3')" style="font-size:12px">Seguimiento 3</button>
+          <button class="btn btn-ghost" onclick="generateEmail('primer-toque')" style="font-size:12px">📧 Primer Toque</button>
+          <button class="btn btn-ghost" onclick="generateEmail('seguimiento-1')" style="font-size:12px">🔁 Seguimiento 1</button>
+          <button class="btn btn-ghost" onclick="generateEmail('seguimiento-2')" style="font-size:12px">🔁 Seguimiento 2</button>
+          <button class="btn btn-ghost" onclick="generateEmail('seguimiento-3')" style="font-size:12px">🔁 Seguimiento 3</button>
         </div>
-        <div id="emailGenerating" style="display:none;text-align:center;padding:20px;color:var(--text2)">
-          <div class="loader-ring" style="margin:0 auto 10px"></div>
-          <div style="font-family:'DM Mono',monospace;font-size:13px">Generando con IA...</div>
+        <div id="emailGenerating" style="display:none;text-align:center;padding:24px">
+          <div class="loader-ring" style="margin:0 auto 12px"></div>
+          <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text2)">Generando con IA...</div>
         </div>
         <div id="emailOutput" style="display:none">
-          <div class="form-group" style="margin-bottom:12px">
-            <label class="form-label">Asunto</label>
-            <input class="form-input" id="emailSubject">
-          </div>
-          <div class="form-group" style="margin-bottom:16px">
-            <label class="form-label">Cuerpo del correo (editable)</label>
-            <textarea class="form-input" id="emailBody" rows="12" style="line-height:1.7"></textarea>
-          </div>
+          <div class="form-group" style="margin-bottom:12px"><label class="form-label">Asunto</label><input class="form-input" id="emailSubject"></div>
+          <div class="form-group" style="margin-bottom:16px"><label class="form-label">Cuerpo del correo (editable)</label><textarea class="form-input" id="emailBody" rows="12" style="line-height:1.7"></textarea></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn-primary" onclick="openGmail()">Abrir en Gmail</button>
-            <button class="btn btn-ghost" onclick="copyEmail()">Copiar texto</button>
-            <button class="btn btn-ghost" onclick="saveEmailToLog()" style="color:var(--accent)">Marcar como enviado</button>
+            <button class="btn btn-primary" onclick="openGmail()">📤 Abrir en Gmail</button>
+            <button class="btn btn-ghost" onclick="copyEmail()">📋 Copiar</button>
+            <button class="btn btn-ghost" onclick="saveEmailToLog()" style="color:var(--accent);border-color:rgba(0,212,168,.4)">✓ Marcar enviado</button>
           </div>
         </div>
         <div id="emailHistory" style="margin-top:20px"></div>
@@ -416,16 +371,16 @@
     </div>
     <div id="ptab-bitacora" style="display:none">
       <div class="modal-section">
-        <div class="modal-section-title">Bitacora de Eventos</div>
+        <div class="modal-section-title">📓 Bitácora de Eventos</div>
         <div id="pBitacoraEntries"></div>
         <div style="display:flex;gap:10px;margin-top:12px">
-          <textarea class="form-input" id="pNewEntry" rows="2" placeholder="Registrar evento, llamada, reunion..."></textarea>
+          <textarea class="form-input" id="pNewEntry" rows="2" placeholder="Registrar evento, llamada, reunión..."></textarea>
           <button class="btn btn-ghost" onclick="addPBitacora()" style="align-self:flex-end">Agregar</button>
         </div>
       </div>
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
-      <button class="btn btn-ghost" onclick="convertToLead()" id="btnConvert" style="display:none;color:var(--accent);border-color:rgba(0,212,168,.4)">Convertir a Lead</button>
+      <button class="btn btn-ghost" onclick="convertToLead()" id="btnConvert" style="display:none;color:var(--accent);border-color:rgba(0,212,168,.4)">🚀 Convertir a Lead</button>
       <button class="btn btn-danger" id="pBtnDelete" onclick="deleteProspecto()" style="display:none">Eliminar</button>
       <button class="btn btn-ghost" onclick="closePModal()">Cancelar</button>
       <button class="btn btn-primary" id="pBtnSave" onclick="saveProspecto()">Guardar Prospecto</button>
@@ -433,614 +388,296 @@
   </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
-  <div class="modal" id="modal">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-header">
-      <div id="modalLeadName" class="modal-lead-name">Nuevo Lead</div>
-      <div class="modal-meta" id="modalMeta"></div>
-    </div>
-
-    <div class="modal-section">
-      <div class="modal-section-title">📋 Información General</div>
-      <div class="form-grid">
-        <div class="form-group"><label class="form-label">Nombre del Lead *</label><input class="form-input" id="f_name" placeholder="Empresa / Proyecto"></div>
-        <div class="form-group"><label class="form-label">Owner</label><input class="form-input" id="f_owner" placeholder="Responsable"></div>
-        <div class="form-group full"><label class="form-label">Contactos Clave</label><input class="form-input" id="f_contacts" placeholder="Nombre - Cargo, Nombre - Cargo"></div>
-        <div class="form-group">
-          <label class="form-label">Tipo de Proyecto</label>
-          <select class="form-input" id="f_type"><option value="organico">Orgánico</option><option value="goget">Go-Get</option></select>
-        </div>
-        <div class="form-group"><label class="form-label">Fecha Inicio</label><input class="form-input" id="f_startDate" type="date"></div>
-        <div class="form-group"><label class="form-label">Fecha Go-Get</label><input class="form-input" id="f_goGetDate" type="date"></div>
-        <div class="form-group"><label class="form-label">Fecha Inicio Venta (real)</label><input class="form-input" id="f_saleDate" type="date"></div>
-      </div>
-    </div>
-
-    <div class="modal-section">
-      <div class="modal-section-title">🎯 Etapa del Funnel</div>
-      <div class="stage-selector" id="stageSelectorEl"></div>
-    </div>
-
-    <div class="modal-section">
-      <div class="modal-section-title">💰 Financieros & Capacidad</div>
-      <div class="form-grid">
-        <div class="form-group"><label class="form-label">TAM (USD / año)</label><input class="form-input" id="f_tam" type="number" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">SAM (USD / año)</label><input class="form-input" id="f_sam" type="number" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">SOM (USD / año)</label><input class="form-input" id="f_som" type="number" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">TP (Precio de referencia)</label><input class="form-input" id="f_tp" placeholder="Precio por unidad/kg/etc"></div>
-        <div class="form-group"><label class="form-label">Capacidad – Venta Anual</label><input class="form-input" id="f_capacidad" placeholder="Unidades / toneladas / etc"></div>
-        <div class="form-group"><label class="form-label">Marketing – Volumen Anual</label><input class="form-input" id="f_mktVol" placeholder="Volumen proyectado"></div>
-      </div>
-    </div>
-
-    <div class="modal-section">
-      <div class="modal-section-title">✅ Checklist de Etapa <span id="checklistStageLabel" style="color:var(--text2);font-size:11px;font-weight:400"></span></div>
-      <div class="checklist" id="checklistEl"></div>
-      <div class="progress-bar"><div class="progress-fill" id="checklistProgress" style="width:0%"></div></div>
-    </div>
-
-    <div class="modal-section">
-      <div class="modal-section-title">⏱ Tiempo en Funnel</div>
-      <div class="time-grid" id="timeGridEl"></div>
-    </div>
-
-    <div class="modal-section">
-      <div class="modal-section-title">📓 Bitácora</div>
-      <div id="bitacoraEntries"></div>
-      <div class="bitacora-add">
-        <textarea class="form-input" id="newBitacoraEntry" rows="2" placeholder="Agregar nota..."></textarea>
-        <button class="btn btn-ghost" onclick="addBitacoraEntry()" style="align-self:flex-end">Agregar</button>
-      </div>
-    </div>
-
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
-      <button class="btn btn-danger" id="btnDelete" onclick="deleteLead()" style="display:none">Eliminar Lead</button>
-      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" id="btnSave" onclick="saveLead()">Guardar Lead</button>
-    </div>
-  </div>
-</div>
-
-<!-- FIREBASE SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ─── FIREBASE CONFIG ─────────────────────────────────────────────────────────
-const firebaseConfig = {
-  apiKey: "AIzaSyBhWD2RYb8Fu8WgT7v1GQi0vOMoS2MPgjc",
-  authDomain: "funnel-empaque-flexible.firebaseapp.com",
-  projectId: "funnel-empaque-flexible",
-  storageBucket: "funnel-empaque-flexible.firebasestorage.app",
-  messagingSenderId: "191522004057",
-  appId: "1:191522004057:web:25fbfd57eaf45e7217a548"
-};
-
-const app = initializeApp(firebaseConfig);
+const app = initializeApp({
+  apiKey:"AIzaSyBhWD2RYb8Fu8WgT7v1GQi0vOMoS2MPgjc",
+  authDomain:"funnel-empaque-flexible.firebaseapp.com",
+  projectId:"funnel-empaque-flexible",
+  storageBucket:"funnel-empaque-flexible.firebasestorage.app",
+  messagingSenderId:"191522004057",
+  appId:"1:191522004057:web:25fbfd57eaf45e7217a548"
+});
 const db = getFirestore(app);
-const leadsCol = collection(db, 'leads');
 
-// ─── CONSTANTS ───────────────────────────────────────────────────────────────
-const STAGES = [
-  { id: 'ID01', label: 'ID01 – Identificación',       short: 'ID01',   color: '#6c63ff' },
-  { id: 'ID02', label: 'ID02 – Mapeo de Necesidad',   short: 'ID02',   color: '#00b4d8' },
-  { id: 'ID03', label: 'ID03 – Primer Acercamiento',  short: 'ID03',   color: '#00d4a8' },
-  { id: 'ID04', label: 'ID04 – Acceso TDDs',          short: 'ID04',   color: '#52b788' },
-  { id: 'ID05', label: 'ID05 – Cotización',           short: 'ID05',   color: '#ffbe0b' },
-  { id: 'ID06', label: 'ID06 – Pruebas Técnicas',     short: 'ID06',   color: '#ff9f1c' },
-  { id: 'ID07', label: 'ID07 – Lote Industrial',      short: 'ID07',   color: '#ff6b35' },
-  { id: 'ID08', label: 'ID08 – Uso y Firma',          short: 'ID08',   color: '#e63946' },
-  { id: 'ID09', label: 'ID09 – Primeras OC',          short: 'ID09',   color: '#c77dff' },
-  { id: 'ID10', label: 'ID10 – Proyección/Recompra',  short: 'ID10',   color: '#f72585' },
-  { id: 'GANADO',  label: 'Cerrado – Ganado',         short: 'GANADO', color: '#00d4a8' },
-  { id: 'PERDIDO', label: 'Cerrado – Perdido',        short: 'PERDIDO',color: '#ff4757' },
+// ── CONSTANTS ────────────────────────────────────────────────────────────────
+const STAGES=[
+  {id:'ID01',label:'ID01 – Identificación',short:'ID01',color:'#6c63ff'},
+  {id:'ID02',label:'ID02 – Mapeo de Necesidad',short:'ID02',color:'#00b4d8'},
+  {id:'ID03',label:'ID03 – Primer Acercamiento',short:'ID03',color:'#00d4a8'},
+  {id:'ID04',label:'ID04 – Acceso TDDs',short:'ID04',color:'#52b788'},
+  {id:'ID05',label:'ID05 – Cotización',short:'ID05',color:'#ffbe0b'},
+  {id:'ID06',label:'ID06 – Pruebas Técnicas',short:'ID06',color:'#ff9f1c'},
+  {id:'ID07',label:'ID07 – Lote Industrial',short:'ID07',color:'#ff6b35'},
+  {id:'ID08',label:'ID08 – Uso y Firma',short:'ID08',color:'#e63946'},
+  {id:'ID09',label:'ID09 – Primeras OC',short:'ID09',color:'#c77dff'},
+  {id:'ID10',label:'ID10 – Proyección/Recompra',short:'ID10',color:'#f72585'},
+  {id:'GANADO',label:'Cerrado – Ganado',short:'GANADO',color:'#00d4a8'},
+  {id:'PERDIDO',label:'Cerrado – Perdido',short:'PERDIDO',color:'#ff4757'},
 ];
-
-const CHECKLISTS = {
-  ID01: ['Familiaridad con segmentos','Valor de negocio identificado','Precio de referencia obtenido','Empresa en crecimiento verificada','Competidores identificados','Mapeo de contactos clave'],
-  ID02: ['Perfil de cliente (atributos de valor)','Propuesta de valor identificada','Ventaja competitiva definida'],
-  ID03: ['Pitch orientado a necesidades preparado','Demostración de competencias','Captura de información clave'],
-  ID04: ['Visitas a cliente realizadas','Mapa de relacionamiento creado'],
-  ID05: ['NDA firmado','Especificaciones recibidas','Análisis de precios realizado','Propuesta comercial preparada','Feedback de propuesta recibido','Negociación completada','Capacidad validada'],
-  ID06: ['Criterios de calidad definidos','Arte creado (muestras impresas)','Materiales comprados/verificados','Muestra desarrollada','Validación técnica (máquina y anaquel)','Validación de vida útil','Reporte de validación recibido'],
-  ID07: ['Plan de abastecimiento creado','Artículo creado en sistema','Cliente dado de alta en sistema','Fabricación completada','Lote entregado'],
-  ID08: ['Feedback del cliente recibido','Ajustes realizados'],
-  ID09: ['OC capturada','Artículos validados como PT'],
-  ID10: ['Forecast actualizado','Plan de abastecimiento actualizado'],
-  GANADO: [], PERDIDO: [],
+const CL={
+  ID01:['Familiaridad con segmentos','Valor de negocio identificado','Precio de referencia obtenido','Empresa en crecimiento verificada','Competidores identificados','Mapeo de contactos clave'],
+  ID02:['Perfil de cliente (atributos de valor)','Propuesta de valor identificada','Ventaja competitiva definida'],
+  ID03:['Pitch orientado a necesidades preparado','Demostración de competencias','Captura de información clave'],
+  ID04:['Visitas a cliente realizadas','Mapa de relacionamiento creado'],
+  ID05:['NDA firmado','Especificaciones recibidas','Análisis de precios realizado','Propuesta comercial preparada','Feedback de propuesta recibido','Negociación completada','Capacidad validada'],
+  ID06:['Criterios de calidad definidos','Arte creado (muestras impresas)','Materiales comprados/verificados','Muestra desarrollada','Validación técnica (máquina y anaquel)','Validación de vida útil','Reporte de validación recibido'],
+  ID07:['Plan de abastecimiento creado','Artículo creado en sistema','Cliente dado de alta en sistema','Fabricación completada','Lote entregado'],
+  ID08:['Feedback del cliente recibido','Ajustes realizados'],
+  ID09:['OC capturada','Artículos validados como PT'],
+  ID10:['Forecast actualizado','Plan de abastecimiento actualizado'],
+  GANADO:[],PERDIDO:[],
 };
+const PROB={ID01:.10,ID02:.10,ID03:.25,ID04:.25,ID05:.50,ID06:.75,ID07:.75,ID08:.80,ID09:.80,ID10:1,GANADO:1,PERDIDO:0};
+const APROBADAS=['ID06','ID07','ID08','ID09','ID10','GANADO'];
+const PC={'nuevo':{bg:'rgba(108,99,255,.15)',color:'#6c63ff'},'primer-toque':{bg:'rgba(0,180,216,.15)',color:'#00b4d8'},'seguimiento-1':{bg:'rgba(255,190,11,.15)',color:'#ffbe0b'},'seguimiento-2':{bg:'rgba(255,159,28,.15)',color:'#ff9f1c'},'seguimiento-3':{bg:'rgba(255,107,53,.15)',color:'#ff6b35'},'calificado':{bg:'rgba(0,212,168,.15)',color:'#00d4a8'},'descartado':{bg:'rgba(255,71,87,.15)',color:'#ff4757'}};
 
-// ─── STATE ───────────────────────────────────────────────────────────────────
-let leads = [];
-let currentLeadId = null;
-let currentView = 'dashboard';
+// ── STATE ────────────────────────────────────────────────────────────────────
+let leads=[], prospectos=[], currentLeadId=null, currentProspectoId=null, currentEmailType=null, currentView='dashboard';
 
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
-function today() { return new Date().toISOString().split('T')[0]; }
-function daysBetween(a, b) {
-  if (!a) return null;
-  return Math.round(Math.abs(new Date(b || today()) - new Date(a)) / 86400000);
-}
-function fmtMoney(v) {
-  if (!v) return '—';
-  const n = Number(v);
-  if (n >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
-  if (n >= 1e3) return '$' + (n/1e3).toFixed(0) + 'k';
-  return '$' + n;
-}
-function showSync(state, msg) {
-  const bar = document.getElementById('syncBar');
-  const dot = document.getElementById('syncDot');
-  const txt = document.getElementById('syncText');
-  dot.className = 'sync-dot' + (state === 'ok' ? ' ok' : state === 'err' ? ' err' : '');
-  txt.textContent = msg;
-  bar.classList.add('show');
-  if (state !== 'saving') setTimeout(() => bar.classList.remove('show'), 2500);
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+const today=()=>new Date().toISOString().split('T')[0];
+const dBetween=(a,b)=>a?Math.round(Math.abs(new Date(b||today())-new Date(a))/86400000):null;
+const fmtM=v=>{if(!v)return'—';const n=Number(v);return n>=1e6?'$'+(n/1e6).toFixed(1)+'M':n>=1e3?'$'+(n/1e3).toFixed(0)+'k':'$'+n;};
+function showSync(st,msg){
+  const dot=document.getElementById('syncDot'),txt=document.getElementById('syncText'),bar=document.getElementById('syncBar');
+  dot.className='sync-dot'+(st==='ok'?' ok':st==='err'?' err':'');
+  txt.textContent=msg;bar.classList.add('show');
+  if(st!=='saving')setTimeout(()=>bar.classList.remove('show'),2500);
 }
 
-// ─── REALTIME LISTENERS ─────────────────────────────────────────────────────
-// Both collections must load before hiding the loading screen
-let _leadsReady = false;
-let _prospectoCol = collection(db, 'prospectos');
 
-onSnapshot(leadsCol, (snapshot) => {
-  leads = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-  _leadsReady = true;
+// ── STARTUP DIAGNOSTICS ──────────────────────────────────────────────────────
+const diag = document.getElementById('loadDiag');
+const setDiag = (msg) => { if(diag) diag.innerHTML = msg; };
+setDiag('Protocolo: ' + window.location.protocol + '<br>Iniciando SDK...');
+setTimeout(() => {
+  if(!document.getElementById('loadingScreen').classList.contains('hide')) {
+    setDiag('⚠️ Firebase tardando más de 5s.<br>Protocolo: <strong>' + window.location.protocol + '</strong><br>' +
+      (window.location.protocol === 'file:' ? '❌ Abre el archivo desde un servidor (GitHub Pages, localhost), no directamente desde el disco.' : 
+       '❌ Revisa tu conexión a internet o los permisos de Firestore.'));
+    document.getElementById('loadMsg').textContent = 'Error de conexión';
+  }
+}, 5000);
+
+// ── LISTENERS ────────────────────────────────────────────────────────────────
+onSnapshot(collection(db,'leads'),snap=>{
+  leads=snap.docs.map(d=>({id:d.id,...d.data()}));
   document.getElementById('loadingScreen').classList.add('hide');
-  refreshCurrentView();
-}, (err) => {
-  console.error('leads error:', err);
+  refresh();
+},err=>{
   document.getElementById('loadingScreen').classList.add('hide');
-  showSync('err', 'Error de conexión: ' + err.code);
+  showSync('err','Error: '+err.code);
 });
 
-// Prospectos listener — defined here so it uses the same db instance
-onSnapshot(_prospectoCol, (snap) => {
-  prospectos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  if (currentView === 'prospectos') renderProspectos();
-}, (err) => {
-  console.error('prospectos error:', err);
-});
+onSnapshot(collection(db,'prospectos'),snap=>{
+  prospectos=snap.docs.map(d=>({id:d.id,...d.data()}));
+  if(currentView==='prospectos')renderProspectos();
+},err=>console.error(err));
 
-function refreshCurrentView() {
-  if (currentView === 'dashboard') renderDashboard();
-  if (currentView === 'table') renderTable();
-  if (currentView === 'kanban') renderKanban();
-  if (currentView === 'prospectos') renderProspectos();
+// ── VIEWS ────────────────────────────────────────────────────────────────────
+function refresh(){
+  if(currentView==='dashboard')renderDashboard();
+  else if(currentView==='table')renderTable();
+  else if(currentView==='kanban')renderKanban();
+  else if(currentView==='prospectos')renderProspectos();
 }
-
-// ─── VIEW SWITCHING ──────────────────────────────────────────────────────────
-window.switchView = function(v) {
-  currentView = v;
-  document.querySelectorAll('.views').forEach(el => el.classList.remove('active'));
-  document.getElementById('view-' + v).classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.view === v));
-  refreshCurrentView();
+window.switchView=v=>{
+  currentView=v;
+  document.querySelectorAll('.views').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active',t.dataset.view===v));
+  const btn=document.getElementById('btnNewMain');
+  if(v==='prospectos'){btn.textContent='+ Nuevo Prospecto';btn.onclick=()=>openPModal(null);}
+  else{btn.textContent='+ Nuevo Lead';btn.onclick=()=>openModal(null);}
+  refresh();
 };
+document.getElementById('btnNewMain').onclick=()=>openModal(null);
 
-// ─── DASHBOARD ───────────────────────────────────────────────────────────────
-function renderDashboard() {
-  const active  = leads.filter(l => l.stage !== 'GANADO' && l.stage !== 'PERDIDO');
-  const ganados = leads.filter(l => l.stage === 'GANADO');
-  const perdidos= leads.filter(l => l.stage === 'PERDIDO');
-
-  // Totales financieros sumados de todos los leads activos
-  const totalTAM = active.reduce((s,l) => s + (Number(l.tam)||0), 0);
-  const totalSAM = active.reduce((s,l) => s + (Number(l.sam)||0), 0);
-  const totalSOM = active.reduce((s,l) => s + (Number(l.som)||0), 0);
-
-  // Probabilidad de éxito por etapa
-  const PROB = { ID01:.10, ID02:.10, ID03:.25, ID04:.25, ID05:.50, ID06:.75, ID07:.75, ID08:.80, ID09:.80, ID10:1.0, GANADO:1.0, PERDIDO:0 };
-  // Etapas con aprobación de precios (Opción 1: ID06 en adelante)
-  const APROBADAS = ['ID06','ID07','ID08','ID09','ID10','GANADO'];
-
-  // Opción 1: suma solo leads con aprobación de precios (ID06+)
-  const opt1 = leads
-    .filter(l => APROBADAS.includes(l.stage))
-    .reduce((s,l) => s + (Number(l.som)||0), 0);
-
-  // Opción 2: valor ponderado = Σ(SOM × probabilidad etapa)
-  const opt2 = leads
-    .filter(l => l.stage !== 'PERDIDO')
-    .reduce((s,l) => s + (Number(l.som)||0) * (PROB[l.stage]||0), 0);
-
-  // Metas fijas (USD miles)
-  const BRECHA_2026  = 639;
-  const META_FUNNEL  = BRECHA_2026 * 3; // 1,917k — pipeline requerido
-
-  function pctColor(val, meta) {
-    const r = val / meta;
-    return r >= 1 ? 'var(--accent)' : r >= 0.6 ? 'var(--warn)' : 'var(--red)';
-  }
-  function progressBar(val, meta, color) {
-    const pct = Math.min((val/meta)*100, 100).toFixed(0);
-    const falta = Math.max(meta - val, 0);
-    return `
-      <div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0 5px">
-        <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width .6s"></div>
-      </div>
-      <div class="stat-sub">${pct}% de meta · Falta $${falta.toFixed(0)}k USD</div>`;
-  }
-
-  document.getElementById('statsGrid').innerHTML = `
+// ── DASHBOARD ────────────────────────────────────────────────────────────────
+function renderDashboard(){
+  const act=leads.filter(l=>l.stage!=='GANADO'&&l.stage!=='PERDIDO');
+  const won=leads.filter(l=>l.stage==='GANADO');
+  const lost=leads.filter(l=>l.stage==='PERDIDO');
+  const tTAM=act.reduce((s,l)=>s+(Number(l.tam)||0),0);
+  const tSAM=act.reduce((s,l)=>s+(Number(l.sam)||0),0);
+  const tSOM=act.reduce((s,l)=>s+(Number(l.som)||0),0);
+  const opt1=leads.filter(l=>APROBADAS.includes(l.stage)).reduce((s,l)=>s+(Number(l.som)||0),0);
+  const opt2=leads.filter(l=>l.stage!=='PERDIDO').reduce((s,l)=>s+(Number(l.som)||0)*(PROB[l.stage]||0),0);
+  const META=639*3;
+  const cc=(v,m)=>v>=m?'var(--accent)':v>=m*.6?'var(--warn)':'var(--red)';
+  const pb=(v,m,c)=>{const p=Math.min(v/m*100,100).toFixed(0);return `<div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0 5px"><div style="height:100%;width:${p}%;background:${c};border-radius:3px"></div></div><div class="stat-sub">${p}% · Falta $${Math.max(m-v,0).toFixed(0)}k</div>`;};
+  document.getElementById('statsGrid').innerHTML=`
     <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value">${leads.length}</div><div class="stat-sub">registrados</div></div>
-    <div class="stat-card"><div class="stat-label">Activos</div><div class="stat-value">${active.length}</div><div class="stat-sub">en funnel</div></div>
-    <div class="stat-card"><div class="stat-label">Ganados</div><div class="stat-value" style="color:var(--accent)">${ganados.length}</div><div class="stat-sub">cerrados won</div></div>
-    <div class="stat-card"><div class="stat-label">Perdidos</div><div class="stat-value" style="color:var(--red)">${perdidos.length}</div><div class="stat-sub">cerrados lost</div></div>
-  `;
-
-  // Bloque estratégico
-  const c1 = pctColor(opt1, META_FUNNEL);
-  const c2 = pctColor(opt2, META_FUNNEL);
-  document.getElementById('strategicGrid').innerHTML = `
-
-    <div class="stat-card" style="border-color:rgba(255,190,11,.4);grid-column:span 1">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <div style="background:rgba(255,190,11,.15);border:1px solid rgba(255,190,11,.4);border-radius:6px;padding:3px 10px;font-size:10px;font-family:'DM Mono',monospace;color:var(--warn);font-weight:700">OPCIÓN 1</div>
-        <div style="font-size:11px;color:var(--text2);font-family:'DM Mono',monospace">Con aprobación (ID06+)</div>
-      </div>
+    <div class="stat-card"><div class="stat-label">Activos</div><div class="stat-value">${act.length}</div><div class="stat-sub">en funnel</div></div>
+    <div class="stat-card"><div class="stat-label">Ganados</div><div class="stat-value" style="color:var(--accent)">${won.length}</div><div class="stat-sub">cerrados won</div></div>
+    <div class="stat-card"><div class="stat-label">Prospectos</div><div class="stat-value" style="color:var(--accent2)">${prospectos.length}</div><div class="stat-sub">pipeline previo</div></div>`;
+  const c1=cc(opt1,META),c2=cc(opt2,META);
+  document.getElementById('strategicGrid').innerHTML=`
+    <div class="stat-card" style="border-color:rgba(255,190,11,.4)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="background:rgba(255,190,11,.15);border:1px solid rgba(255,190,11,.4);border-radius:6px;padding:2px 9px;font-size:10px;font-family:'DM Mono',monospace;color:var(--warn);font-weight:700">OPCIÓN 1</span><span style="font-size:11px;color:var(--text2);font-family:'DM Mono',monospace">Con aprobación ID06+</span></div>
       <div class="stat-label">⚡ Brecha 2026 — Conservador</div>
-      <div style="display:flex;align-items:flex-end;gap:8px;margin-top:6px">
-        <div class="stat-value" style="color:${c1};font-size:24px">$${opt1.toFixed(0)}k</div>
-        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);padding-bottom:3px">/ $${META_FUNNEL}k USD</div>
-      </div>
-      ${progressBar(opt1, META_FUNNEL, c1)}
-      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;font-family:'DM Mono',monospace;color:var(--text2)">
-        Meta = Brecha 2026 × 3 = $${META_FUNNEL}k USD
-      </div>
+      <div style="display:flex;align-items:flex-end;gap:8px;margin-top:6px"><div class="stat-value" style="color:${c1};font-size:24px">$${opt1.toFixed(0)}k</div><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);padding-bottom:3px">/ $${META}k USD</div></div>
+      ${pb(opt1,META,c1)}<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;font-family:'DM Mono',monospace;color:var(--text2)">Meta = Brecha×3 = $${META}k USD</div>
     </div>
-
-    <div class="stat-card" style="border-color:rgba(108,99,255,.4);grid-column:span 1">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <div style="background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.4);border-radius:6px;padding:3px 10px;font-size:10px;font-family:'DM Mono',monospace;color:var(--accent3);font-weight:700">OPCIÓN 2</div>
-        <div style="font-size:11px;color:var(--text2);font-family:'DM Mono',monospace">Valor ponderado por etapa</div>
-      </div>
+    <div class="stat-card" style="border-color:rgba(108,99,255,.4)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.4);border-radius:6px;padding:2px 9px;font-size:10px;font-family:'DM Mono',monospace;color:var(--accent3);font-weight:700">OPCIÓN 2</span><span style="font-size:11px;color:var(--text2);font-family:'DM Mono',monospace">Valor ponderado</span></div>
       <div class="stat-label">🎯 Brecha 2026 — Esperado</div>
-      <div style="display:flex;align-items:flex-end;gap:8px;margin-top:6px">
-        <div class="stat-value" style="color:${c2};font-size:24px">$${opt2.toFixed(0)}k</div>
-        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);padding-bottom:3px">/ $${META_FUNNEL}k USD</div>
-      </div>
-      ${progressBar(opt2, META_FUNNEL, c2)}
-      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;font-family:'DM Mono',monospace;color:var(--text2)">
-        Σ(SOM × prob.) · 10%→25%→50%→75%→80%→100%
-      </div>
+      <div style="display:flex;align-items:flex-end;gap:8px;margin-top:6px"><div class="stat-value" style="color:${c2};font-size:24px">$${opt2.toFixed(0)}k</div><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);padding-bottom:3px">/ $${META}k USD</div></div>
+      ${pb(opt2,META,c2)}<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;font-family:'DM Mono',monospace;color:var(--text2)">Σ(SOM×prob) · 10→25→50→75→80→100%</div>
     </div>
-
-    <div class="stat-card">
-      <div class="stat-label">📊 TAM Total Funnel</div>
-      <div class="stat-value" style="color:var(--text);font-size:22px">$${totalTAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div>
-      <div class="stat-sub">Mercado total addressable</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">📊 SAM Total Funnel</div>
-      <div class="stat-value" style="color:var(--text2);font-size:22px">$${totalSAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div>
-      <div class="stat-sub">Mercado servible disponible</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">💰 SOM Total Funnel</div>
-      <div class="stat-value" style="color:var(--accent);font-size:22px">$${totalSOM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div>
-      <div class="stat-sub">Mercado obtenible · USD</div>
-    </div>
-  `;
-
-  const counts = {};
-  STAGES.slice(0,10).forEach(s => counts[s.id] = leads.filter(l => l.stage === s.id).length);
-  const max = Math.max(...Object.values(counts), 1);
-  document.getElementById('funnelBars').innerHTML = STAGES.slice(0,10).map(s => {
-    const c = counts[s.id] || 0;
-    const h = Math.max((c/max)*70+4, 4);
-    return `<div class="funnel-bar-wrap">
-      <div class="funnel-bar-count" style="color:${s.color}">${c}</div>
-      <div class="funnel-bar" style="height:${h}px;background:${s.color}25;border:1px solid ${s.color}70" onclick="switchView('kanban')"></div>
-      <div class="funnel-bar-label">${s.short}</div>
-    </div>`;
-  }).join('');
+    <div class="stat-card"><div class="stat-label">📊 TAM Total</div><div class="stat-value" style="font-size:22px">$${tTAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div><div class="stat-sub">addressable market</div></div>
+    <div class="stat-card"><div class="stat-label">📊 SAM Total</div><div class="stat-value" style="color:var(--text2);font-size:22px">$${tSAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div><div class="stat-sub">serviceable market</div></div>
+    <div class="stat-card"><div class="stat-label">💰 SOM Total</div><div class="stat-value" style="color:var(--accent);font-size:22px">$${tSOM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div><div class="stat-sub">obtainable market</div></div>`;
+  const cnts={};STAGES.slice(0,10).forEach(s=>cnts[s.id]=leads.filter(l=>l.stage===s.id).length);
+  const mx=Math.max(...Object.values(cnts),1);
+  document.getElementById('funnelBars').innerHTML=STAGES.slice(0,10).map(s=>{const c=cnts[s.id]||0,h=Math.max((c/mx)*70+4,4);return `<div class="funnel-bar-wrap"><div class="funnel-bar-count" style="color:${s.color}">${c}</div><div class="funnel-bar" style="height:${h}px;background:${s.color}25;border:1px solid ${s.color}70" onclick="switchView('kanban')"></div><div class="funnel-bar-label">${s.short}</div></div>`;}).join('');
 }
 
-// ─── TABLE ───────────────────────────────────────────────────────────────────
-function renderTable() {
-  const PROB = { ID01:.10, ID02:.10, ID03:.25, ID04:.25, ID05:.50, ID06:.75, ID07:.75, ID08:.80, ID09:.80, ID10:1.0, GANADO:1.0, PERDIDO:0 };
-  const q      = (document.getElementById('globalSearch').value||'').toLowerCase();
-  const fStage = document.getElementById('filterStage').value;
-  const fType  = document.getElementById('filterType').value;
-  const filtered = leads.filter(l => {
-    if (fStage && l.stage !== fStage) return false;
-    if (fType  && l.type  !== fType)  return false;
-    if (q && !l.name.toLowerCase().includes(q) && !(l.owner||'').toLowerCase().includes(q)) return false;
-    return true;
-  });
-  const tbody = document.getElementById('leadsTableBody');
-  if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">📦</div><div>No hay leads que coincidan.</div></div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = filtered.map((l,i) => {
-    const stage = STAGES.find(s => s.id === l.stage) || STAGES[0];
-    const daysInStage = l.stageHistory?.[l.stage] ? daysBetween(l.stageHistory[l.stage]) : null;
-    const daysTotal   = l.startDate ? daysBetween(l.startDate) : null;
-    const dClass = daysInStage === null ? '' : daysInStage > 60 ? 'days-late' : daysInStage > 30 ? 'days-warn' : 'days-ok';
+// ── TABLE ────────────────────────────────────────────────────────────────────
+function renderTable(){
+  const q=(document.getElementById('globalSearch')?.value||'').toLowerCase();
+  const fS=document.getElementById('filterStage')?.value||'';
+  const fT=document.getElementById('filterType')?.value||'';
+  const fl=leads.filter(l=>{if(fS&&l.stage!==fS)return false;if(fT&&l.type!==fT)return false;if(q&&!l.name?.toLowerCase().includes(q)&&!(l.owner||'').toLowerCase().includes(q))return false;return true;});
+  const tb=document.getElementById('leadsTableBody');
+  if(!fl.length){tb.innerHTML='<tr><td colspan="11"><div class="empty-state"><div class="empty-state-icon">📦</div><div>No hay leads.</div></div></td></tr>';return;}
+  tb.innerHTML=fl.map((l,i)=>{
+    const st=STAGES.find(s=>s.id===l.stage)||STAGES[0];
+    const dE=l.stageHistory?.[l.stage]?dBetween(l.stageHistory[l.stage]):null;
+    const dT=l.startDate?dBetween(l.startDate):null;
+    const dc=dE===null?'':dE>60?'days-late':dE>30?'days-warn':'days-ok';
+    const pb=(PROB[l.stage]||0);
     return `<tr onclick="openModal('${l.id}')">
       <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text3)">#${String(i+1).padStart(2,'0')}</span></td>
       <td><div class="lead-name">${l.name}</div><div class="lead-owner">${l.contacts||''}</div></td>
       <td><span class="lead-owner">${l.owner||'—'}</span></td>
-      <td><span class="stage-badge" style="background:${stage.color}20;color:${stage.color}">${stage.short}</span></td>
+      <td><span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.short}</span></td>
       <td><span class="type-badge type-${l.type||'organico'}">${l.type==='goget'?'Go-Get':'Orgánico'}</span></td>
-      <td class="amount">${fmtMoney(l.tam)}</td>
-      <td class="amount big">${fmtMoney(l.som)}</td>
-      <td><span class="days-badge" style="background:rgba(108,99,255,.12);color:var(--accent3)">${((PROB[l.stage]||0)*100).toFixed(0)}%</span></td>
-      <td class="amount" style="color:var(--warn)">$${((Number(l.som)||0)*(PROB[l.stage]||0)).toFixed(0)}k</td>
-      <td><span class="days-badge ${dClass}">${daysInStage !== null ? daysInStage+'d' : '—'}</span></td>
-      <td><span class="days-badge">${daysTotal !== null ? daysTotal+'d' : '—'}</span></td>
+      <td class="amount">${fmtM(l.tam)}</td><td class="amount big">${fmtM(l.som)}</td>
+      <td><span class="days-badge" style="background:rgba(108,99,255,.12);color:var(--accent3)">${(pb*100).toFixed(0)}%</span></td>
+      <td class="amount" style="color:var(--warn)">$${((Number(l.som)||0)*pb).toFixed(0)}k</td>
+      <td><span class="days-badge ${dc}">${dE!==null?dE+'d':'—'}</span></td>
+      <td><span class="days-badge">${dT!==null?dT+'d':'—'}</span></td>
     </tr>`;
   }).join('');
 }
 
-// ─── KANBAN ──────────────────────────────────────────────────────────────────
-function renderKanban() {
-  document.getElementById('kanbanBoard').innerHTML = STAGES.map(stage => {
-    const cards = leads.filter(l => l.stage === stage.id);
-    return `<div class="kanban-col">
-      <div class="kanban-col-header" style="border-top:3px solid ${stage.color}">
-        <div class="kanban-col-title" style="color:${stage.color}">${stage.short}</div>
-        <div class="kanban-col-subtitle">${stage.label.replace(/^ID\d+ – /,'').replace(/^Cerrado – /,'')}</div>
-        <div class="kanban-col-count">${cards.length} lead${cards.length!==1?'s':''}</div>
-      </div>
-      <div class="kanban-cards">
-        ${cards.length===0 ? '<div style="text-align:center;padding:20px;font-size:12px;color:var(--text3)">—</div>' :
-          cards.map(l => `<div class="kanban-card" onclick="openModal('${l.id}')">
-            <div class="kanban-card-name">${l.name}</div>
-            <div class="kanban-card-meta">${l.owner||'Sin owner'} · ${fmtMoney(l.som)}</div>
-            <div style="margin-top:6px"><span class="type-badge type-${l.type||'organico'}">${l.type==='goget'?'Go-Get':'Org'}</span></div>
-          </div>`).join('')}
-      </div>
-    </div>`;
+// ── KANBAN ───────────────────────────────────────────────────────────────────
+function renderKanban(){
+  document.getElementById('kanbanBoard').innerHTML=STAGES.map(s=>{
+    const cards=leads.filter(l=>l.stage===s.id);
+    return `<div class="kanban-col"><div class="kanban-col-header" style="border-top:3px solid ${s.color}"><div class="kanban-col-title" style="color:${s.color}">${s.short}</div><div class="kanban-col-subtitle">${s.label.replace(/^ID\d+ – /,'').replace(/^Cerrado – /,'')}</div><div class="kanban-col-count">${cards.length} lead${cards.length!==1?'s':''}</div></div><div class="kanban-cards">${cards.length===0?'<div style="text-align:center;padding:20px;font-size:12px;color:var(--text3)">—</div>':cards.map(l=>`<div class="kanban-card" onclick="openModal('${l.id}')"><div class="kanban-card-name">${l.name}</div><div class="kanban-card-meta">${l.owner||'Sin owner'} · ${fmtM(l.som)}</div><div style="margin-top:6px"><span class="type-badge type-${l.type||'organico'}">${l.type==='goget'?'Go-Get':'Org'}</span></div></div>`).join('')}</div></div>`;
   }).join('');
 }
 
-// ─── MODAL ───────────────────────────────────────────────────────────────────
-window.openModal = function(id) {
-  currentLeadId = id;
-  const lead = id ? leads.find(l => l.id === id) : null;
-
-  ['name','owner','contacts','tp','tam','sam','som','capacidad','mktVol'].forEach(f =>
-    document.getElementById('f_'+f).value = lead ? (lead[f]||'') : '');
-  document.getElementById('f_type').value      = lead ? (lead.type||'organico') : 'organico';
-  document.getElementById('f_startDate').value  = lead ? (lead.startDate||today()) : today();
-  document.getElementById('f_goGetDate').value  = lead ? (lead.goGetDate||'') : '';
-  document.getElementById('f_saleDate').value   = lead ? (lead.saleDate||'') : '';
-
-  document.getElementById('modalLeadName').textContent = lead ? lead.name : 'Nuevo Lead';
-  document.getElementById('btnDelete').style.display = lead ? 'block' : 'none';
-
-  if (lead) {
-    const s = STAGES.find(st => st.id === lead.stage)||STAGES[0];
-    document.getElementById('modalMeta').innerHTML = `
-      <span class="stage-badge" style="background:${s.color}20;color:${s.color}">${s.label}</span>
-      <span class="type-badge type-${lead.type||'organico'}">${lead.type==='goget'?'Go-Get':'Orgánico'}</span>`;
-  } else { document.getElementById('modalMeta').innerHTML = ''; }
-
-  const currentStage = lead ? lead.stage : 'ID01';
-  document.getElementById('stageSelectorEl').innerHTML = STAGES.map(s =>
-    `<div class="stage-option${s.id===currentStage?' selected':''}"
-      style="${s.id===currentStage?`background:${s.color};border-color:${s.color}`:''}"
-      onclick="selectStage('${s.id}')" data-stage="${s.id}">${s.short}</div>`
-  ).join('');
-
-  renderChecklist(currentStage, lead);
-  renderTimeGrid(lead);
-  renderBitacora(lead);
+// ── LEAD MODAL ───────────────────────────────────────────────────────────────
+window.openModal=function(id){
+  currentLeadId=id;
+  const l=id?leads.find(x=>x.id===id):null;
+  ['name','owner','contacts','tp','tam','sam','som','capacidad','mktVol'].forEach(f=>{
+    const el=document.getElementById('f_'+f);if(el)el.value=l?(l[f]||''):'';
+  });
+  document.getElementById('f_type').value=l?(l.type||'organico'):'organico';
+  document.getElementById('f_startDate').value=l?(l.startDate||today()):today();
+  document.getElementById('f_goGetDate').value=l?(l.goGetDate||''):'';
+  document.getElementById('f_saleDate').value=l?(l.saleDate||''):'';
+  document.getElementById('modalLeadName').textContent=l?l.name:'Nuevo Lead';
+  document.getElementById('btnDelete').style.display=l?'block':'none';
+  const cs=l?l.stage:'ID01', st=STAGES.find(s=>s.id===cs)||STAGES[0];
+  document.getElementById('modalMeta').innerHTML=l?`<span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.label}</span><span class="type-badge type-${l.type||'organico'}">${l.type==='goget'?'Go-Get':'Orgánico'}</span>`:'';
+  document.getElementById('stageSelectorEl').innerHTML=STAGES.map(s=>`<div class="stage-option${s.id===cs?' selected':''}" style="${s.id===cs?`background:${s.color};border-color:${s.color}`:''}" onclick="selectStage('${s.id}')" data-stage="${s.id}">${s.short}</div>`).join('');
+  renderCL(cs,l);renderTimeGrid(l);renderBit(l);
   document.getElementById('modalOverlay').classList.add('open');
 };
-
-window.selectStage = function(stageId) {
-  document.querySelectorAll('.stage-option').forEach(el => {
-    const s = STAGES.find(s => s.id === el.dataset.stage);
-    const sel = el.dataset.stage === stageId;
-    el.classList.toggle('selected', sel);
-    el.style.background = sel ? s.color : '';
-    el.style.borderColor = sel ? s.color : '';
-  });
-  const lead = currentLeadId ? leads.find(l => l.id === currentLeadId) : null;
-  renderChecklist(stageId, lead);
+window.selectStage=id=>{
+  document.querySelectorAll('.stage-option').forEach(el=>{const s=STAGES.find(s=>s.id===el.dataset.stage),sel=el.dataset.stage===id;el.classList.toggle('selected',sel);el.style.background=sel?s.color:'';el.style.borderColor=sel?s.color:'';});
+  renderCL(id,currentLeadId?leads.find(l=>l.id===currentLeadId):null);
 };
+const getSelStage=()=>document.querySelector('.stage-option.selected')?.dataset.stage||'ID01';
 
-function getSelectedStage() {
-  return document.querySelector('.stage-option.selected')?.dataset.stage || 'ID01';
+function renderCL(sid,lead){
+  const items=CL[sid]||[],done=lead?.checklists?.[sid]||[];
+  document.getElementById('checklistStageLabel').textContent=sid;
+  document.getElementById('checklistEl').innerHTML=items.length?items.map((item,i)=>{const d=done.includes(i);return `<div class="check-item${d?' done':''}" onclick="toggleCheck('${sid}',${i})"><div class="check-box">${d?'✓':''}</div><div class="check-text">${item}</div></div>`;}).join(''):'<div style="color:var(--text3);font-size:13px">Sin checklist para esta etapa.</div>';
+  document.getElementById('checklistProgress').style.width=(items.length?done.length/items.length*100:0)+'%';
 }
-
-function renderChecklist(stageId, lead) {
-  const items = CHECKLISTS[stageId] || [];
-  const done  = lead?.checklists?.[stageId] || [];
-  document.getElementById('checklistStageLabel').textContent = stageId;
-  if (!items.length) { document.getElementById('checklistEl').innerHTML = '<div style="color:var(--text3);font-size:13px">Sin checklist para esta etapa.</div>'; return; }
-  document.getElementById('checklistEl').innerHTML = items.map((item, i) => {
-    const isDone = done.includes(i);
-    return `<div class="check-item${isDone?' done':''}" onclick="toggleCheck('${stageId}',${i})">
-      <div class="check-box">${isDone?'✓':''}</div>
-      <div class="check-text">${item}</div>
-    </div>`;
-  }).join('');
-  document.getElementById('checklistProgress').style.width = (items.length ? done.length/items.length*100 : 0) + '%';
-}
-
-window.toggleCheck = async function(stageId, idx) {
-  if (!currentLeadId) return;
-  const lead = leads.find(l => l.id === currentLeadId);
-  if (!lead.checklists) lead.checklists = {};
-  if (!lead.checklists[stageId]) lead.checklists[stageId] = [];
-  const pos = lead.checklists[stageId].indexOf(idx);
-  if (pos === -1) lead.checklists[stageId].push(idx); else lead.checklists[stageId].splice(pos,1);
-  renderChecklist(stageId, lead);
-  showSync('saving', 'Guardando...');
-  try {
-    await setDoc(doc(db,'leads',currentLeadId), { checklists: lead.checklists }, { merge: true });
-    showSync('ok', 'Guardado ✓');
-  } catch(e) { showSync('err','Error al guardar'); }
+window.toggleCheck=async(sid,idx)=>{
+  if(!currentLeadId)return;
+  const lead=leads.find(l=>l.id===currentLeadId);
+  if(!lead.checklists)lead.checklists={};
+  if(!lead.checklists[sid])lead.checklists[sid]=[];
+  const p=lead.checklists[sid].indexOf(idx);
+  if(p===-1)lead.checklists[sid].push(idx);else lead.checklists[sid].splice(p,1);
+  renderCL(sid,lead);
+  try{await setDoc(doc(db,'leads',currentLeadId),{checklists:lead.checklists},{merge:true});}catch(e){showSync('err','Error');}
 };
-
-function renderTimeGrid(lead) {
-  if (!lead?.stageHistory) {
-    document.getElementById('timeGridEl').innerHTML = '<div style="color:var(--text3);font-size:13px">El tiempo se registra automáticamente al cambiar de etapa.</div>';
-    return;
-  }
-  const cells = STAGES.slice(0,10).map(s => {
-    const entered = lead.stageHistory[s.id];
-    if (!entered) return `<div class="time-cell"><div class="time-cell-label">${s.short}</div><div class="time-cell-value" style="color:var(--text3)">—</div></div>`;
-    const left = lead.stageExits?.[s.id];
-    const days = daysBetween(entered, left);
-    const isCur = lead.stage === s.id;
-    return `<div class="time-cell" style="${isCur?'border-color:'+s.color:''}">
-      <div class="time-cell-label" style="${isCur?'color:'+s.color:''}">${s.short}</div>
-      <div class="time-cell-value" style="color:${s.color}">${days}<span style="font-size:11px;font-weight:400">d</span></div>
-    </div>`;
+function renderTimeGrid(lead){
+  if(!lead?.stageHistory){document.getElementById('timeGridEl').innerHTML='<div style="color:var(--text3);font-size:13px">El tiempo se registra al cambiar de etapa.</div>';return;}
+  const cells=STAGES.slice(0,10).map(s=>{
+    const e=lead.stageHistory[s.id];if(!e)return `<div class="time-cell"><div class="time-cell-label">${s.short}</div><div class="time-cell-value" style="color:var(--text3)">—</div></div>`;
+    const days=dBetween(e,lead.stageExits?.[s.id]);
+    return `<div class="time-cell" style="${lead.stage===s.id?'border-color:'+s.color:''}"><div class="time-cell-label" style="${lead.stage===s.id?'color:'+s.color:''}">${s.short}</div><div class="time-cell-value" style="color:${s.color}">${days}<span style="font-size:11px;font-weight:400">d</span></div></div>`;
   });
-  const total = lead.startDate ? daysBetween(lead.startDate) : '—';
+  const total=lead.startDate?dBetween(lead.startDate):'—';
   cells.push(`<div class="time-cell" style="border-color:var(--accent3)"><div class="time-cell-label" style="color:var(--accent3)">TOTAL</div><div class="time-cell-value" style="color:var(--accent3)">${total}${typeof total==='number'?'<span style="font-size:11px;font-weight:400">d</span>':''}</div></div>`);
-  document.getElementById('timeGridEl').innerHTML = cells.join('');
+  document.getElementById('timeGridEl').innerHTML=cells.join('');
 }
-
-function renderBitacora(lead) {
-  const entries = lead?.bitacora || [];
-  document.getElementById('bitacoraEntries').innerHTML = entries.length===0
-    ? '<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Sin entradas aún.</div>'
-    : [...entries].reverse().map(e => `<div class="bitacora-entry"><div class="bitacora-date">${e.date}</div><div class="bitacora-text">${e.text}</div></div>`).join('');
-  document.getElementById('newBitacoraEntry').value = '';
+function renderBit(lead){
+  const e=lead?.bitacora||[];
+  document.getElementById('bitacoraEntries').innerHTML=e.length?[...e].reverse().map(x=>`<div class="bitacora-entry"><div class="bitacora-date">${x.date}</div><div class="bitacora-text">${x.text}</div></div>`).join(''):'<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Sin entradas.</div>';
+  document.getElementById('newBitacoraEntry').value='';
 }
-
-window.addBitacoraEntry = async function() {
-  const text = document.getElementById('newBitacoraEntry').value.trim();
-  if (!text || !currentLeadId) return;
-  const lead = leads.find(l => l.id === currentLeadId);
-  if (!lead.bitacora) lead.bitacora = [];
-  lead.bitacora.push({ date: new Date().toLocaleString('es-MX'), text });
-  renderBitacora(lead);
-  showSync('saving','Guardando...');
-  try {
-    await setDoc(doc(db,'leads',currentLeadId), { bitacora: lead.bitacora }, { merge: true });
-    showSync('ok','Guardado ✓');
-  } catch(e) { showSync('err','Error al guardar'); }
+window.addBitacoraEntry=async()=>{
+  const text=document.getElementById('newBitacoraEntry').value.trim();
+  if(!text||!currentLeadId)return;
+  const lead=leads.find(l=>l.id===currentLeadId);
+  if(!lead.bitacora)lead.bitacora=[];
+  lead.bitacora.push({date:new Date().toLocaleString('es-MX'),text});
+  renderBit(lead);
+  try{await setDoc(doc(db,'leads',currentLeadId),{bitacora:lead.bitacora},{merge:true});showSync('ok','✓');}catch(e){showSync('err','Error');}
 };
-
-window.closeModal = function() { document.getElementById('modalOverlay').classList.remove('open'); };
-window.handleOverlayClick = function(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); };
-
-window.saveLead = async function() {
-  const name = document.getElementById('f_name').value.trim();
-  if (!name) { alert('El nombre del lead es requerido.'); return; }
-  const btn = document.getElementById('btnSave');
-  btn.disabled = true; btn.textContent = 'Guardando...';
+window.closeModal=()=>document.getElementById('modalOverlay').classList.remove('open');
+window.saveLead=async()=>{
+  const name=document.getElementById('f_name').value.trim();
+  if(!name){alert('Nombre requerido.');return;}
+  const btn=document.getElementById('btnSave');btn.disabled=true;btn.textContent='Guardando...';
   showSync('saving','Guardando...');
-
-  const newStage = getSelectedStage();
-
-  try {
-    if (currentLeadId) {
-      const lead = leads.find(l => l.id === currentLeadId);
-      const oldStage = lead.stage;
-      const stageHistory = { ...(lead.stageHistory||{}) };
-      const stageExits   = { ...(lead.stageExits||{}) };
-      if (oldStage !== newStage) {
-        stageExits[oldStage] = today();
-        if (!stageHistory[newStage]) stageHistory[newStage] = today();
-      }
-      const data = {
-        name, stage: newStage, stageHistory, stageExits,
-        owner:     document.getElementById('f_owner').value,
-        contacts:  document.getElementById('f_contacts').value,
-        type:      document.getElementById('f_type').value,
-        startDate: document.getElementById('f_startDate').value,
-        goGetDate: document.getElementById('f_goGetDate').value,
-        saleDate:  document.getElementById('f_saleDate').value,
-        tp:        document.getElementById('f_tp').value,
-        tam:       document.getElementById('f_tam').value,
-        sam:       document.getElementById('f_sam').value,
-        som:       document.getElementById('f_som').value,
-        capacidad: document.getElementById('f_capacidad').value,
-        mktVol:    document.getElementById('f_mktVol').value,
-        updatedAt: serverTimestamp(),
-      };
-      await setDoc(doc(db,'leads',currentLeadId), data, { merge: true });
-    } else {
-      const id = Date.now().toString();
-      const data = {
-        name, stage: newStage,
-        owner:       document.getElementById('f_owner').value,
-        contacts:    document.getElementById('f_contacts').value,
-        type:        document.getElementById('f_type').value,
-        startDate:   document.getElementById('f_startDate').value || today(),
-        goGetDate:   document.getElementById('f_goGetDate').value,
-        saleDate:    document.getElementById('f_saleDate').value,
-        tp:          document.getElementById('f_tp').value,
-        tam:         document.getElementById('f_tam').value,
-        sam:         document.getElementById('f_sam').value,
-        som:         document.getElementById('f_som').value,
-        capacidad:   document.getElementById('f_capacidad').value,
-        mktVol:      document.getElementById('f_mktVol').value,
-        stageHistory: { [newStage]: today() },
-        stageExits:  {}, checklists: {}, bitacora: [],
-        createdAt:   serverTimestamp(),
-        updatedAt:   serverTimestamp(),
-      };
-      await setDoc(doc(db,'leads',id), data);
+  const ns=getSelStage();
+  try{
+    if(currentLeadId){
+      const lead=leads.find(l=>l.id===currentLeadId);
+      const sh={...(lead.stageHistory||{})},se={...(lead.stageExits||{})};
+      if(lead.stage!==ns){se[lead.stage]=today();if(!sh[ns])sh[ns]=today();}
+      await setDoc(doc(db,'leads',currentLeadId),{name,stage:ns,stageHistory:sh,stageExits:se,owner:document.getElementById('f_owner').value,contacts:document.getElementById('f_contacts').value,type:document.getElementById('f_type').value,startDate:document.getElementById('f_startDate').value,goGetDate:document.getElementById('f_goGetDate').value,saleDate:document.getElementById('f_saleDate').value,tp:document.getElementById('f_tp').value,tam:document.getElementById('f_tam').value,sam:document.getElementById('f_sam').value,som:document.getElementById('f_som').value,capacidad:document.getElementById('f_capacidad').value,mktVol:document.getElementById('f_mktVol').value,updatedAt:serverTimestamp()},{merge:true});
+    }else{
+      await setDoc(doc(db,'leads',Date.now().toString()),{name,stage:ns,owner:document.getElementById('f_owner').value,contacts:document.getElementById('f_contacts').value,type:document.getElementById('f_type').value,startDate:document.getElementById('f_startDate').value||today(),goGetDate:document.getElementById('f_goGetDate').value,saleDate:document.getElementById('f_saleDate').value,tp:document.getElementById('f_tp').value,tam:document.getElementById('f_tam').value,sam:document.getElementById('f_sam').value,som:document.getElementById('f_som').value,capacidad:document.getElementById('f_capacidad').value,mktVol:document.getElementById('f_mktVol').value,stageHistory:{[ns]:today()},stageExits:{},checklists:{},bitacora:[],createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
     }
-    showSync('ok','Guardado en la nube ✓');
-    closeModal();
-  } catch(e) {
-    console.error(e);
-    showSync('err','Error al guardar');
-    alert('Error al guardar: ' + e.message);
-  }
-  btn.disabled = false; btn.textContent = 'Guardar Lead';
+    showSync('ok','Guardado ✓');closeModal();
+  }catch(e){showSync('err','Error');alert(e.message);}
+  btn.disabled=false;btn.textContent='Guardar Lead';
+};
+window.deleteLead=async()=>{
+  if(!currentLeadId||!confirm('¿Eliminar?'))return;
+  try{await deleteDoc(doc(db,'leads',currentLeadId));showSync('ok','Eliminado');closeModal();}catch(e){showSync('err','Error');}
 };
 
-window.deleteLead = async function() {
-  if (!currentLeadId || !confirm('¿Eliminar este lead? Esta acción no se puede deshacer.')) return;
-  showSync('saving','Eliminando...');
-  try {
-    await deleteDoc(doc(db,'leads',currentLeadId));
-    showSync('ok','Lead eliminado');
-    closeModal();
-  } catch(e) { showSync('err','Error al eliminar'); }
-};
-
-
-// ─── PROSPECTOS MODULE ────────────────────────────────────────────────────────
-let prospectos = [];
-let currentProspectoId = null;
-let currentEmailType = null;
-const P_STATUS_COLORS = {
-  'nuevo':         { bg: 'rgba(108,99,255,.15)', color: '#6c63ff' },
-  'primer-toque':  { bg: 'rgba(0,180,216,.15)',  color: '#00b4d8' },
-  'seguimiento-1': { bg: 'rgba(255,190,11,.15)', color: '#ffbe0b' },
-  'seguimiento-2': { bg: 'rgba(255,159,28,.15)', color: '#ff9f1c' },
-  'seguimiento-3': { bg: 'rgba(255,107,53,.15)', color: '#ff6b35' },
-  'calificado':    { bg: 'rgba(0,212,168,.15)',  color: '#00d4a8' },
-  'descartado':    { bg: 'rgba(255,71,87,.15)',   color: '#ff4757' },
-};
-
-window.renderProspectos = function() {
-  const q   = (document.getElementById('pSearch')?.value||'').toLowerCase();
-  const fSt = document.getElementById('pFilterStatus')?.value||'';
-  const filtered = prospectos.filter(p => {
-    if (fSt && p.status !== fSt) return false;
-    if (q && !(p.empresa||'').toLowerCase().includes(q) && !(p.nombre||'').toLowerCase().includes(q)) return false;
-    return true;
-  });
-  const tbody = document.getElementById('prospectoTableBody');
-  if (!tbody) return;
-  if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="empty-state-icon">🎯</div><div>No hay prospectos. Agrega uno nuevo.</div></div></td></tr>';
-    return;
-  }
-  tbody.innerHTML = filtered.map((p, i) => {
-    const sc = P_STATUS_COLORS[p.status] || P_STATUS_COLORS['nuevo'];
-    const lastTouch = p.bitacora?.length ? p.bitacora[p.bitacora.length-1].date : (p.createdDate||'—');
-    const lastTouchDate = p.bitacora?.length ? p.bitacora[p.bitacora.length-1].isoDate : p.createdDate;
-    const sinContacto = lastTouchDate ? daysBetween(lastTouchDate) : null;
-    const dcls = sinContacto === null ? '' : sinContacto > 14 ? 'days-late' : sinContacto > 7 ? 'days-warn' : 'days-ok';
-    return `<tr onclick="openProspectoModal('${p.id}')">
+// ── PROSPECTOS ────────────────────────────────────────────────────────────────
+window.renderProspectos=()=>{
+  const q=(document.getElementById('pSearch')?.value||'').toLowerCase();
+  const fS=document.getElementById('pFilterStatus')?.value||'';
+  const fl=prospectos.filter(p=>{if(fS&&p.status!==fS)return false;if(q&&!(p.empresa||'').toLowerCase().includes(q)&&!(p.nombre||'').toLowerCase().includes(q))return false;return true;});
+  const tb=document.getElementById('prospectoTableBody');if(!tb)return;
+  if(!fl.length){tb.innerHTML='<tr><td colspan="10"><div class="empty-state"><div class="empty-state-icon">🎯</div><div>No hay prospectos.</div></div></td></tr>';return;}
+  tb.innerHTML=fl.map((p,i)=>{
+    const sc=PC[p.status]||PC['nuevo'];
+    const lt=p.bitacora?.length?p.bitacora[p.bitacora.length-1].date:(p.createdDate||'—');
+    const li=p.bitacora?.length?p.bitacora[p.bitacora.length-1].isoDate:p.createdDate;
+    const dias=li?dBetween(li):null;
+    const dc=dias===null?'':dias>14?'days-late':dias>7?'days-warn':'days-ok';
+    return `<tr onclick="openPModal('${p.id}')">
       <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text3)">#${String(i+1).padStart(2,'0')}</span></td>
       <td><div class="lead-name">${p.empresa||'—'}</div><div class="lead-owner">${p.sector||''}</div></td>
       <td><div style="font-weight:600">${p.nombre||'—'}</div></td>
@@ -1048,301 +685,122 @@ window.renderProspectos = function() {
       <td><span style="font-size:12px;color:var(--text2)">${p.sector||'—'}</span></td>
       <td><span style="font-size:12px;color:var(--text2)">${p.ubicacion||'—'}</span></td>
       <td><span class="stage-badge" style="background:${sc.bg};color:${sc.color}">${p.status||'nuevo'}</span></td>
-      <td><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2)">${lastTouch}</span></td>
-      <td><span class="days-badge ${dcls}">${sinContacto !== null ? sinContacto+'d' : '—'}</span></td>
-      <td onclick="event.stopPropagation()" style="display:flex;gap:6px;align-items:center">
-        <button class="btn btn-ghost" onclick="openProspectoModal('${p.id}')" style="padding:5px 10px;font-size:11px">Editar</button>
-        ${p.status==='calificado' ? `<button class="btn btn-ghost" onclick="quickConvert('${p.id}')" style="padding:5px 10px;font-size:11px;color:var(--accent);border-color:rgba(0,212,168,.3)">→ Funnel</button>` : ''}
-      </td>
+      <td><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2)">${lt}</span></td>
+      <td><span class="days-badge ${dc}">${dias!==null?dias+'d':'—'}</span></td>
+      <td onclick="event.stopPropagation()">${p.status==='calificado'?`<button class="btn btn-ghost" onclick="quickConvert('${p.id}')" style="padding:5px 10px;font-size:11px;color:var(--accent);border-color:rgba(0,212,168,.3)">→ Funnel</button>`:''}</td>
     </tr>`;
   }).join('');
 };
 
-window.openProspectoModal = function(id) {
-  currentProspectoId = id;
-  const p = id ? prospectos.find(x => x.id === id) : null;
-  document.getElementById('p_empresa').value   = p?.empresa||'';
-  document.getElementById('p_sector').value    = p?.sector||'';
-  document.getElementById('p_ubicacion').value = p?.ubicacion||'';
-  document.getElementById('p_status').value    = p?.status||'nuevo';
-  document.getElementById('p_atributos').value = p?.atributos||'';
-  document.getElementById('p_nombre').value    = p?.nombre||'';
-  document.getElementById('p_cargo').value     = p?.cargo||'';
-  document.getElementById('p_email').value     = p?.email||'';
-  document.getElementById('p_tel').value       = p?.tel||'';
-  document.getElementById('p_linkedin').value  = p?.linkedin||'';
-  document.getElementById('pModalTitle').textContent = p ? p.empresa||'Prospecto' : 'Nuevo Prospecto';
-  document.getElementById('pBtnDelete').style.display = p ? 'block' : 'none';
-  document.getElementById('btnConvert').style.display = p?.status==='calificado' ? 'block' : 'none';
-  // extra contacts
-  renderExtraContacts(p?.extraContacts||[]);
-  // email history
-  renderEmailHistory(p?.emailLog||[]);
-  // bitacora
-  renderPBitacora(p);
-  // reset to info tab
+window.openPModal=id=>{
+  currentProspectoId=id;
+  const p=id?prospectos.find(x=>x.id===id):null;
+  ['empresa','sector','ubicacion','atributos','nombre','cargo','email','tel','linkedin'].forEach(f=>{
+    const el=document.getElementById('p_'+f);if(el)el.value=p?(p[f]||''):'';
+  });
+  document.getElementById('p_status').value=p?.status||'nuevo';
+  document.getElementById('pModalTitle').textContent=p?p.empresa||'Prospecto':'Nuevo Prospecto';
+  document.getElementById('pBtnDelete').style.display=p?'block':'none';
+  document.getElementById('btnConvert').style.display=p?.status==='calificado'?'block':'none';
+  renderEC(p?.extraContacts||[]);
+  renderEH(p?.emailLog||[]);
+  renderPB(p);
   switchPTab('info');
-  // email output reset
-  document.getElementById('emailOutput').style.display = 'none';
-  document.getElementById('emailGenerating').style.display = 'none';
+  document.getElementById('emailOutput').style.display='none';
+  document.getElementById('emailGenerating').style.display='none';
   document.getElementById('pModalOverlay').classList.add('open');
 };
-
-function renderExtraContacts(contacts) {
-  const c = contacts||[];
-  document.getElementById('p_extraContacts').innerHTML = c.map((ct,i) => `
+window.switchPTab=tab=>{
+  ['info','email','bitacora'].forEach(t=>document.getElementById('ptab-'+t).style.display=t===tab?'block':'none');
+  document.querySelectorAll('.inner-tab').forEach(el=>el.classList.toggle('active',el.dataset.tab===tab));
+};
+function renderEC(c){
+  document.getElementById('p_extraContacts').innerHTML=(c||[]).map((ct,i)=>`
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:end">
-      <input class="form-input" placeholder="Nombre" value="${ct.nombre||''}" oninput="updateExtraContact(${i},'nombre',this.value)" style="font-size:12px">
-      <input class="form-input" placeholder="Cargo" value="${ct.cargo||''}" oninput="updateExtraContact(${i},'cargo',this.value)" style="font-size:12px">
-      <input class="form-input" placeholder="Email" value="${ct.email||''}" oninput="updateExtraContact(${i},'email',this.value)" style="font-size:12px">
-      <input class="form-input" placeholder="Tel" value="${ct.tel||''}" oninput="updateExtraContact(${i},'tel',this.value)" style="font-size:12px">
-      <button class="btn btn-danger" onclick="removeExtraContact(${i})" style="padding:8px 10px">x</button>
+      <input class="form-input" placeholder="Nombre" value="${ct.nombre||''}" oninput="updateEC(${i},'nombre',this.value)" style="font-size:12px">
+      <input class="form-input" placeholder="Cargo"  value="${ct.cargo||''}"  oninput="updateEC(${i},'cargo',this.value)"  style="font-size:12px">
+      <input class="form-input" placeholder="Email"  value="${ct.email||''}"  oninput="updateEC(${i},'email',this.value)"  style="font-size:12px">
+      <input class="form-input" placeholder="Tel"    value="${ct.tel||''}"    oninput="updateEC(${i},'tel',this.value)"    style="font-size:12px">
+      <button class="btn btn-danger" onclick="removeEC(${i})" style="padding:8px 10px">✕</button>
     </div>`).join('');
 }
-
-let _extraContacts = [];
-window.addExtraContact = function() {
-  const p = currentProspectoId ? prospectos.find(x => x.id === currentProspectoId) : null;
-  _extraContacts = [...(p?.extraContacts||[]), { nombre:'', cargo:'', email:'', tel:'' }];
-  renderExtraContacts(_extraContacts);
-};
-window.updateExtraContact = function(i, field, val) {
-  const p = currentProspectoId ? prospectos.find(x => x.id === currentProspectoId) : null;
-  _extraContacts = [...(p?.extraContacts||[])];
-  if (!_extraContacts[i]) _extraContacts[i] = {};
-  _extraContacts[i][field] = val;
-};
-window.removeExtraContact = function(i) {
-  const p = currentProspectoId ? prospectos.find(x => x.id === currentProspectoId) : null;
-  _extraContacts = [...(p?.extraContacts||[])];
-  _extraContacts.splice(i,1);
-  renderExtraContacts(_extraContacts);
-};
-
-window.switchPTab = function(tab) {
-  ['info','email','bitacora'].forEach(t => {
-    document.getElementById('ptab-'+t).style.display = t===tab ? 'block' : 'none';
-  });
-  document.querySelectorAll('.p-tab').forEach(el => {
-    const active = el.dataset.ptab === tab;
-    el.style.color = active ? 'var(--accent)' : 'var(--text2)';
-    el.style.borderBottom = active ? '2px solid var(--accent)' : '2px solid transparent';
-  });
-};
-
-// ─── EMAIL GENERATION ────────────────────────────────────────────────────────
-window.generateEmail = async function(type) {
-  currentEmailType = type;
-  const p = currentProspectoId ? prospectos.find(x => x.id === currentProspectoId) : null;
-  if (!p) { alert('Guarda el prospecto primero.'); return; }
-  document.getElementById('emailGenerating').style.display = 'block';
-  document.getElementById('emailOutput').style.display = 'none';
-
-  const typeLabels = { 'primer-toque':'primer contacto', 'seguimiento-1':'primer seguimiento', 'seguimiento-2':'segundo seguimiento', 'seguimiento-3':'tercer seguimiento' };
-  const prevEmails = (p.emailLog||[]).map(e => `- ${e.type} enviado el ${e.date}`).join('\n') || 'Ninguno';
-
-  const prompt = `Eres un ejecutivo comercial de una empresa de empaque flexible e innovación de packaging. Debes escribir un correo de ${typeLabels[type]} para prospectar a la siguiente empresa.
-
-DATOS DEL PROSPECTO:
-- Empresa: ${p.empresa||''}
-- Sector: ${p.sector||''}
-- Ubicación: ${p.ubicacion||''}
-- Contacto: ${p.nombre||''}, ${p.cargo||''}
-- Atributos de valor que aprecia: ${p.atributos||'no especificados'}
-
-HISTORIAL DE CONTACTOS PREVIOS:
-${prevEmails}
-
-INSTRUCCIONES:
-- Escribe en español, tono profesional pero cercano
-- El correo debe ser conciso (máximo 150 palabras en el cuerpo)
-- Para primer contacto: preséntate brevemente, menciona por qué contactas específicamente a esta empresa/sector, propón una llamada de 15 minutos
-- Para seguimientos: referencia el correo anterior, agrega un nuevo valor o insight relevante para su sector, reitera la propuesta de reunión
-- NO uses frases genéricas de ventas
-- Firma como: [Tu nombre] | Líder de Innovación & Empaque Flexible
-
-Responde SOLO en formato JSON así (sin markdown):
-{"subject":"asunto aquí","body":"cuerpo del correo aquí con saltos de línea como \\n"}`;
-
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
-    });
-    const data = await resp.json();
-    const raw = data.content[0].text.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(raw);
-    document.getElementById('emailSubject').value = parsed.subject||'';
-    document.getElementById('emailBody').value = (parsed.body||'').replace(/\\n/g,'\n');
-    document.getElementById('emailGenerating').style.display = 'none';
-    document.getElementById('emailOutput').style.display = 'block';
-  } catch(e) {
-    document.getElementById('emailGenerating').style.display = 'none';
-    alert('Error generando correo: ' + e.message);
-  }
-};
-
-window.openGmail = function() {
-  const to = document.getElementById('p_email').value;
-  const subject = encodeURIComponent(document.getElementById('emailSubject').value);
-  const body = encodeURIComponent(document.getElementById('emailBody').value);
-  window.open(`https://mail.google.com/mail/?view=cm&to=${to}&su=${subject}&body=${body}`, '_blank');
-};
-
-window.copyEmail = function() {
-  const subject = document.getElementById('emailSubject').value;
-  const body = document.getElementById('emailBody').value;
-  navigator.clipboard.writeText(`Asunto: ${subject}\n\n${body}`);
-  showSync('ok','Correo copiado al portapapeles');
-};
-
-window.saveEmailToLog = async function() {
-  if (!currentProspectoId) return;
-  const p = prospectos.find(x => x.id === currentProspectoId);
-  const log = [...(p?.emailLog||[]), {
-    type: currentEmailType,
-    subject: document.getElementById('emailSubject').value,
-    date: new Date().toLocaleString('es-MX'),
-    isoDate: today()
-  }];
-  // also update status
-  const statusMap = { 'primer-toque':'primer-toque', 'seguimiento-1':'seguimiento-1', 'seguimiento-2':'seguimiento-2', 'seguimiento-3':'seguimiento-3' };
-  const newStatus = statusMap[currentEmailType] || p.status;
-  // add bitacora entry
-  const bitacora = [...(p?.bitacora||[]), {
-    date: new Date().toLocaleString('es-MX'),
-    isoDate: today(),
-    text: `Correo enviado: ${currentEmailType} — "${document.getElementById('emailSubject').value}"`
-  }];
-  showSync('saving','Guardando...');
-  try {
-    await setDoc(doc(db,'prospectos',currentProspectoId), { emailLog: log, status: newStatus, bitacora }, { merge: true });
-    showSync('ok','Registrado como enviado ✓');
-    renderEmailHistory(log);
-    renderPBitacora({ ...p, bitacora });
-  } catch(e) { showSync('err','Error'); }
-};
-
-function renderEmailHistory(log) {
-  const el = document.getElementById('emailHistory');
-  if (!el) return;
-  if (!log?.length) { el.innerHTML = ''; return; }
-  el.innerHTML = '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);font-family:'DM Mono',monospace;margin-bottom:10px">Historial de correos enviados</div>' +
-    [...log].reverse().map(e => `<div class="bitacora-entry" style="border-color:var(--accent3)">
-      <div class="bitacora-date">${e.date}</div>
-      <div class="bitacora-text" style="font-weight:600">${e.type} — ${e.subject}</div>
-    </div>`).join('');
+window.addExtraContact=()=>{const p=currentProspectoId?prospectos.find(x=>x.id===currentProspectoId):null;renderEC([...(p?.extraContacts||[]),{nombre:'',cargo:'',email:'',tel:''}]);};
+window.updateEC=(i,f,v)=>{const p=currentProspectoId?prospectos.find(x=>x.id===currentProspectoId):null;if(p){if(!p.extraContacts)p.extraContacts=[];if(!p.extraContacts[i])p.extraContacts[i]={};p.extraContacts[i][f]=v;}};
+window.removeEC=i=>{const p=currentProspectoId?prospectos.find(x=>x.id===currentProspectoId):null;if(p&&p.extraContacts){p.extraContacts.splice(i,1);renderEC(p.extraContacts);}};
+function renderEH(log){
+  const el=document.getElementById('emailHistory');if(!el)return;
+  el.innerHTML=log?.length?'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);font-family:\'DM Mono\',monospace;margin-bottom:10px">Historial enviados</div>'+[...log].reverse().map(e=>`<div class="bitacora-entry" style="border-color:var(--accent3)"><div class="bitacora-date">${e.date}</div><div class="bitacora-text" style="font-weight:600">${e.type} — ${e.subject}</div></div>`).join(''):'';
 }
-
-function renderPBitacora(p) {
-  const entries = p?.bitacora||[];
-  const el = document.getElementById('pBitacoraEntries');
-  if (!el) return;
-  el.innerHTML = entries.length===0
-    ? '<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Sin eventos registrados.</div>'
-    : [...entries].reverse().map(e => `<div class="bitacora-entry">
-        <div class="bitacora-date">${e.date}</div>
-        <div class="bitacora-text">${e.text}</div>
-      </div>`).join('');
+function renderPB(p){
+  const e=p?.bitacora||[];
+  const el=document.getElementById('pBitacoraEntries');if(!el)return;
+  el.innerHTML=e.length?[...e].reverse().map(x=>`<div class="bitacora-entry"><div class="bitacora-date">${x.date}</div><div class="bitacora-text">${x.text}</div></div>`).join(''):'<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Sin eventos.</div>';
 }
-
-window.addPBitacora = async function() {
-  const text = document.getElementById('pNewEntry').value.trim();
-  if (!text || !currentProspectoId) return;
-  const p = prospectos.find(x => x.id === currentProspectoId);
-  const bitacora = [...(p?.bitacora||[]), { date: new Date().toLocaleString('es-MX'), isoDate: today(), text }];
-  document.getElementById('pNewEntry').value = '';
-  renderPBitacora({ bitacora });
+window.generateEmail=async type=>{
+  currentEmailType=type;
+  const p=currentProspectoId?prospectos.find(x=>x.id===currentProspectoId):null;
+  if(!p){alert('Guarda el prospecto primero.');return;}
+  document.getElementById('emailGenerating').style.display='block';
+  document.getElementById('emailOutput').style.display='none';
+  const lbl={'primer-toque':'primer contacto','seguimiento-1':'primer seguimiento','seguimiento-2':'segundo seguimiento','seguimiento-3':'tercer seguimiento'};
+  const prev=(p.emailLog||[]).map(e=>`- ${e.type} enviado el ${e.date}`).join('\n')||'Ninguno';
+  const prompt=`Eres ejecutivo comercial de empresa de empaque flexible e innovación de packaging. Escribe correo de ${lbl[type]}.
+EMPRESA: ${p.empresa||''} | SECTOR: ${p.sector||''} | UBICACIÓN: ${p.ubicacion||''}
+CONTACTO: ${p.nombre||''}, ${p.cargo||''}
+ATRIBUTOS DE VALOR: ${p.atributos||'no especificados'}
+HISTORIAL PREVIO: ${prev}
+INSTRUCCIONES: español profesional cercano, máximo 150 palabras, NO frases genéricas, firma: [Tu nombre] | Líder Innovación & Empaque Flexible
+Responde SOLO JSON sin markdown: {"subject":"...","body":"..."}`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const d=await r.json();
+    const parsed=JSON.parse(d.content[0].text.replace(/```json|```/g,'').trim());
+    document.getElementById('emailSubject').value=parsed.subject||'';
+    document.getElementById('emailBody').value=(parsed.body||'').replace(/\\n/g,'\n');
+    document.getElementById('emailGenerating').style.display='none';
+    document.getElementById('emailOutput').style.display='block';
+  }catch(e){document.getElementById('emailGenerating').style.display='none';alert('Error: '+e.message);}
+};
+window.openGmail=()=>{const to=document.getElementById('p_email').value;const sub=encodeURIComponent(document.getElementById('emailSubject').value);const body=encodeURIComponent(document.getElementById('emailBody').value);window.open(`https://mail.google.com/mail/?view=cm&to=${to}&su=${sub}&body=${body}`,'_blank');};
+window.copyEmail=()=>{navigator.clipboard.writeText(`Asunto: ${document.getElementById('emailSubject').value}\n\n${document.getElementById('emailBody').value}`);showSync('ok','Copiado ✓');};
+window.saveEmailToLog=async()=>{
+  if(!currentProspectoId)return;
+  const p=prospectos.find(x=>x.id===currentProspectoId);
+  const log=[...(p?.emailLog||[]),{type:currentEmailType,subject:document.getElementById('emailSubject').value,date:new Date().toLocaleString('es-MX'),isoDate:today()}];
+  const stMap={'primer-toque':'primer-toque','seguimiento-1':'seguimiento-1','seguimiento-2':'seguimiento-2','seguimiento-3':'seguimiento-3'};
+  const bitacora=[...(p?.bitacora||[]),{date:new Date().toLocaleString('es-MX'),isoDate:today(),text:`Correo enviado: ${currentEmailType} — "${document.getElementById('emailSubject').value}"`}];
   showSync('saving','Guardando...');
-  try {
-    await setDoc(doc(db,'prospectos',currentProspectoId), { bitacora }, { merge: true });
-    showSync('ok','Guardado ✓');
-  } catch(e) { showSync('err','Error'); }
+  try{await setDoc(doc(db,'prospectos',currentProspectoId),{emailLog:log,status:stMap[currentEmailType]||p.status,bitacora},{merge:true});showSync('ok','Registrado ✓');renderEH(log);renderPB({...p,bitacora});}catch(e){showSync('err','Error');}
 };
-
-window.saveProspecto = async function() {
-  const empresa = document.getElementById('p_empresa').value.trim();
-  const nombre  = document.getElementById('p_nombre').value.trim();
-  if (!empresa) { alert('El nombre de la empresa es requerido.'); return; }
-  const btn = document.getElementById('pBtnSave');
-  btn.disabled = true; btn.textContent = 'Guardando...';
+window.addPBitacora=async()=>{
+  const text=document.getElementById('pNewEntry').value.trim();
+  if(!text||!currentProspectoId)return;
+  const p=prospectos.find(x=>x.id===currentProspectoId);
+  const bitacora=[...(p?.bitacora||[]),{date:new Date().toLocaleString('es-MX'),isoDate:today(),text}];
+  document.getElementById('pNewEntry').value='';renderPB({bitacora});
+  try{await setDoc(doc(db,'prospectos',currentProspectoId),{bitacora},{merge:true});showSync('ok','✓');}catch(e){showSync('err','Error');}
+};
+window.saveProspecto=async()=>{
+  const empresa=document.getElementById('p_empresa').value.trim();
+  if(!empresa){alert('Empresa requerida.');return;}
+  const btn=document.getElementById('pBtnSave');btn.disabled=true;btn.textContent='Guardando...';
   showSync('saving','Guardando...');
-
-  const p = currentProspectoId ? prospectos.find(x => x.id === currentProspectoId) : null;
-  // gather extra contacts from DOM
-  const extraInputs = document.querySelectorAll('#p_extraContacts > div');
-  const extraContacts = Array.from(extraInputs).map(row => {
-    const inputs = row.querySelectorAll('input');
-    return { nombre: inputs[0]?.value||'', cargo: inputs[1]?.value||'', email: inputs[2]?.value||'', tel: inputs[3]?.value||'' };
-  });
-
-  const data = {
-    empresa, nombre,
-    sector:    document.getElementById('p_sector').value,
-    ubicacion: document.getElementById('p_ubicacion').value,
-    status:    document.getElementById('p_status').value,
-    atributos: document.getElementById('p_atributos').value,
-    cargo:     document.getElementById('p_cargo').value,
-    email:     document.getElementById('p_email').value,
-    tel:       document.getElementById('p_tel').value,
-    linkedin:  document.getElementById('p_linkedin').value,
-    extraContacts,
-    updatedAt: serverTimestamp(),
-  };
-
-  try {
-    if (currentProspectoId) {
-      await setDoc(doc(db,'prospectos',currentProspectoId), data, { merge: true });
-    } else {
-      data.createdDate = today();
-      data.bitacora = [{ date: new Date().toLocaleString('es-MX'), isoDate: today(), text: 'Prospecto creado' }];
-      data.emailLog = [];
-      await setDoc(doc(db,'prospectos', Date.now().toString()), data);
-    }
-    showSync('ok','Guardado ✓');
-    closePModal();
-  } catch(e) {
-    showSync('err','Error al guardar');
-    alert('Error: ' + e.message);
-  }
-  btn.disabled = false; btn.textContent = 'Guardar Prospecto';
+  const rows=document.querySelectorAll('#p_extraContacts > div');
+  const extra=Array.from(rows).map(r=>{const inp=r.querySelectorAll('input');return{nombre:inp[0]?.value||'',cargo:inp[1]?.value||'',email:inp[2]?.value||'',tel:inp[3]?.value||''};});
+  const data={empresa,nombre:document.getElementById('p_nombre').value,sector:document.getElementById('p_sector').value,ubicacion:document.getElementById('p_ubicacion').value,status:document.getElementById('p_status').value,atributos:document.getElementById('p_atributos').value,cargo:document.getElementById('p_cargo').value,email:document.getElementById('p_email').value,tel:document.getElementById('p_tel').value,linkedin:document.getElementById('p_linkedin').value,extraContacts:extra,updatedAt:serverTimestamp()};
+  try{
+    if(currentProspectoId){await setDoc(doc(db,'prospectos',currentProspectoId),data,{merge:true});}
+    else{data.createdDate=today();data.bitacora=[{date:new Date().toLocaleString('es-MX'),isoDate:today(),text:'Prospecto creado'}];data.emailLog=[];await setDoc(doc(db,'prospectos',Date.now().toString()),data);}
+    showSync('ok','Guardado ✓');closePModal();
+  }catch(e){showSync('err','Error');alert(e.message);}
+  btn.disabled=false;btn.textContent='Guardar Prospecto';
 };
+window.deleteProspecto=async()=>{if(!currentProspectoId||!confirm('¿Eliminar?'))return;try{await deleteDoc(doc(db,'prospectos',currentProspectoId));showSync('ok','Eliminado');closePModal();}catch(e){showSync('err','Error');}};
+window.convertToLead=()=>quickConvert(currentProspectoId);
+window.quickConvert=pid=>{const p=prospectos.find(x=>x.id===pid);if(!p)return;closePModal();openModal(null);document.getElementById('f_name').value=p.empresa||'';document.getElementById('f_contacts').value=p.nombre?(p.nombre+(p.cargo?' - '+p.cargo:'')):'';showSync('ok','Datos precargados — completa y guarda');};
+window.closePModal=()=>document.getElementById('pModalOverlay').classList.remove('open');
 
-window.deleteProspecto = async function() {
-  if (!currentProspectoId || !confirm('Eliminar este prospecto?')) return;
-  try {
-    await deleteDoc(doc(db,'prospectos',currentProspectoId));
-    showSync('ok','Eliminado');
-    closePModal();
-  } catch(e) { showSync('err','Error'); }
-};
-
-window.convertToLead = function() { quickConvert(currentProspectoId); };
-
-window.quickConvert = function(pid) {
-  const p = prospectos.find(x => x.id === pid);
-  if (!p) return;
-  closePModal();
-  // Pre-fill lead modal with prospecto data
-  openModal(null);
-  document.getElementById('f_name').value     = p.empresa||'';
-  document.getElementById('f_owner').value    = '';
-  document.getElementById('f_contacts').value = p.nombre ? `${p.nombre}${p.cargo?' - '+p.cargo:''}` : '';
-  showSync('ok','Datos precargados — completa el lead y guarda');
-};
-
-window.closePModal = function() { document.getElementById('pModalOverlay').classList.remove('open'); };
-window.handlePOverlayClick = function(e) { if (e.target===document.getElementById('pModalOverlay')) closePModal(); };
-
-// refresh prospectos view
-const _origRefresh = refreshCurrentView;
-
-// Global search
-document.getElementById('globalSearch').addEventListener('input', () => {
-  if (currentView === 'table') renderTable();
-});
-
+document.getElementById('globalSearch').addEventListener('input',()=>{if(currentView==='table')renderTable();});
 </script>
 </body>
 </html>
