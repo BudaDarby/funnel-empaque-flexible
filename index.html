@@ -127,6 +127,13 @@ textarea.form-input{resize:vertical;min-height:80px}
 .inner-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:24px}
 .inner-tab{padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;transition:all .2s}
 .inner-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.goget-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:0;position:relative;min-width:0}
+.goget-bars{width:100%;display:flex;gap:3px;align-items:flex-end;height:180px}
+.goget-bar{flex:1;border-radius:4px 4px 0 0;transition:all .5s;min-height:2px;cursor:default;position:relative}
+.goget-bar:hover::after{content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;font-family:'DM Mono',monospace;white-space:nowrap;z-index:10;margin-bottom:4px}
+.goget-month-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--text2);text-align:center;margin-top:6px;white-space:nowrap}
+.goget-month-delta{font-size:9px;font-family:'DM Mono',monospace;text-align:center}
 ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 @media(max-width:768px){header{padding:14px 16px}.main{padding:20px 16px}.form-grid{grid-template-columns:1fr}}
 </style>
@@ -165,6 +172,39 @@ textarea.form-input{resize:vertical;min-height:80px}
     <div style="margin-bottom:12px">
       <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'DM Mono',monospace;margin-bottom:14px">// Métricas Estratégicas · USD (miles)</div>
       <div class="stats-grid" id="strategicGrid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))"></div>
+    </div>
+    <div class="funnel-container" id="gogetSection">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+        <div>
+          <div class="funnel-title" style="margin-bottom:4px">// Go-Get · Meta vs Proyección Mensual</div>
+          <div style="font-size:11px;color:var(--text2);font-family:'DM Mono',monospace">USD (miles) · Acumulado mes a mes</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:3px;background:#6c63ff"></div><span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text2)">Meta</span></div>
+          <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:3px;background:#00d4a8"></div><span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text2)">Proyección</span></div>
+          <button class="btn btn-ghost" onclick="openGogetConfig()" style="font-size:11px;padding:5px 12px">⚙️ Configurar metas</button>
+        </div>
+      </div>
+      <div id="gogetChart" style="height:220px;display:flex;align-items:flex-end;gap:6px;position:relative">
+        <div style="color:var(--text3);font-family:'DM Mono',monospace;font-size:12px;margin:auto">Cargando...</div>
+      </div>
+      <div id="gogetSummaryBar" style="display:flex;gap:24px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap"></div>
+    </div>
+
+    <!-- MODAL GOGET CONFIG -->
+    <div class="modal-overlay" id="gogetModalOverlay" onclick="if(event.target===this)closeGogetModal()">
+      <div class="modal" style="max-width:720px">
+        <button class="modal-close" onclick="closeGogetModal()">✕</button>
+        <div class="modal-header">
+          <div class="modal-lead-name">⚙️ Configurar Metas Go-Get</div>
+          <div style="font-size:13px;color:var(--text2);font-family:'DM Mono',monospace;margin-top:4px">Ingresa la meta de facturación por mes (USD miles)</div>
+        </div>
+        <div id="gogetConfigGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border)">
+          <button class="btn btn-ghost" onclick="closeGogetModal()">Cancelar</button>
+          <button class="btn btn-primary" onclick="saveGogetMetas()">Guardar Metas</button>
+        </div>
+      </div>
     </div>
     <div class="funnel-container">
       <div class="funnel-title">// Distribución por Etapa</div>
@@ -280,6 +320,11 @@ textarea.form-input{resize:vertical;min-height:80px}
         <div class="form-group"><label class="form-label">Capacidad Venta Anual</label><input class="form-input" id="f_capacidad" placeholder="Unidades/toneladas"></div>
         <div class="form-group"><label class="form-label">Volumen Mkt Anual</label><input class="form-input" id="f_mktVol" placeholder="Volumen proyectado"></div>
       </div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">📅 Proyección Mensual de Facturación</div>
+      <div style="font-size:12px;color:var(--text2);font-family:'DM Mono',monospace;margin-bottom:14px">USD · Monto esperado de facturación por mes</div>
+      <div id="monthlyProjectionGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px"></div>
     </div>
     <div class="modal-section">
       <div class="modal-section-title">✅ Checklist <span id="checklistStageLabel" style="color:var(--text2);font-size:11px;font-weight:400"></span></div>
@@ -586,6 +631,7 @@ function renderDashboard(){
         </div>
       </div>
     </div>`;
+  renderGogetChart();
   const cnts={};STAGES.slice(0,10).forEach(s=>cnts[s.id]=leads.filter(l=>l.stage===s.id).length);
   const mx=Math.max(...Object.values(cnts),1);
   document.getElementById('funnelBars').innerHTML=STAGES.slice(0,10).map(s=>{const c=cnts[s.id]||0,h=Math.max((c/mx)*70+4,4);return `<div class="funnel-bar-wrap"><div class="funnel-bar-count" style="color:${s.color}">${c}</div><div class="funnel-bar" style="height:${h}px;background:${s.color}25;border:1px solid ${s.color}70" onclick="switchView('kanban')"></div><div class="funnel-bar-label">${s.short}</div></div>`;}).join('');
@@ -645,7 +691,7 @@ window.openModal=function(id){
   const cs=l?l.stage:'ID01', st=STAGES.find(s=>s.id===cs)||STAGES[0];
   document.getElementById('modalMeta').innerHTML=l?`<span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.label}</span><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'New Business'}</span>`:'';
   document.getElementById('stageSelectorEl').innerHTML=STAGES.map(s=>`<div class="stage-option${s.id===cs?' selected':''}" style="${s.id===cs?`background:${s.color};border-color:${s.color}`:''}" onclick="selectStage('${s.id}')" data-stage="${s.id}">${s.short}</div>`).join('');
-  renderCL(cs,l);renderTimeGrid(l);renderBit(l);
+  renderCL(cs,l);renderTimeGrid(l);renderBit(l);renderMonthlyGrid(l);
   document.getElementById('modalOverlay').classList.add('open');
 };
 window.selectStage=id=>{
@@ -856,6 +902,182 @@ window.convertToLead=()=>quickConvert(currentProspectoId);
 window.quickConvert=pid=>{const p=prospectos.find(x=>x.id===pid);if(!p)return;closePModal();openModal(null);document.getElementById('f_name').value=p.empresa||'';document.getElementById('f_contacts').value=p.nombre?(p.nombre+(p.cargo?' - '+p.cargo:'')):'';showSync('ok','Datos precargados — completa y guarda');};
 window.closePModal=()=>document.getElementById('pModalOverlay').classList.remove('open');
 
+
+// ── MONTHS CONFIG ────────────────────────────────────────────────────────────
+const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MONTH_KEYS = ['m01','m02','m03','m04','m05','m06','m07','m08','m09','m10','m11','m12'];
+let gogetMetas = {}; // {m01:53, m02:53, ...} loaded from Firestore
+
+// Load goget metas from Firestore (stored as single doc)
+const gogetDocRef = doc(db,'config','goget_metas');
+onSnapshot(gogetDocRef, snap => {
+  if(snap.exists()) gogetMetas = snap.data();
+  else gogetMetas = {};
+  if(currentView==='dashboard') renderGogetChart();
+}, err => console.error('goget metas:', err));
+
+// ── MONTHLY PROJECTION GRID (inside lead modal) ──────────────────────────────
+function renderMonthlyGrid(lead) {
+  const mp = lead?.monthlyProjection || {};
+  document.getElementById('monthlyProjectionGrid').innerHTML = MONTH_KEYS.map((k,i) => `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+      <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--text2);text-transform:uppercase;margin-bottom:6px">${MONTHS[i]} 2026</div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">$</span>
+        <input id="mp_${k}" type="number" placeholder="0" value="${mp[k]||''}"
+          style="background:transparent;border:none;color:var(--accent);font-family:'DM Mono',monospace;font-size:16px;font-weight:700;width:100%;outline:none"
+          oninput="updateMonthlyPreview()">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">k</span>
+      </div>
+    </div>`).join('');
+  updateMonthlyPreview();
+}
+
+window.updateMonthlyPreview = () => {
+  const total = MONTH_KEYS.reduce((s,k) => s+(Number(document.getElementById('mp_'+k)?.value)||0), 0);
+  // could show total somewhere if desired
+};
+
+function getMonthlyProjectionFromForm() {
+  const mp = {};
+  MONTH_KEYS.forEach(k => { const v=Number(document.getElementById('mp_'+k)?.value)||0; if(v) mp[k]=v; });
+  return mp;
+}
+
+// ── SAVE MONTHLY PROJECTION WITH LEAD ────────────────────────────────────────
+// Patch saveLead to also save monthlyProjection
+const _origSaveLead = window.saveLead;
+window.saveLead = async function() {
+  // intercept to inject monthlyProjection
+  const name=document.getElementById('f_name').value.trim();
+  if(!name){alert('Nombre requerido.');return;}
+  const btn=document.getElementById('btnSave');btn.disabled=true;btn.textContent='Guardando...';
+  showSync('saving','Guardando...');
+  const ns=document.querySelector('.stage-option.selected')?.dataset.stage||'ID01';
+  const mp = getMonthlyProjectionFromForm();
+  try{
+    if(currentLeadId){
+      const lead=leads.find(l=>l.id===currentLeadId);
+      const sh={...(lead.stageHistory||{})},se={...(lead.stageExits||{})};
+      if(lead.stage!==ns){se[lead.stage]=today();if(!sh[ns])sh[ns]=today();}
+      await setDoc(doc(db,'leads',currentLeadId),{name,stage:ns,stageHistory:sh,stageExits:se,
+        owner:document.getElementById('f_owner').value,contacts:document.getElementById('f_contacts').value,
+        type:document.getElementById('f_type').value,startDate:document.getElementById('f_startDate').value,
+        goGetDate:document.getElementById('f_goGetDate').value,saleDate:document.getElementById('f_saleDate').value,
+        tp:document.getElementById('f_tp').value,tam:document.getElementById('f_tam').value,
+        sam:document.getElementById('f_sam').value,som:document.getElementById('f_som').value,
+        capacidad:document.getElementById('f_capacidad').value,mktVol:document.getElementById('f_mktVol').value,
+        monthlyProjection:mp,updatedAt:serverTimestamp()},{merge:true});
+    }else{
+      await setDoc(doc(db,'leads',Date.now().toString()),{name,stage:ns,
+        owner:document.getElementById('f_owner').value,contacts:document.getElementById('f_contacts').value,
+        type:document.getElementById('f_type').value,startDate:document.getElementById('f_startDate').value||today(),
+        goGetDate:document.getElementById('f_goGetDate').value,saleDate:document.getElementById('f_saleDate').value,
+        tp:document.getElementById('f_tp').value,tam:document.getElementById('f_tam').value,
+        sam:document.getElementById('f_sam').value,som:document.getElementById('f_som').value,
+        capacidad:document.getElementById('f_capacidad').value,mktVol:document.getElementById('f_mktVol').value,
+        monthlyProjection:mp,stageHistory:{[ns]:today()},stageExits:{},checklists:{},bitacora:[],
+        createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+    }
+    showSync('ok','Guardado ✓');closeModal();
+  }catch(e){showSync('err','Error');alert(e.message);}
+  btn.disabled=false;btn.textContent='Guardar Lead';
+};
+
+// ── GOGET CHART ───────────────────────────────────────────────────────────────
+function renderGogetChart() {
+  // Sum monthly projections across all active leads
+  const projByMonth = {};
+  MONTH_KEYS.forEach(k => projByMonth[k] = 0);
+  leads.filter(l=>l.stage!=='PERDIDO').forEach(l => {
+    const mp = l.monthlyProjection||{};
+    MONTH_KEYS.forEach(k => { projByMonth[k] += Number(mp[k])||0; });
+  });
+
+  const metas = MONTH_KEYS.map(k => Number(gogetMetas[k])||0);
+  const projs  = MONTH_KEYS.map(k => projByMonth[k]);
+
+  // Acumulados
+  const metaAcum = [], projAcum = [];
+  let mAcc=0, pAcc=0;
+  for(let i=0;i<12;i++){
+    mAcc+=metas[i]; pAcc+=projs[i];
+    metaAcum.push(mAcc); projAcum.push(pAcc);
+  }
+
+  const maxVal = Math.max(...metaAcum, ...projAcum, 1);
+  const chartH = 180;
+
+  const cols = MONTH_KEYS.map((k,i) => {
+    const mH = Math.max((metaAcum[i]/maxVal)*chartH, 2);
+    const pH = Math.max((projAcum[i]/maxVal)*chartH, 2);
+    const ahead = projAcum[i] >= metaAcum[i];
+    const delta = projAcum[i] - metaAcum[i];
+    const deltaColor = ahead ? 'var(--accent)' : 'var(--red)';
+    const deltaStr = (ahead?'+':'') + delta.toFixed(0) + 'k';
+    return `<div class="goget-col">
+      <div class="goget-bars">
+        <div class="goget-bar" style="height:${mH}px;background:#6c63ff;opacity:.7"
+          data-tip="Meta acum.: $${metaAcum[i].toFixed(0)}k"></div>
+        <div class="goget-bar" style="height:${pH}px;background:${ahead?'var(--accent)':'var(--red)'};opacity:.9"
+          data-tip="Proyección acum.: $${projAcum[i].toFixed(0)}k"></div>
+      </div>
+      <div class="goget-month-label">${MONTHS[i]}</div>
+      <div class="goget-month-delta" style="color:${deltaColor}">${metas[i]||projs[i]?deltaStr:''}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('gogetChart').innerHTML = cols;
+
+  // Summary bar
+  const totalMeta = metaAcum[11];
+  const totalProj = projAcum[11];
+  const gap = totalProj - totalMeta;
+  const pct = totalMeta ? Math.min((totalProj/totalMeta)*100,999).toFixed(0) : 0;
+  const currMonth = new Date().getMonth();
+  const metaYTD = metaAcum[currMonth];
+  const projYTD = projAcum[currMonth];
+
+  document.getElementById('gogetSummaryBar').innerHTML = `
+    <div><div class="stat-label">Meta Anual</div><div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:#6c63ff">$${totalMeta.toFixed(0)}k</div></div>
+    <div><div class="stat-label">Proyección Anual</div><div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:${gap>=0?'var(--accent)':'var(--red)'}">$${totalProj.toFixed(0)}k</div></div>
+    <div><div class="stat-label">Brecha Anual</div><div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:${gap>=0?'var(--accent)':'var(--red)'}">${gap>=0?'+':''}$${gap.toFixed(0)}k</div></div>
+    <div><div class="stat-label">Cobertura Anual</div><div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:${pct>=100?'var(--accent)':pct>=70?'var(--warn)':'var(--red)'}">${pct}%</div></div>
+    <div style="border-left:1px solid var(--border);padding-left:24px"><div class="stat-label">Meta YTD (a la fecha)</div><div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:#6c63ff">$${metaYTD.toFixed(0)}k</div></div>
+    <div><div class="stat-label">Proyección YTD</div><div style="font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:${projYTD>=metaYTD?'var(--accent)':'var(--red)'}">$${projYTD.toFixed(0)}k</div></div>
+  `;
+}
+
+// ── GOGET CONFIG MODAL ────────────────────────────────────────────────────────
+window.openGogetConfig = () => {
+  document.getElementById('gogetConfigGrid').innerHTML = MONTH_KEYS.map((k,i) => `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px">
+      <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--text2);text-transform:uppercase;margin-bottom:8px">${MONTHS[i]} 2026</div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">$</span>
+        <input id="gm_${k}" type="number" placeholder="0" value="${gogetMetas[k]||''}"
+          style="background:transparent;border:none;color:#a89cff;font-family:'DM Mono',monospace;font-size:18px;font-weight:700;width:100%;outline:none">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">k USD</span>
+      </div>
+    </div>`).join('');
+  document.getElementById('gogetModalOverlay').classList.add('open');
+};
+
+window.saveGogetMetas = async () => {
+  const metas = {};
+  MONTH_KEYS.forEach(k => { const v=Number(document.getElementById('gm_'+k)?.value)||0; if(v) metas[k]=v; });
+  showSync('saving','Guardando metas...');
+  try {
+    await setDoc(gogetDocRef, metas);
+    showSync('ok','Metas guardadas ✓');
+    closeGogetModal();
+  } catch(e) { showSync('err','Error al guardar'); }
+};
+
+window.closeGogetModal = () => document.getElementById('gogetModalOverlay').classList.remove('open');
+
+// Hook into renderDashboard to also render chart
+const _origRenderDashboard = renderDashboard;
 document.getElementById('globalSearch').addEventListener('input',()=>{if(currentView==='table')renderTable();});
 </script>
 </body>
