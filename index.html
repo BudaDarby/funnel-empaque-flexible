@@ -192,7 +192,7 @@ textarea.form-input{resize:vertical;min-height:80px}
     <button class="auth-btn" id="authBtn" onclick="doLogin()">Ingresar</button>
     <div class="auth-footer">Acceso restringido · © 2026<br>
       <span style="color:var(--text2)">¿Necesitas acceso? Contacta a </span>
-      <a href="mailto:glebron@ternova.group" style="color:var(--accent3);text-decoration:none;font-weight:500">Guillermo Lebrón</a>
+      <a href="/cdn-cgi/l/email-protection#f0979c9592829f9eb08495829e9f8691de97829f8580" style="color:var(--accent3);text-decoration:none;font-weight:500">Guillermo Lebrón</a>
     </div>
   </div>
 </div>
@@ -248,6 +248,7 @@ textarea.form-input{resize:vertical;min-height:80px}
         <div style="color:var(--text3);font-family:'Roboto Mono',monospace;font-size:12px;margin:auto">Cargando...</div>
       </div>
       <div id="gogetSummaryBar" style="display:flex;gap:24px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap"></div>
+      <div id="gogetContributors" style="margin-top:20px"></div>
     </div>
 
     <!-- MODAL GOGET CONFIG -->
@@ -505,7 +506,7 @@ textarea.form-input{resize:vertical;min-height:80px}
   </div>
 </div>
 
-<script type="module">
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -1019,7 +1020,7 @@ function renderMonthlyGrid(lead) {
       <div style="font-size:10px;font-family:'Roboto Mono',monospace;color:var(--text2);text-transform:uppercase;margin-bottom:6px">${MONTHS[i]} 2026</div>
       <div style="display:flex;align-items:center;gap:4px">
         <span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)">$</span>
-        <input id="mp_${k}" type="number" placeholder="0" value="${mp[k]||''}"
+        <input id="mp_${k}" type="number" placeholder="0" value="${mp[k]!==undefined?mp[k]:''}"
           style="background:transparent;border:none;color:var(--accent);font-family:'Roboto Mono',monospace;font-size:16px;font-weight:700;width:100%;outline:none"
           oninput="updateMonthlyPreview()">
         <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text3)">k</span>
@@ -1035,7 +1036,10 @@ window.updateMonthlyPreview = () => {
 
 function getMonthlyProjectionFromForm() {
   const mp = {};
-  MONTH_KEYS.forEach(k => { const v=Number(document.getElementById('mp_'+k)?.value)||0; if(v) mp[k]=v; });
+  MONTH_KEYS.forEach(k => {
+    const el = document.getElementById('mp_'+k);
+    if(el && el.value !== '') mp[k] = Number(el.value);
+  });
   return mp;
 }
 
@@ -1141,6 +1145,77 @@ function renderGogetChart() {
     <div style="border-left:1px solid var(--border);padding-left:24px"><div class="stat-label">Meta YTD (a la fecha)</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:#6c63ff">$${metaYTD.toFixed(0)}k</div></div>
     <div><div class="stat-label">Proyección YTD</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:${projYTD>=metaYTD?'var(--accent)':'var(--red)'}">$${projYTD.toFixed(0)}k</div></div>
   `;
+
+  // ── CONTRIBUTORS TABLE ──────────────────────────────────────────────────────
+  const contributors = leads
+    .filter(l => l.stage !== 'PERDIDO')
+    .map(l => {
+      const mp = l.monthlyProjection || {};
+      const total = MONTH_KEYS.reduce((s,k) => s + (Number(mp[k]) || 0), 0);
+      return { ...l, mpTotal: total, mp };
+    })
+    .filter(l => l.mpTotal > 0)
+    .sort((a,b) => b.mpTotal - a.mpTotal);
+
+  const contEl = document.getElementById('gogetContributors');
+  if(!contEl) return;
+
+  if(!contributors.length) {
+    contEl.innerHTML = '';
+    return;
+  }
+
+  const stageColor = id => STAGES.find(s=>s.id===id)?.color || '#999';
+  const typeLabel  = t => t==='growth'?'Growth':'New Business';
+  const typeCls    = t => t==='growth'?'type-gr':'type-nb';
+
+  contEl.innerHTML = `
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:12px;padding-top:16px;border-top:1px solid var(--border)">
+      // Leads contribuyendo al Go-Get
+    </div>
+    <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="background:var(--surface2)">
+            <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap">Lead</th>
+            <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Etapa</th>
+            <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Tipo</th>
+            ${MONTHS.map(m=>`<th style="padding:10px 8px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap">${m}</th>`).join('')}
+            <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap">Total Año</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${contributors.map((l,i) => {
+            const sc = stageColor(l.stage);
+            const rowBg = i%2===0 ? 'background:var(--surface)' : 'background:var(--surface2)';
+            const monthCells = MONTH_KEYS.map(k => {
+              const v = Number(l.mp[k]);
+              const hasVal = l.mp[k] !== undefined && l.mp[k] !== '';
+              return `<td style="padding:10px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:12px;${hasVal && v>0?'color:var(--accent3);font-weight:600':hasVal && v===0?'color:var(--text3)':'color:var(--text3)'}">
+                ${hasVal ? (v>0?'$'+v+'k':'0') : '—'}
+              </td>`;
+            }).join('');
+            return `<tr style="${rowBg};border-bottom:1px solid var(--border);cursor:pointer" onclick="openModal('${l.id}')">
+              <td style="padding:10px 14px;font-weight:700;font-size:13px">${l.name}</td>
+              <td style="padding:10px 14px"><span class="stage-badge" style="background:${sc}20;color:${sc}">${l.stage}</span></td>
+              <td style="padding:10px 14px"><span class="type-badge ${typeCls(l.type)}">${typeLabel(l.type)}</span></td>
+              ${monthCells}
+              <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;color:var(--accent3)">$${l.mpTotal.toFixed(0)}k</td>
+            </tr>`;
+          }).join('')}
+          <tr style="background:var(--surface2);border-top:2px solid var(--border)">
+            <td colspan="3" style="padding:10px 14px;font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace;color:var(--text2)">TOTAL PROYECTADO</td>
+            ${MONTH_KEYS.map(k => {
+              const s = contributors.reduce((acc,l)=>acc+(Number(l.mp[k])||0),0);
+              return `<td style="padding:10px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:12px;font-weight:700;color:${s>0?'var(--accent3)':'var(--text3)'}">
+                ${s>0?'$'+s+'k':'—'}
+              </td>`;
+            }).join('')}
+            <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;color:var(--accent3)">$${contributors.reduce((s,l)=>s+l.mpTotal,0).toFixed(0)}k</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
 }
 
 // ── GOGET CONFIG MODAL ────────────────────────────────────────────────────────
@@ -1225,8 +1300,4 @@ document.getElementById('globalSearch').addEventListener('input', () => {
 });
 </script>
 
-<div class="app-footer" id="appFooter" style="display:none">
-  Desarrollado por <span>Guillermo Lebrón</span> · Líder Innovación & Empaque Flexible · 2026
-</div>
-</body>
-</html>
+<div class="app-footer" id="app
