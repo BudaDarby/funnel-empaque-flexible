@@ -658,7 +658,7 @@ function renderDashboard(){
   const tSOM=act.reduce((s,l)=>s+(Number(l.som)||0),0);
   const opt1=leads.filter(l=>APROBADAS.includes(l.stage)).reduce((s,l)=>s+(Number(l.som)||0),0);
   const opt2=leads.filter(l=>l.stage!=='PERDIDO').reduce((s,l)=>s+(Number(l.som)||0)*(PROB[l.stage]||0),0);
-  const META=639*3;
+  const META=1078*3;
   const cc=(v,m)=>v>=m?'var(--accent)':v>=m*.6?'var(--warn)':'var(--red)';
   const pb=(v,m,c)=>{const p=Math.min(v/m*100,100).toFixed(0);return `<div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0 5px"><div style="height:100%;width:${p}%;background:${c};border-radius:3px"></div></div><div class="stat-sub">${p}% · Falta $${Math.max(m-v,0).toFixed(0)}k</div>`;};
   document.getElementById('statsGrid').innerHTML=`
