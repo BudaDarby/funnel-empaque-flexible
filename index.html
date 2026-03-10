@@ -11,7 +11,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Inter',Arial,sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 #loadingScreen{position:fixed;inset:0;background:#f5f6fa;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .4s}
-#loadingScreen.hide{opacity:0;pointer-events:none}
+#loadingScreen.hide{opacity:0!important;pointer-events:none!important}
 .loader-ring{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loader-text{font-family:'Roboto Mono',monospace;font-size:13px;color:var(--text2)}
@@ -592,8 +592,15 @@ function startListeners() {
     document.getElementById('loadingScreen').classList.add('hide');
     refresh();
   }, err=>{
+    console.error('Leads error:', err);
     document.getElementById('loadingScreen').classList.add('hide');
-    showSync('err','Error: '+err.code);
+    showSync('err','Error Firestore: '+err.code);
+    // Show error in UI
+    document.getElementById('loadMsg').textContent = 'Error al cargar datos';
+    document.getElementById('loadDiag').innerHTML = '❌ '+err.code+'<br><span style="color:var(--text2)">Intenta cerrar sesión y volver a entrar</span><br><br><button onclick="doLogout()" style="background:var(--accent3);color:#fff;border:none;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:13px">Cerrar sesión</button>';
+    document.getElementById('loadingScreen').classList.remove('hide');
+    document.getElementById('loadingScreen').style.opacity = '1';
+    document.getElementById('loadingScreen').style.pointerEvents = 'all';
   });
   gogetUnsub = onSnapshot(gogetDocRef, snap=>{
     if(snap.exists()) gogetMetas = snap.data(); else gogetMetas = {};
@@ -613,10 +620,12 @@ function stopListeners() {
 
 onAuthStateChanged(auth, user => {
   if(user) {
-    // User logged in — show app
+    // User logged in — show loading then load data
     document.getElementById('authScreen').classList.add('hide');
+    document.getElementById('loadingScreen').classList.remove('hide');
+    document.getElementById('loadingScreen').style.opacity = '1';
+    document.getElementById('loadingScreen').style.pointerEvents = 'all';
     document.getElementById('appFooter').style.display = 'block';
-    // Show user email in header
     const uEl = document.getElementById('headerUser');
     if(uEl) uEl.textContent = user.email;
     startListeners();
