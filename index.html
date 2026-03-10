@@ -619,21 +619,22 @@ function stopListeners() {
 }
 
 onAuthStateChanged(auth, user => {
+  const authScr   = document.getElementById('authScreen');
+  const loadScr   = document.getElementById('loadingScreen');
+  const footer    = document.getElementById('appFooter');
+  const headerUsr = document.getElementById('headerUser');
+  const loadMsg   = document.getElementById('loadMsg');
   if(user) {
-    // User logged in — show loading then load data
-    document.getElementById('authScreen').classList.add('hide');
-    document.getElementById('loadingScreen').classList.remove('hide');
-    document.getElementById('loadingScreen').style.opacity = '1';
-    document.getElementById('loadingScreen').style.pointerEvents = 'all';
-    document.getElementById('appFooter').style.display = 'block';
-    const uEl = document.getElementById('headerUser');
-    if(uEl) uEl.textContent = user.email;
+    if(authScr)  authScr.classList.add('hide');
+    if(loadScr){ loadScr.classList.remove('hide'); loadScr.style.opacity='1'; loadScr.style.pointerEvents='all'; }
+    if(loadMsg)  loadMsg.textContent = 'Cargando datos...';
+    if(footer)   footer.style.display = 'block';
+    if(headerUsr) headerUsr.textContent = user.email;
     startListeners();
   } else {
-    // Not logged in — show auth screen, stop listeners
-    document.getElementById('authScreen').classList.remove('hide');
-    document.getElementById('loadingScreen').classList.add('hide');
-    document.getElementById('appFooter').style.display = 'none';
+    if(authScr)  authScr.classList.remove('hide');
+    if(loadScr)  loadScr.classList.add('hide');
+    if(footer)   footer.style.display = 'none';
     stopListeners();
     leads = []; prospectos = [];
   }
