@@ -780,7 +780,7 @@ window.renderKanban = function renderKanban(force){
   const kf=document.getElementById('kanbanFilter')?.value||'';
   document.getElementById('kanbanBoard').innerHTML=STAGES.map(s=>{
     const cards=leads.filter(l=>l.stage===s.id&&(!kf||l.type===kf));
-    return `<div class="kanban-col"><div class="kanban-col-header" style="border-top:3px solid ${s.color}"><div class="kanban-col-title" style="color:${s.color}">${s.short}</div><div class="kanban-col-subtitle">${s.label.replace(/^ID\d+ – /,'').replace(/^Cerrado – /,'')}</div><div class="kanban-col-count">${cards.length} lead${cards.length!==1?'s':''}</div></div><div class="kanban-cards">${cards.length===0?'<div style="text-align:center;padding:20px;font-size:12px;color:var(--text3)">—</div>':cards.map(l=>`<div class="kanban-card" onclick="openModal('${l.id}')"><div class="kanban-card-name">${l.name}</div><div class="kanban-card-meta">${l.owner||'Sin owner'} · ${fmtM(l.som)}</div><div style="margin-top:6px"><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'NB'}</span></div></div>`).join('')}</div></div>`;
+    return `<div class="kanban-col"><div class="kanban-col-header" style="border-top:3px solid ${s.color}"><div class="kanban-col-title" style="color:${s.color}">${s.short}</div><div class="kanban-col-subtitle">${s.label.replace(/^ID\d+ – /,'').replace(/^Cerrado – /,'')}</div><div class="kanban-col-count">${cards.length} lead${cards.length!==1?'s':''}</div></div><div class="kanban-cards">${cards.length===0?'<div style="text-align:center;padding:20px;font-size:12px;color:var(--text3)">—</div>':cards.map(l=>`<div class="kanban-card" onclick="openModal('${l.id}')"><div class="kanban-card-name">${l.name}</div><div class="kanban-card-meta">${l.owner||'Sin owner'}</div><div style="font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2);margin-top:3px">SAM: ${fmtM(l.sam)}${l.tp?' | TP: $'+l.tp:''}</div><div style="margin-top:6px"><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'NB'}</span></div></div>`).join('')}</div></div>`;
   }).join('');
 };
 
@@ -1132,7 +1132,7 @@ function renderGogetChart() {
           data-tip="Proyección acum.: $${projAcum[i].toFixed(0)}k"></div>
       </div>
       <div class="goget-month-label">${MONTHS[i]}</div>
-      <div class="goget-month-delta" style="color:${deltaColor}">${metas[i]||projs[i]?deltaStr:''}</div>
+      <div class="goget-month-delta" style="color:${deltaColor}">${metaAcum[i]>0||projAcum[i]>0?deltaStr:'0'}</div>
     </div>`;
   }).join('');
 
