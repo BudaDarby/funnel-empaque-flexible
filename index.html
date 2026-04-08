@@ -376,19 +376,46 @@ textarea.form-input{resize:vertical;min-height:80px}
     </div>
     <div class="modal-section">
       <div class="modal-section-title">💰 Financieros & Capacidad</div>
-      <div class="form-grid">
+      <div style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px;text-transform:uppercase;letter-spacing:.08em">// Valores en USD · Volumen en Toneladas</div>
+
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);font-family:'Roboto Mono',monospace;margin-bottom:10px">Precio & Margen</div>
+      <div class="form-grid" style="margin-bottom:20px">
+        <div class="form-group"><label class="form-label">TP — Throughput (USD/ton)</label><input class="form-input" id="f_tp" type="number" placeholder="0.00"></div>
+        <div class="form-group"><label class="form-label">Precio de Venta (USD/ton)</label><input class="form-input" id="f_precioVenta" type="number" placeholder="0.00"></div>
+        <div class="form-group"><label class="form-label">Margen (%)</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input class="form-input" id="f_margen" type="number" placeholder="0" min="0" max="100" style="flex:1" oninput="calcMargen()">
+            <span style="font-family:'Roboto Mono',monospace;font-size:13px;color:var(--text2)">%</span>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Capacidad Venta Anual</label><input class="form-input" id="f_capacidad" placeholder="ton/año"></div>
+      </div>
+
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);font-family:'Roboto Mono',monospace;margin-bottom:10px">Mercado — USD / año</div>
+      <div class="form-grid" style="margin-bottom:20px">
         <div class="form-group"><label class="form-label">TAM (USD/año)</label><input class="form-input" id="f_tam" type="number" placeholder="0"></div>
         <div class="form-group"><label class="form-label">SAM (USD/año)</label><input class="form-input" id="f_sam" type="number" placeholder="0"></div>
         <div class="form-group"><label class="form-label">SOM (USD/año)</label><input class="form-input" id="f_som" type="number" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">TP (Precio referencia)</label><input class="form-input" id="f_tp" placeholder="Precio/unidad"></div>
-        <div class="form-group"><label class="form-label">Capacidad Venta Anual</label><input class="form-input" id="f_capacidad" placeholder="Unidades/toneladas"></div>
-        <div class="form-group"><label class="form-label">Volumen Mkt Anual</label><input class="form-input" id="f_mktVol" placeholder="Volumen proyectado"></div>
+        <div class="form-group"><label class="form-label">Volumen Mkt Anual (ton)</label><input class="form-input" id="f_mktVol" type="number" placeholder="0"></div>
+      </div>
+
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);font-family:'Roboto Mono',monospace;margin-bottom:10px">Volumen — Toneladas / año</div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">TAM Vol (ton/año)</label><input class="form-input" id="f_tamVol" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">SAM Vol (ton/año)</label><input class="form-input" id="f_samVol" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">SOM Vol (ton/año)</label><input class="form-input" id="f_somVol" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Vol. Capacidad Anual (ton)</label><input class="form-input" id="f_capVol" type="number" placeholder="0"></div>
       </div>
     </div>
     <div class="modal-section">
       <div class="modal-section-title">📅 Proyección Mensual de Facturación</div>
       <div style="font-size:12px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px">USD · Monto esperado de facturación por mes</div>
       <div id="monthlyProjectionGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px"></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">📦 Proyección Mensual de Volumen</div>
+      <div style="font-size:12px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px">Toneladas · Volumen esperado de entrega por mes</div>
+      <div id="monthlyVolumeGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px"></div>
     </div>
     <div class="modal-section">
       <div class="modal-section-title">✅ Checklist <span id="checklistStageLabel" style="color:var(--text2);font-size:11px;font-weight:400"></span></div>
@@ -788,7 +815,7 @@ window.renderKanban = function renderKanban(force){
 window.openModal=function(id){
   currentLeadId=id;
   const l=id?leads.find(x=>x.id===id):null;
-  ['name','owner','contacts','tp','tam','sam','som','capacidad','mktVol'].forEach(f=>{
+  ['name','owner','contacts','tp','precioVenta','margen','tam','sam','som','capacidad','mktVol','tamVol','samVol','somVol','capVol'].forEach(f=>{
     const el=document.getElementById('f_'+f);if(el)el.value=l?(l[f]||''):'';
   });
   document.getElementById('f_type').value=l?(l.type||'new-business'):'new-business';
@@ -803,7 +830,7 @@ window.openModal=function(id){
   document.getElementById('modalMeta').innerHTML=metaHtml;
   document.getElementById('modalStickyMeta').innerHTML=metaHtml;
   document.getElementById('stageSelectorEl').innerHTML=STAGES.map(s=>`<div class="stage-option${s.id===cs?' selected':''}" style="${s.id===cs?`background:${s.color};border-color:${s.color}`:''}" onclick="selectStage('${s.id}')" data-stage="${s.id}">${s.short}</div>`).join('');
-  renderCL(cs,l);renderTimeGrid(l);renderBit(l);renderMonthlyGrid(l);
+  renderCL(cs,l);renderTimeGrid(l);renderBit(l);renderMonthlyGrid(l);renderMonthlyVolumeGrid(l);
   document.getElementById('modalOverlay').classList.add('open');
 };
 window.selectStage=id=>{
@@ -1073,19 +1100,19 @@ window.saveLead = async function() {
         owner:document.getElementById('f_owner').value,contacts:document.getElementById('f_contacts').value,
         type:document.getElementById('f_type').value,startDate:document.getElementById('f_startDate').value,
         goGetDate:document.getElementById('f_goGetDate').value,saleDate:document.getElementById('f_saleDate').value,
-        tp:document.getElementById('f_tp').value,tam:document.getElementById('f_tam').value,
+        tp:document.getElementById('f_tp').value,precioVenta:document.getElementById('f_precioVenta').value,margen:document.getElementById('f_margen').value,tamVol:document.getElementById('f_tamVol').value,samVol:document.getElementById('f_samVol').value,somVol:document.getElementById('f_somVol').value,capVol:document.getElementById('f_capVol').value,tam:document.getElementById('f_tam').value,
         sam:document.getElementById('f_sam').value,som:document.getElementById('f_som').value,
         capacidad:document.getElementById('f_capacidad').value,mktVol:document.getElementById('f_mktVol').value,
-        monthlyProjection:mp,updatedAt:serverTimestamp()},{merge:true});
+        monthlyProjection:mp,monthlyVolume:getMonthlyVolumeFromForm(),updatedAt:serverTimestamp()},{merge:true});
     }else{
       await setDoc(doc(db,'leads',Date.now().toString()),{name,stage:ns,
         owner:document.getElementById('f_owner').value,contacts:document.getElementById('f_contacts').value,
         type:document.getElementById('f_type').value,startDate:document.getElementById('f_startDate').value||today(),
         goGetDate:document.getElementById('f_goGetDate').value,saleDate:document.getElementById('f_saleDate').value,
-        tp:document.getElementById('f_tp').value,tam:document.getElementById('f_tam').value,
+        tp:document.getElementById('f_tp').value,precioVenta:document.getElementById('f_precioVenta').value,margen:document.getElementById('f_margen').value,tamVol:document.getElementById('f_tamVol').value,samVol:document.getElementById('f_samVol').value,somVol:document.getElementById('f_somVol').value,capVol:document.getElementById('f_capVol').value,tam:document.getElementById('f_tam').value,
         sam:document.getElementById('f_sam').value,som:document.getElementById('f_som').value,
         capacidad:document.getElementById('f_capacidad').value,mktVol:document.getElementById('f_mktVol').value,
-        monthlyProjection:mp,stageHistory:{[ns]:today()},stageExits:{},checklists:{},bitacora:[],
+        monthlyProjection:mp,monthlyVolume:getMonthlyVolumeFromForm(),stageHistory:{[ns]:today()},stageExits:{},checklists:{},bitacora:[],
         createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
     }
     showSync('ok','Guardado ✓');closeModal();
@@ -1093,6 +1120,41 @@ window.saveLead = async function() {
   btn.disabled=false;btn.textContent='Guardar Lead';
 };
 
+
+// ── MARGEN AUTO CALC ─────────────────────────────────────────────────────────
+window.calcMargen = () => {
+  const pv  = Number(document.getElementById('f_precioVenta')?.value)||0;
+  const tp  = Number(document.getElementById('f_tp')?.value)||0;
+  const mgEl = document.getElementById('f_margen');
+  if(pv>0 && tp>0 && mgEl && !mgEl.value) {
+    mgEl.value = ((tp/pv)*100).toFixed(1);
+  }
+};
+
+// ── MONTHLY VOLUME GRID ───────────────────────────────────────────────────────
+function renderMonthlyVolumeGrid(lead) {
+  const mv = lead?.monthlyVolume || {};
+  const el = document.getElementById('monthlyVolumeGrid');
+  if(!el) return;
+  el.innerHTML = MONTH_KEYS.map((k,i) => `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+      <div style="font-size:10px;font-family:'Roboto Mono',monospace;color:var(--text2);text-transform:uppercase;margin-bottom:6px">${MONTHS[i]} 2026</div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <input id="mv_${k}" type="number" placeholder="0" value="${mv[k]!==undefined?mv[k]:''}"
+          style="background:transparent;border:none;color:var(--accent2);font-family:'Roboto Mono',monospace;font-size:16px;font-weight:700;width:100%;outline:none">
+        <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text3)">ton</span>
+      </div>
+    </div>`).join('');
+}
+
+function getMonthlyVolumeFromForm() {
+  const mv = {};
+  MONTH_KEYS.forEach(k => {
+    const el = document.getElementById('mv_'+k);
+    if(el && el.value !== '') mv[k] = Number(el.value);
+  });
+  return mv;
+}
 // ── GOGET CHART ───────────────────────────────────────────────────────────────
 function renderGogetChart() {
   // Sum monthly projections across all active leads
