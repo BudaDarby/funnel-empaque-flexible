@@ -1448,4 +1448,21 @@ document.getElementById('globalSearch').addEventListener('input', () => {
 });
 </script>
 
-<div class="app-footer" id="app
+Footer" style="display:none">
+  Desarrollado por <span>Guillermo Lebrón</span> · Líder Innovación & Empaque Flexible · 2026
+</div>
+
+<!-- MODAL CONTRIBUTORS -->
+<div class="modal-overlay" id="contribModalOverlay" onclick="if(event.target===this)closeContribModal()">
+  <div class="modal" style="max-width:920px">
+    <button class="modal-close" onclick="closeContribModal()">✕</button>
+    <div class="modal-header">
+      <div id="contribModalTitle" class="modal-lead-name">Contribuyentes al Funnel</div>
+      <div id="contribModalSub" style="font-size:13px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:4px"></div>
+    </div>
+    <div id="contribModalBody"></div>
+  </div>
+</div>
+
+</body>
+</html>
