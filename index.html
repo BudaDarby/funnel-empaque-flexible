@@ -376,19 +376,19 @@ textarea.form-input{resize:vertical;min-height:80px}
     </div>
     <div class="modal-section">
       <div class="modal-section-title">💰 Financieros & Capacidad</div>
-      <div style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px;text-transform:uppercase;letter-spacing:.08em">// Valores en USD · Volumen en Toneladas</div>
+      <div style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px;text-transform:uppercase;letter-spacing:.08em">// Valores en USD · Volumen en kg</div>
 
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);font-family:'Roboto Mono',monospace;margin-bottom:10px">Precio & Margen</div>
       <div class="form-grid" style="margin-bottom:20px">
-        <div class="form-group"><label class="form-label">TP — Throughput (USD/ton)</label><input class="form-input" id="f_tp" type="number" placeholder="0.00"></div>
-        <div class="form-group"><label class="form-label">Precio de Venta (USD/ton)</label><input class="form-input" id="f_precioVenta" type="number" placeholder="0.00"></div>
+        <div class="form-group"><label class="form-label">TP — Throughput (USD/kg)</label><input class="form-input" id="f_tp" type="number" placeholder="0.00"></div>
+        <div class="form-group"><label class="form-label">Precio de Venta (USD/kg)</label><input class="form-input" id="f_precioVenta" type="number" placeholder="0.00"></div>
         <div class="form-group"><label class="form-label">Margen (%)</label>
           <div style="display:flex;align-items:center;gap:8px">
             <input class="form-input" id="f_margen" type="number" placeholder="0" min="0" max="100" style="flex:1" oninput="calcMargen()">
             <span style="font-family:'Roboto Mono',monospace;font-size:13px;color:var(--text2)">%</span>
           </div>
         </div>
-        <div class="form-group"><label class="form-label">Capacidad Venta Anual</label><input class="form-input" id="f_capacidad" placeholder="ton/año"></div>
+        <div class="form-group"><label class="form-label">Capacidad Venta Anual</label><input class="form-input" id="f_capacidad" placeholder="kg/año"></div>
       </div>
 
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);font-family:'Roboto Mono',monospace;margin-bottom:10px">Mercado — USD / año</div>
@@ -396,15 +396,15 @@ textarea.form-input{resize:vertical;min-height:80px}
         <div class="form-group"><label class="form-label">TAM (USD/año)</label><input class="form-input" id="f_tam" type="number" placeholder="0"></div>
         <div class="form-group"><label class="form-label">SAM (USD/año)</label><input class="form-input" id="f_sam" type="number" placeholder="0"></div>
         <div class="form-group"><label class="form-label">SOM (USD/año)</label><input class="form-input" id="f_som" type="number" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">Volumen Mkt Anual (ton)</label><input class="form-input" id="f_mktVol" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Volumen Mkt Anual (kg)</label><input class="form-input" id="f_mktVol" type="number" placeholder="0"></div>
       </div>
 
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);font-family:'Roboto Mono',monospace;margin-bottom:10px">Volumen — Toneladas / año</div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);font-family:'Roboto Mono',monospace;margin-bottom:10px">Volumen — kg / año</div>
       <div class="form-grid">
-        <div class="form-group"><label class="form-label">TAM Vol (ton/año)</label><input class="form-input" id="f_tamVol" type="number" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">SAM Vol (ton/año)</label><input class="form-input" id="f_samVol" type="number" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">SOM Vol (ton/año)</label><input class="form-input" id="f_somVol" type="number" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">Vol. Capacidad Anual (ton)</label><input class="form-input" id="f_capVol" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">TAM Vol (kg/año)</label><input class="form-input" id="f_tamVol" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">SAM Vol (kg/año)</label><input class="form-input" id="f_samVol" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">SOM Vol (kg/año)</label><input class="form-input" id="f_somVol" type="number" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Vol. Capacidad Anual (kg)</label><input class="form-input" id="f_capVol" type="number" placeholder="0"></div>
       </div>
     </div>
     <div class="modal-section">
@@ -414,7 +414,7 @@ textarea.form-input{resize:vertical;min-height:80px}
     </div>
     <div class="modal-section">
       <div class="modal-section-title">📦 Proyección Mensual de Volumen</div>
-      <div style="font-size:12px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px">Toneladas · Volumen esperado de entrega por mes</div>
+      <div style="font-size:12px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px">kg · Volumen esperado de entrega por mes</div>
       <div id="monthlyVolumeGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px"></div>
     </div>
     <div class="modal-section">
@@ -706,13 +706,13 @@ function renderDashboard(){
     <div class="stat-card"><div class="stat-label">Prospectos</div><div class="stat-value" style="color:var(--accent2)">${prospectos.length}</div><div class="stat-sub">pipeline previo</div></div>`;
   const c1=cc(opt1,META),c2=cc(opt2,META);
   document.getElementById('strategicGrid').innerHTML=`
-    <div class="stat-card" style="border-color:rgba(255,190,11,.4)">
+    <div class="stat-card" style="border-color:rgba(255,190,11,.4);cursor:pointer" onclick="openContribModal('opt1')" title="Ver contribuyentes">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="background:rgba(255,190,11,.15);border:1px solid rgba(255,190,11,.4);border-radius:6px;padding:2px 9px;font-size:10px;font-family:'Roboto Mono',monospace;color:var(--warn);font-weight:700">OPCIÓN 1</span><span style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace">Con aprobación ID06+</span></div>
       <div class="stat-label">⚡ Brecha 2026 — Conservador</div>
       <div style="display:flex;align-items:flex-end;gap:8px;margin-top:6px"><div class="stat-value" style="color:${c1};font-size:24px">$${opt1.toFixed(0)}k</div><div style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text2);padding-bottom:3px">/ $${META}k USD</div></div>
       ${pb(opt1,META,c1)}<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2)">Meta = Brecha×3 = $${META}k USD</div>
     </div>
-    <div class="stat-card" style="border-color:rgba(108,99,255,.4)">
+    <div class="stat-card" style="border-color:rgba(108,99,255,.4);cursor:pointer" onclick="openContribModal('opt2')" title="Ver contribuyentes">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.4);border-radius:6px;padding:2px 9px;font-size:10px;font-family:'Roboto Mono',monospace;color:var(--accent3);font-weight:700">OPCIÓN 2</span><span style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace">Valor ponderado</span></div>
       <div class="stat-label">🎯 Brecha 2026 — Esperado</div>
       <div style="display:flex;align-items:flex-end;gap:8px;margin-top:6px"><div class="stat-value" style="color:${c2};font-size:24px">$${opt2.toFixed(0)}k</div><div style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text2);padding-bottom:3px">/ $${META}k USD</div></div>
@@ -807,7 +807,7 @@ window.renderKanban = function renderKanban(force){
   const kf=document.getElementById('kanbanFilter')?.value||'';
   document.getElementById('kanbanBoard').innerHTML=STAGES.map(s=>{
     const cards=leads.filter(l=>l.stage===s.id&&(!kf||l.type===kf));
-    return `<div class="kanban-col"><div class="kanban-col-header" style="border-top:3px solid ${s.color}"><div class="kanban-col-title" style="color:${s.color}">${s.short}</div><div class="kanban-col-subtitle">${s.label.replace(/^ID\d+ – /,'').replace(/^Cerrado – /,'')}</div><div class="kanban-col-count">${cards.length} lead${cards.length!==1?'s':''}</div></div><div class="kanban-cards">${cards.length===0?'<div style="text-align:center;padding:20px;font-size:12px;color:var(--text3)">—</div>':cards.map(l=>`<div class="kanban-card" onclick="openModal('${l.id}')"><div class="kanban-card-name">${l.name}</div><div class="kanban-card-meta">${l.owner||'Sin owner'}</div><div style="font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2);margin-top:3px">SAM: ${fmtM(l.sam)}${l.tp?' | TP: $'+l.tp:''}</div><div style="margin-top:6px"><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'NB'}</span></div></div>`).join('')}</div></div>`;
+    return `<div class="kanban-col"><div class="kanban-col-header" style="border-top:3px solid ${s.color}"><div class="kanban-col-title" style="color:${s.color}">${s.short}</div><div class="kanban-col-subtitle">${s.label.replace(/^ID\d+ – /,'').replace(/^Cerrado – /,'')}</div><div class="kanban-col-count">${cards.length} lead${cards.length!==1?'s':''}</div></div><div class="kanban-cards">${cards.length===0?'<div style="text-align:center;padding:20px;font-size:12px;color:var(--text3)">—</div>':cards.map(l=>`<div class="kanban-card" onclick="openModal('${l.id}')"><div class="kanban-card-name">${l.name}</div><div class="kanban-card-meta">${l.owner||'Sin owner'}</div><div style="font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2);margin-top:3px">SOM: ${fmtM(l.som)}${l.precioVenta?' | PV: $'+Number(l.precioVenta).toFixed(2):''}${l.tp?' | TP: $'+Number(l.tp).toFixed(2):''}</div><div style="margin-top:6px"><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'NB'}</span></div></div>`).join('')}</div></div>`;
   }).join('');
 };
 
@@ -1317,6 +1317,82 @@ window.saveGogetMetas = async () => {
 };
 
 window.closeGogetModal = () => document.getElementById('gogetModalOverlay').classList.remove('open');
+
+// ── CONTRIBUTORS MODAL ───────────────────────────────────────────────────────
+window.openContribModal = function(type) {
+  let filtered, title, sub;
+  if(type === 'opt1') {
+    filtered = leads.filter(l => APROBADAS.includes(l.stage));
+    title = '⚡ Opción 1 — Conservador (ID06+)';
+    sub   = 'Leads con aprobación técnica · SOM directo';
+  } else {
+    filtered = leads.filter(l => l.stage !== 'PERDIDO');
+    title = '🎯 Opción 2 — Esperado (Ponderado)';
+    sub   = 'Todos los leads activos · SOM × Probabilidad por etapa';
+  }
+  filtered = filtered.sort((a,b) => (Number(b.som)||0)-(Number(a.som)||0));
+
+  document.getElementById('contribModalTitle').textContent = title;
+  document.getElementById('contribModalSub').textContent   = sub;
+
+  const total = filtered.reduce((s,l) => {
+    const v = Number(l.som)||0;
+    return s + (type==='opt1' ? v : v*(PROB[l.stage]||0));
+  }, 0);
+
+  document.getElementById('contribModalBody').innerHTML = `
+    <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)">
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr style="background:var(--surface2)">
+          <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Lead</th>
+          <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Owner</th>
+          <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Etapa</th>
+          <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Tipo</th>
+          <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">SOM</th>
+          <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">${type==='opt2'?'Prob.':''}</th>
+          <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Aporte</th>
+          <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">% del Total</th>
+        </tr></thead>
+        <tbody>
+          ${filtered.map((l,i) => {
+            const st     = STAGES.find(s=>s.id===l.stage)||STAGES[0];
+            const som    = Number(l.som)||0;
+            const prob   = PROB[l.stage]||0;
+            const aporte = type==='opt1' ? som : som*prob;
+            const pct    = total>0 ? (aporte/total*100).toFixed(1) : 0;
+            const barW   = total>0 ? Math.min(aporte/total*100,100).toFixed(0) : 0;
+            const rowBg  = i%2===0?'background:var(--surface)':'background:var(--surface2)';
+            return `<tr style="${rowBg};border-bottom:1px solid var(--border);cursor:pointer" onclick="closeContribModal();openModal('${l.id}')">
+              <td style="padding:10px 14px;font-weight:700;font-size:13px">${l.name}</td>
+              <td style="padding:10px 14px;font-size:12px;color:var(--text2);font-family:'Roboto Mono',monospace">${l.owner||'—'}</td>
+              <td style="padding:10px 14px"><span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.short}</span></td>
+              <td style="padding:10px 14px"><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'NB'}</span></td>
+              <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px">${fmtM(l.som)}</td>
+              <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--accent3)">${type==='opt2'?(prob*100).toFixed(0)+'%':''}</td>
+              <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;font-weight:700;color:var(--accent3)">$${aporte.toFixed(0)}k</td>
+              <td style="padding:10px 14px;min-width:120px">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div style="flex:1;height:6px;background:var(--border);border-radius:3px">
+                    <div style="width:${barW}%;height:100%;background:var(--accent3);border-radius:3px"></div>
+                  </div>
+                  <span style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text2);width:36px;text-align:right">${pct}%</span>
+                </div>
+              </td>
+            </tr>`;
+          }).join('')}
+          <tr style="background:var(--surface2);border-top:2px solid var(--border)">
+            <td colspan="6" style="padding:10px 14px;font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace;color:var(--text2)">TOTAL</td>
+            <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;color:var(--accent3)">$${total.toFixed(0)}k</td>
+            <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)">100%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+
+  document.getElementById('contribModalOverlay').classList.add('open');
+};
+window.closeContribModal = () => document.getElementById('contribModalOverlay').classList.remove('open');
+
 
 // Hook into renderDashboard to also render chart
 const _origRenderDashboard = renderDashboard;
