@@ -721,21 +721,15 @@ function renderDashboard(){
       <div style="display:flex;align-items:flex-end;gap:8px;margin-top:6px"><div class="stat-value" style="color:${c2};font-size:24px">$${opt2.toFixed(0)}k</div><div style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text2);padding-bottom:3px">/ $${META}k USD</div></div>
       ${pb(opt2,META,c2)}<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2)">Σ(SOM×prob) · 10→25→50→75→80→100%</div>
     </div>
-    <div class="stat-card" style="border-color:rgba(212,82,10,.3);cursor:pointer" onclick="openContribModal('tp1')" title="Ver TP por lead">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="background:rgba(212,82,10,.15);border:1px solid rgba(212,82,10,.4);border-radius:6px;padding:2px 9px;font-size:10px;font-family:'Roboto Mono',monospace;color:var(--accent2);font-weight:700">TP 1</span><span style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace">Conservador · SOM×Margen</span></div>
-      <div class="stat-label">🔥 Throughput — ID06+</div>
-      <div style="font-size:24px;font-weight:800;color:var(--accent2);margin-top:6px">$\${tp1.toFixed(0)}k</div>
-      <div style="margin-top:8px;font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2)">Leads con margen capturado: \${leads.filter(l=>APROBADAS.includes(l.stage)&&Number(l.margen)>0).length}</div>
-    </div>
-    <div class="stat-card" style="border-color:rgba(212,82,10,.3);cursor:pointer" onclick="openContribModal('tp2')" title="Ver TP por lead">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="background:rgba(212,82,10,.15);border:1px solid rgba(212,82,10,.4);border-radius:6px;padding:2px 9px;font-size:10px;font-family:'Roboto Mono',monospace;color:var(--accent2);font-weight:700">TP 2</span><span style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace">Ponderado · SOM×Margen×Prob</span></div>
-      <div class="stat-label">🔥 Throughput — Esperado</div>
-      <div style="font-size:24px;font-weight:800;color:var(--accent2);margin-top:6px">$\${tp2.toFixed(0)}k</div>
-      <div style="margin-top:8px;font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2)">Σ(SOM×Margen%×Prob) ponderado</div>
-    </div>
     <div class="stat-card"><div class="stat-label">📊 TAM Total</div><div class="stat-value" style="font-size:22px">$${tTAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div><div class="stat-sub">addressable market</div></div>
     <div class="stat-card"><div class="stat-label">📊 SAM Total</div><div class="stat-value" style="color:var(--text2);font-size:22px">$${tSAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div><div class="stat-sub">serviceable market</div></div>
-    <div class="stat-card"><div class="stat-label">💰 SOM Total</div><div class="stat-value" style="color:var(--accent);font-size:22px">$${tSOM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div><div class="stat-sub">obtainable market</div></div>`;
+    <div class="stat-card"><div class="stat-label">💰 SOM Total</div><div class="stat-value" style="color:var(--accent);font-size:22px">$${tSOM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div><div class="stat-sub">obtainable market</div></div>
+    <div class="stat-card" style="border-color:rgba(212,82,10,.3);cursor:pointer" onclick="openContribModal('tp1')" title="Ver TP por lead">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="background:rgba(212,82,10,.15);border:1px solid rgba(212,82,10,.4);border-radius:6px;padding:2px 9px;font-size:10px;font-family:'Roboto Mono',monospace;color:var(--accent2);font-weight:700">TP</span><span style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace">Conservador · SOM×Margen ID06+</span></div>
+      <div class="stat-label">🔥 Throughput del Funnel</div>
+      <div style="font-size:24px;font-weight:800;color:var(--accent2);margin-top:6px">$${tp1.toFixed(0)}k</div>
+      <div style="margin-top:8px;font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2)">Leads con margen: ${leads.filter(l=>APROBADAS.includes(l.stage)&&Number(l.margen)>0).length} de ${leads.filter(l=>APROBADAS.includes(l.stage)).length}</div>
+    </div>`;
 
   // NB vs Growth breakdown
   const nbLeads=act.filter(l=>l.type==='new-business');
