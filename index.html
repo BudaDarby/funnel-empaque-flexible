@@ -696,6 +696,9 @@ function renderDashboard(){
   const tSOM=act.reduce((s,l)=>s+(Number(l.som)||0),0);
   const opt1=leads.filter(l=>APROBADAS.includes(l.stage)).reduce((s,l)=>s+(Number(l.som)||0),0);
   const opt2=leads.filter(l=>l.stage!=='PERDIDO').reduce((s,l)=>s+(Number(l.som)||0)*(PROB[l.stage]||0),0);
+  // TP = SOM × Margen%
+  const tp1=leads.filter(l=>APROBADAS.includes(l.stage)).reduce((s,l)=>s+(Number(l.som)||0)*(Number(l.margen)||0)/100,0);
+  const tp2=leads.filter(l=>l.stage!=='PERDIDO').reduce((s,l)=>s+(Number(l.som)||0)*(Number(l.margen)||0)/100*(PROB[l.stage]||0),0);
   const META=1078*3;
   const cc=(v,m)=>v>=m?'var(--accent)':v>=m*.6?'var(--warn)':'var(--red)';
   const pb=(v,m,c)=>{const p=Math.min(v/m*100,100).toFixed(0);return `<div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0 5px"><div style="height:100%;width:${p}%;background:${c};border-radius:3px"></div></div><div class="stat-sub">${p}% · Falta $${Math.max(m-v,0).toFixed(0)}k</div>`;};
@@ -717,6 +720,18 @@ function renderDashboard(){
       <div class="stat-label">🎯 Brecha 2026 — Esperado</div>
       <div style="display:flex;align-items:flex-end;gap:8px;margin-top:6px"><div class="stat-value" style="color:${c2};font-size:24px">$${opt2.toFixed(0)}k</div><div style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text2);padding-bottom:3px">/ $${META}k USD</div></div>
       ${pb(opt2,META,c2)}<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2)">Σ(SOM×prob) · 10→25→50→75→80→100%</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(212,82,10,.3);cursor:pointer" onclick="openContribModal('tp1')" title="Ver TP por lead">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="background:rgba(212,82,10,.15);border:1px solid rgba(212,82,10,.4);border-radius:6px;padding:2px 9px;font-size:10px;font-family:'Roboto Mono',monospace;color:var(--accent2);font-weight:700">TP 1</span><span style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace">Conservador · SOM×Margen</span></div>
+      <div class="stat-label">🔥 Throughput — ID06+</div>
+      <div style="font-size:24px;font-weight:800;color:var(--accent2);margin-top:6px">$\${tp1.toFixed(0)}k</div>
+      <div style="margin-top:8px;font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2)">Leads con margen capturado: \${leads.filter(l=>APROBADAS.includes(l.stage)&&Number(l.margen)>0).length}</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(212,82,10,.3);cursor:pointer" onclick="openContribModal('tp2')" title="Ver TP por lead">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="background:rgba(212,82,10,.15);border:1px solid rgba(212,82,10,.4);border-radius:6px;padding:2px 9px;font-size:10px;font-family:'Roboto Mono',monospace;color:var(--accent2);font-weight:700">TP 2</span><span style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace">Ponderado · SOM×Margen×Prob</span></div>
+      <div class="stat-label">🔥 Throughput — Esperado</div>
+      <div style="font-size:24px;font-weight:800;color:var(--accent2);margin-top:6px">$\${tp2.toFixed(0)}k</div>
+      <div style="margin-top:8px;font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2)">Σ(SOM×Margen%×Prob) ponderado</div>
     </div>
     <div class="stat-card"><div class="stat-label">📊 TAM Total</div><div class="stat-value" style="font-size:22px">$${tTAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div><div class="stat-sub">addressable market</div></div>
     <div class="stat-card"><div class="stat-label">📊 SAM Total</div><div class="stat-value" style="color:var(--text2);font-size:22px">$${tSAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div><div class="stat-sub">serviceable market</div></div>
@@ -1320,60 +1335,74 @@ window.closeGogetModal = () => document.getElementById('gogetModalOverlay').clas
 
 // ── CONTRIBUTORS MODAL ───────────────────────────────────────────────────────
 window.openContribModal = function(type) {
-  let filtered, title, sub;
-  if(type === 'opt1') {
+  let filtered, title, sub, isTP=false;
+  if(type==='opt1'||type==='tp1') {
     filtered = leads.filter(l => APROBADAS.includes(l.stage));
-    title = '⚡ Opción 1 — Conservador (ID06+)';
-    sub   = 'Leads con aprobación técnica · SOM directo';
   } else {
     filtered = leads.filter(l => l.stage !== 'PERDIDO');
-    title = '🎯 Opción 2 — Esperado (Ponderado)';
-    sub   = 'Todos los leads activos · SOM × Probabilidad por etapa';
   }
-  filtered = filtered.sort((a,b) => (Number(b.som)||0)-(Number(a.som)||0));
+  if(type==='opt1'){ title='⚡ Opción 1 — Conservador (ID06+)'; sub='Leads con aprobación técnica · SOM directo'; }
+  else if(type==='opt2'){ title='🎯 Opción 2 — Esperado (Ponderado)'; sub='Todos los leads activos · SOM × Probabilidad por etapa'; }
+  else if(type==='tp1'){ title='🔥 TP Conservador — ID06+'; sub='SOM × Margen% · Throughput directo'; isTP=true; }
+  else { title='🔥 TP Esperado — Ponderado'; sub='SOM × Margen% × Probabilidad por etapa'; isTP=true; }
 
+  filtered = filtered.sort((a,b) => (Number(b.som)||0)-(Number(a.som)||0));
   document.getElementById('contribModalTitle').textContent = title;
   document.getElementById('contribModalSub').textContent   = sub;
 
+  const isOpt2type = (type==='opt2'||type==='tp2');
   const total = filtered.reduce((s,l) => {
-    const v = Number(l.som)||0;
-    return s + (type==='opt1' ? v : v*(PROB[l.stage]||0));
+    const som  = Number(l.som)||0;
+    const mg   = Number(l.margen)||0;
+    const prob = PROB[l.stage]||0;
+    if(isTP) return s + som*(mg/100)*(isOpt2type?prob:1);
+    return s + (isOpt2type ? som*prob : som);
   }, 0);
+
+  const thStyle = "padding:10px 12px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap";
+  const thStyleL = "padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap";
+  const accentCol = isTP ? 'var(--accent2)' : 'var(--accent3)';
 
   document.getElementById('contribModalBody').innerHTML = `
     <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)">
       <table style="width:100%;border-collapse:collapse">
         <thead><tr style="background:var(--surface2)">
-          <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Lead</th>
-          <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Owner</th>
-          <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Etapa</th>
-          <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Tipo</th>
-          <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">SOM</th>
-          <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">${type==='opt2'?'Prob.':''}</th>
-          <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Aporte</th>
-          <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">% del Total</th>
+          <th style="${thStyleL}">Lead</th>
+          <th style="${thStyleL}">Owner</th>
+          <th style="${thStyleL}">Etapa</th>
+          <th style="${thStyleL}">Tipo</th>
+          <th style="${thStyle}">SOM</th>
+          <th style="${thStyle}">Margen</th>
+          <th style="${thStyle}">TP Lead</th>
+          ${isOpt2type?`<th style="${thStyle}">Prob.</th>`:''}
+          <th style="${thStyle}">Aporte</th>
+          <th style="${thStyle}">% del Total</th>
         </tr></thead>
         <tbody>
           ${filtered.map((l,i) => {
-            const st     = STAGES.find(s=>s.id===l.stage)||STAGES[0];
-            const som    = Number(l.som)||0;
-            const prob   = PROB[l.stage]||0;
-            const aporte = type==='opt1' ? som : som*prob;
-            const pct    = total>0 ? (aporte/total*100).toFixed(1) : 0;
-            const barW   = total>0 ? Math.min(aporte/total*100,100).toFixed(0) : 0;
-            const rowBg  = i%2===0?'background:var(--surface)':'background:var(--surface2)';
+            const st    = STAGES.find(s=>s.id===l.stage)||STAGES[0];
+            const som   = Number(l.som)||0;
+            const mg    = Number(l.margen)||0;
+            const tp    = som*(mg/100);
+            const prob  = PROB[l.stage]||0;
+            const aporte= isTP ? tp*(isOpt2type?prob:1) : (isOpt2type?som*prob:som);
+            const pct   = total>0?(aporte/total*100).toFixed(1):0;
+            const barW  = total>0?Math.min(aporte/total*100,100).toFixed(0):0;
+            const rowBg = i%2===0?'background:var(--surface)':'background:var(--surface2)';
             return `<tr style="${rowBg};border-bottom:1px solid var(--border);cursor:pointer" onclick="closeContribModal();openModal('${l.id}')">
-              <td style="padding:10px 14px;font-weight:700;font-size:13px">${l.name}</td>
-              <td style="padding:10px 14px;font-size:12px;color:var(--text2);font-family:'Roboto Mono',monospace">${l.owner||'—'}</td>
-              <td style="padding:10px 14px"><span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.short}</span></td>
-              <td style="padding:10px 14px"><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'NB'}</span></td>
-              <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px">${fmtM(l.som)}</td>
-              <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--accent3)">${type==='opt2'?(prob*100).toFixed(0)+'%':''}</td>
-              <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;font-weight:700;color:var(--accent3)">$${aporte.toFixed(0)}k</td>
-              <td style="padding:10px 14px;min-width:120px">
+              <td style="padding:10px 12px;font-weight:700;font-size:13px">${l.name}</td>
+              <td style="padding:10px 12px;font-size:12px;color:var(--text2);font-family:'Roboto Mono',monospace">${l.owner||'—'}</td>
+              <td style="padding:10px 12px"><span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.short}</span></td>
+              <td style="padding:10px 12px"><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'NB'}</span></td>
+              <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px">${fmtM(l.som)}</td>
+              <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:${mg>0?'var(--accent)':'var(--text3)'}">${mg>0?mg+'%':'—'}</td>
+              <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--accent2)">${tp>0?'$'+tp.toFixed(0)+'k':'—'}</td>
+              ${isOpt2type?`<td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--accent3)">${(prob*100).toFixed(0)}%</td>`:''}
+              <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;font-weight:700;color:${accentCol}">$${aporte.toFixed(0)}k</td>
+              <td style="padding:10px 12px;min-width:120px">
                 <div style="display:flex;align-items:center;gap:8px">
                   <div style="flex:1;height:6px;background:var(--border);border-radius:3px">
-                    <div style="width:${barW}%;height:100%;background:var(--accent3);border-radius:3px"></div>
+                    <div style="width:${barW}%;height:100%;background:${accentCol};border-radius:3px"></div>
                   </div>
                   <span style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text2);width:36px;text-align:right">${pct}%</span>
                 </div>
@@ -1381,9 +1410,9 @@ window.openContribModal = function(type) {
             </tr>`;
           }).join('')}
           <tr style="background:var(--surface2);border-top:2px solid var(--border)">
-            <td colspan="6" style="padding:10px 14px;font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace;color:var(--text2)">TOTAL</td>
-            <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;color:var(--accent3)">$${total.toFixed(0)}k</td>
-            <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)">100%</td>
+            <td colspan="${isOpt2type?7:6}" style="padding:10px 12px;font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace;color:var(--text2)">TOTAL</td>
+            <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;color:${accentCol}">$${total.toFixed(0)}k</td>
+            <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)">100%</td>
           </tr>
         </tbody>
       </table>
