@@ -1398,7 +1398,15 @@ window.openContribModal = function(type) {
   else if(type==='tp1'){ title='🔥 TP Conservador — ID06+'; sub='SOM × Margen% · Throughput directo'; isTP=true; }
   else { title='🔥 TP Esperado — Ponderado'; sub='SOM × Margen% × Probabilidad por etapa'; isTP=true; }
 
-  filtered = filtered.sort((a,b) => (Number(b.som)||0)-(Number(a.som)||0));
+  if(isTP) {
+    filtered = filtered.sort((a,b) => {
+      const tpA = (Number(a.som)||0)*(Number(a.margen)||0)/100;
+      const tpB = (Number(b.som)||0)*(Number(b.margen)||0)/100;
+      return tpB - tpA;
+    });
+  } else {
+    filtered = filtered.sort((a,b) => (Number(b.som)||0)-(Number(a.som)||0));
+  }
   document.getElementById('contribModalTitle').textContent = title;
   document.getElementById('contribModalSub').textContent   = sub;
 
@@ -1420,7 +1428,6 @@ window.openContribModal = function(type) {
       <table style="width:100%;border-collapse:collapse">
         <thead><tr style="background:var(--surface2)">
           <th style="${thStyleL}">Lead</th>
-          <th style="${thStyleL}">Owner</th>
           <th style="${thStyleL}">Etapa</th>
           <th style="${thStyleL}">Tipo</th>
           <th style="${thStyle}">SOM</th>
@@ -1442,8 +1449,7 @@ window.openContribModal = function(type) {
             const barW  = total>0?Math.min(aporte/total*100,100).toFixed(0):0;
             const rowBg = i%2===0?'background:var(--surface)':'background:var(--surface2)';
             return `<tr style="${rowBg};border-bottom:1px solid var(--border);cursor:pointer" onclick="closeContribModal();openModal('${l.id}')">
-              <td style="padding:10px 12px;font-weight:700;font-size:13px">${l.name}</td>
-              <td style="padding:10px 12px;font-size:12px;color:var(--text2);font-family:'Roboto Mono',monospace">${l.owner||'—'}</td>
+              <td style="padding:10px 12px;font-weight:700;font-size:13px">${l.name}<div style="font-size:11px;font-weight:400;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:2px">${l.owner||''}</div></td>
               <td style="padding:10px 12px"><span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.short}</span></td>
               <td style="padding:10px 12px"><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'NB'}</span></td>
               <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px">${fmtM(l.som)}</td>
@@ -1451,18 +1457,18 @@ window.openContribModal = function(type) {
               <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--accent2)">${tp>0?'$'+tp.toFixed(0)+'k':'—'}</td>
               ${isOpt2type?`<td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--accent3)">${(prob*100).toFixed(0)}%</td>`:''}
               <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;font-weight:700;color:${accentCol}">$${aporte.toFixed(0)}k</td>
-              <td style="padding:10px 12px;min-width:120px">
-                <div style="display:flex;align-items:center;gap:8px">
-                  <div style="flex:1;height:6px;background:var(--border);border-radius:3px">
+              <td style="padding:10px 12px;min-width:90px">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div style="flex:1;height:5px;background:var(--border);border-radius:3px;min-width:40px">
                     <div style="width:${barW}%;height:100%;background:${accentCol};border-radius:3px"></div>
                   </div>
-                  <span style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text2);width:36px;text-align:right">${pct}%</span>
+                  <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text2);width:30px;text-align:right">${pct}%</span>
                 </div>
               </td>
             </tr>`;
           }).join('')}
           <tr style="background:var(--surface2);border-top:2px solid var(--border)">
-            <td colspan="${isOpt2type?7:6}" style="padding:10px 12px;font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace;color:var(--text2)">TOTAL</td>
+            <td colspan="${isOpt2type?6:5}" style="padding:10px 12px;font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace;color:var(--text2)">TOTAL</td>
             <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;color:${accentCol}">$${total.toFixed(0)}k</td>
             <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)">100%</td>
           </tr>
@@ -1535,7 +1541,7 @@ Footer" style="display:none">
 
 <!-- MODAL CONTRIBUTORS -->
 <div class="modal-overlay" id="contribModalOverlay" onclick="if(event.target===this)closeContribModal()">
-  <div class="modal" style="max-width:920px">
+  <div class="modal" style="max-width:95vw;width:95vw;max-height:92vh">
     <button class="modal-close" onclick="closeContribModal()">✕</button>
     <div class="modal-header">
       <div id="contribModalTitle" class="modal-lead-name">Contribuyentes al Funnel</div>
