@@ -167,50 +167,26 @@ textarea.form-input{resize:vertical;min-height:80px}
 @media(max-width:768px){header{padding:14px 16px}.main{padding:20px 16px}.form-grid{grid-template-columns:1fr}}
 
 /* ══ ALERT MODULE ══════════════════════════════════════════════════════════ */
-:root {
-  --alert-yellow-bg:rgba(180,83,9,0.08);--alert-yellow-border:rgba(180,83,9,0.3);--alert-yellow-text:#b45309;
-  --alert-red-bg:rgba(220,38,38,0.08);--alert-red-border:rgba(220,38,38,0.3);--alert-red-text:#dc2626;
-  --alert-ok-bg:rgba(13,122,95,0.08);--alert-ok-border:rgba(13,122,95,0.2);--alert-ok-text:#0d7a5f;
-}
+:root{--alert-yellow-bg:rgba(180,83,9,0.08);--alert-yellow-border:rgba(180,83,9,0.3);--alert-yellow-text:#b45309;--alert-red-bg:rgba(220,38,38,0.08);--alert-red-border:rgba(220,38,38,0.3);--alert-red-text:#dc2626;--alert-ok-bg:rgba(13,122,95,0.08);--alert-ok-border:rgba(13,122,95,0.2);--alert-ok-text:#0d7a5f}
 .alert-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;font-family:'Roboto Mono',monospace;font-size:11px;font-weight:600;white-space:nowrap;border:1px solid}
-.alert-badge.yellow{background:var(--alert-yellow-bg);border-color:var(--alert-yellow-border);color:var(--alert-yellow-text)}
-.alert-badge.red{background:var(--alert-red-bg);border-color:var(--alert-red-border);color:var(--alert-red-text)}
-.alert-badge.ok{background:var(--alert-ok-bg);border-color:var(--alert-ok-border);color:var(--alert-ok-text)}
-.alert-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.alert-badge.yellow .alert-dot{background:var(--alert-yellow-text)}
-.alert-badge.red .alert-dot{background:var(--alert-red-text);animation:pulse-dot 1s infinite}
-.alert-badge.ok .alert-dot{background:var(--alert-ok-text)}
+.alert-badge.yellow{background:var(--alert-yellow-bg);border-color:var(--alert-yellow-border);color:var(--alert-yellow-text)}.alert-badge.red{background:var(--alert-red-bg);border-color:var(--alert-red-border);color:var(--alert-red-text)}.alert-badge.ok{background:var(--alert-ok-bg);border-color:var(--alert-ok-border);color:var(--alert-ok-text)}
+.alert-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}.alert-badge.yellow .alert-dot{background:var(--alert-yellow-text)}.alert-badge.red .alert-dot{background:var(--alert-red-text);animation:pulse-dot 1s infinite}.alert-badge.ok .alert-dot{background:var(--alert-ok-text)}
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
 .alert-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:28px}
 .alert-panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
 .alert-panel-title{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'Roboto Mono',monospace}
 .alert-summary-chips{display:flex;gap:8px;flex-wrap:wrap}
 .alert-chip{padding:4px 12px;border-radius:20px;font-size:12px;font-family:'Roboto Mono',monospace;font-weight:600;border:1px solid}
-.alert-chip.red{background:var(--alert-red-bg);border-color:var(--alert-red-border);color:var(--alert-red-text)}
-.alert-chip.yellow{background:var(--alert-yellow-bg);border-color:var(--alert-yellow-border);color:var(--alert-yellow-text)}
-.alert-chip.ok{background:var(--alert-ok-bg);border-color:var(--alert-ok-border);color:var(--alert-ok-text)}
+.alert-chip.red{background:var(--alert-red-bg);border-color:var(--alert-red-border);color:var(--alert-red-text)}.alert-chip.yellow{background:var(--alert-yellow-bg);border-color:var(--alert-yellow-border);color:var(--alert-yellow-text)}.alert-chip.ok{background:var(--alert-ok-bg);border-color:var(--alert-ok-border);color:var(--alert-ok-text)}
 .alert-list{display:flex;flex-direction:column;gap:8px}
-.alert-row{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:8px;border:1px solid;cursor:pointer;transition:filter .15s}
-.alert-row:hover{filter:brightness(.96)}
-.alert-row.red{background:var(--alert-red-bg);border-color:var(--alert-red-border)}
-.alert-row.yellow{background:var(--alert-yellow-bg);border-color:var(--alert-yellow-border)}
-.alert-row-icon{font-size:16px;flex-shrink:0}
-.alert-row-name{font-weight:700;font-size:13px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.alert-row-meta{font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text2);flex-shrink:0}
-.alert-row-days{font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;flex-shrink:0;min-width:52px;text-align:right}
-.alert-row.red .alert-row-days{color:var(--alert-red-text)}
-.alert-row.yellow .alert-row-days{color:var(--alert-yellow-text)}
+.alert-row{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:8px;border:1px solid;cursor:pointer;transition:filter .15s}.alert-row:hover{filter:brightness(.96)}.alert-row.red{background:var(--alert-red-bg);border-color:var(--alert-red-border)}.alert-row.yellow{background:var(--alert-yellow-bg);border-color:var(--alert-yellow-border)}
+.alert-row-icon{font-size:16px;flex-shrink:0}.alert-row-name{font-weight:700;font-size:13px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.alert-row-meta{font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text2);flex-shrink:0}.alert-row-days{font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;flex-shrink:0;min-width:52px;text-align:right}.alert-row.red .alert-row-days{color:var(--alert-red-text)}.alert-row.yellow .alert-row-days{color:var(--alert-yellow-text)}
 .alert-empty{text-align:center;padding:28px;font-family:'Roboto Mono',monospace;font-size:13px;color:var(--alert-ok-text);background:var(--alert-ok-bg);border:1px solid var(--alert-ok-border);border-radius:8px}
 .threshold-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:24px}
-.threshold-row{display:grid;grid-template-columns:180px 1fr 1fr;gap:12px;align-items:center;padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:8px;transition:border-color .2s}
-.threshold-row:hover{border-color:var(--accent3)}
-.threshold-stage-label{font-family:'Roboto Mono',monospace;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px}
-.threshold-stage-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.threshold-input-wrap{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 12px;transition:border-color .2s}
-.threshold-input-wrap:focus-within{border-color:var(--warn)}
-.threshold-input-wrap.red-wrap:focus-within{border-color:var(--red)}
-.threshold-input-label{font-size:10px;font-family:'Roboto Mono',monospace;text-transform:uppercase;letter-spacing:.08em;flex-shrink:0;color:var(--warn)}
-.threshold-input-wrap.red-wrap .threshold-input-label{color:var(--red)}
+.threshold-row{display:grid;grid-template-columns:180px 1fr 1fr;gap:12px;align-items:center;padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:8px;transition:border-color .2s}.threshold-row:hover{border-color:var(--accent3)}
+.threshold-stage-label{font-family:'Roboto Mono',monospace;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px}.threshold-stage-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.threshold-input-wrap{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 12px;transition:border-color .2s}.threshold-input-wrap:focus-within{border-color:var(--warn)}.threshold-input-wrap.red-wrap:focus-within{border-color:var(--red)}
+.threshold-input-label{font-size:10px;font-family:'Roboto Mono',monospace;text-transform:uppercase;letter-spacing:.08em;flex-shrink:0;color:var(--warn)}.threshold-input-wrap.red-wrap .threshold-input-label{color:var(--red)}
 .threshold-input{background:transparent;border:none;color:var(--text);font-family:'Roboto Mono',monospace;font-size:16px;font-weight:700;width:60px;outline:none;text-align:right}
 .threshold-unit{font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text3);flex-shrink:0}
 @media(max-width:768px){.threshold-row{grid-template-columns:1fr;gap:8px}}
@@ -1533,9 +1509,9 @@ window.closeContribModal = () => document.getElementById('contribModalOverlay').
 
 
 
-/* ════════════════════════════════════════════════════════════════════════════
-   ALERT MODULE
-   ════════════════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════
+   ALERT MODULE — Stagnation alerts with configurable thresholds
+   ════════════════════════════════════════════════════════ */
 const DEFAULT_ALERT_THRESHOLDS = {
   ID01:{yellow:21,red:45},ID02:{yellow:21,red:45},
   ID03:{yellow:14,red:30},ID04:{yellow:14,red:30},
@@ -1543,22 +1519,11 @@ const DEFAULT_ALERT_THRESHOLDS = {
   ID07:{yellow:30,red:60},ID08:{yellow:21,red:45},
   ID09:{yellow:30,red:60},ID10:{yellow:60,red:120},
 };
-const STAGE_COLORS_ALERTS = {
-  ID01:'#6c63ff',ID02:'#00b4d8',ID03:'#00d4a8',ID04:'#52b788',
-  ID05:'#ffbe0b',ID06:'#ff9f1c',ID07:'#ff6b35',ID08:'#e63946',
-  ID09:'#c77dff',ID10:'#f72585'
-};
-const STAGE_SHORT_LABELS = {
-  ID01:'Identificación',ID02:'Mapeo de Necesidad',ID03:'Primer Acercamiento',
-  ID04:'Acceso TDDs',ID05:'Cotización',ID06:'Pruebas Técnicas',
-  ID07:'Lote Industrial',ID08:'Uso y Firma',ID09:'Primeras OC',ID10:'Proyección/Recompra'
-};
+const STAGE_COLORS_ALERTS={ID01:'#6c63ff',ID02:'#00b4d8',ID03:'#00d4a8',ID04:'#52b788',ID05:'#ffbe0b',ID06:'#ff9f1c',ID07:'#ff6b35',ID08:'#e63946',ID09:'#c77dff',ID10:'#f72585'};
+const STAGE_SHORT_LABELS={ID01:'Identificación',ID02:'Mapeo de Necesidad',ID03:'Primer Acercamiento',ID04:'Acceso TDDs',ID05:'Cotización',ID06:'Pruebas Técnicas',ID07:'Lote Industrial',ID08:'Uso y Firma',ID09:'Primeras OC',ID10:'Proyección/Recompra'};
 
-function loadAlertThresholds(){
-  try{const s=localStorage.getItem('funnel_alert_thresholds');if(s)return{...DEFAULT_ALERT_THRESHOLDS,...JSON.parse(s)};}catch(e){}
-  return{...DEFAULT_ALERT_THRESHOLDS};
-}
-let ALERT_THRESHOLDS = loadAlertThresholds();
+function loadAlertThresholds(){try{const s=localStorage.getItem('funnel_alert_thresholds');if(s)return{...DEFAULT_ALERT_THRESHOLDS,...JSON.parse(s)};}catch(e){}return{...DEFAULT_ALERT_THRESHOLDS};}
+let ALERT_THRESHOLDS=loadAlertThresholds();
 
 function computeLeadAlert(lead){
   const sid=lead.stage;
@@ -1575,21 +1540,14 @@ function getAlertBadgeHTML(lead){
   const a=computeLeadAlert(lead);
   if(!a)return'<span style="font-family:\'Roboto Mono\',monospace;font-size:12px;color:var(--text3)">—</span>';
   if(a.level==='ok')return`<span class="alert-badge ok"><span class="alert-dot"></span>${a.days}d</span>`;
-  const icon=a.level==='red'?'🔴':'⚠';
-  return`<span class="alert-badge ${a.level}"><span class="alert-dot"></span>${icon} ${a.days}d</span>`;
+  return`<span class="alert-badge ${a.level}"><span class="alert-dot"></span>${a.level==='red'?'🔴':'⚠'} ${a.days}d</span>`;
 }
 
 function renderAlertPanel(leadsList){
   const container=document.getElementById('alertPanelSection');
   if(!container)return;
   const active=leadsList.filter(l=>l.stage!=='GANADO'&&l.stage!=='PERDIDO');
-  const alerts=active
-    .map(l=>({lead:l,alert:computeLeadAlert(l)}))
-    .filter(x=>x.alert&&x.alert.level!=='ok')
-    .sort((a,b)=>{
-      if(a.alert.level!==b.alert.level)return a.alert.level==='red'?-1:1;
-      return b.alert.days-a.alert.days;
-    });
+  const alerts=active.map(l=>({lead:l,alert:computeLeadAlert(l)})).filter(x=>x.alert&&x.alert.level!=='ok').sort((a,b)=>{if(a.alert.level!==b.alert.level)return a.alert.level==='red'?-1:1;return b.alert.days-a.alert.days;});
   let red=0,yellow=0,ok=0;
   active.forEach(l=>{const a=computeLeadAlert(l);if(!a)return;if(a.level==='red')red++;else if(a.level==='yellow')yellow++;else ok++;});
   container.innerHTML=`<div class="alert-panel">
@@ -1601,7 +1559,7 @@ function renderAlertPanel(leadsList){
           <span class="alert-chip yellow">⚠ ${yellow} en atención</span>
           <span class="alert-chip ok">✓ ${ok} al día</span>
         </div>
-        <button onclick="openAlertConfig()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:7px;cursor:pointer;font-size:11px;font-family:'Roboto Mono',monospace;font-weight:600;transition:all .2s" onmouseover="this.style.borderColor='var(--accent3)';this.style.color='var(--accent3)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">⚙️ Umbrales</button>
+        <button onclick="openAlertConfig()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:7px;cursor:pointer;font-size:11px;font-family:'Roboto Mono',monospace;font-weight:600" onmouseover="this.style.borderColor='var(--accent3)';this.style.color='var(--accent3)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">⚙️ Umbrales</button>
       </div>
     </div>
     <div class="alert-list">
@@ -1613,14 +1571,13 @@ function renderAlertPanel(leadsList){
           const overBy=alert.level==='red'?alert.days-thr.red:alert.days-thr.yellow;
           return`<div class="alert-row ${alert.level}" onclick="openModal('${lead.id}')">
             <div class="alert-row-icon">${alert.level==='red'?'🔴':'⚠️'}</div>
-            <div style="flex:1;min-width:0">
-              <div class="alert-row-name">${lead.name}</div>
+            <div style="flex:1;min-width:0"><div class="alert-row-name">${lead.name}</div>
               <div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">
                 <span style="font-size:11px;font-family:'Roboto Mono',monospace;background:${color}20;color:${color};padding:1px 7px;border-radius:4px;font-weight:700">${alert.stageId}</span>
                 <span style="font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2)">${lead.owner||'Sin owner'}</span>
               </div>
             </div>
-            <div class="alert-row-meta">+${overBy}d sobre umbral ${alert.level==='red'?'🔴':'⚠'}</div>
+            <div class="alert-row-meta">+${overBy}d sobre umbral</div>
             <div class="alert-row-days">${alert.days}d</div>
           </div>`;
         }).join('')}
@@ -1638,70 +1595,29 @@ window.openAlertConfig=function(){
     </div>
     ${Object.keys(DEFAULT_ALERT_THRESHOLDS).map(sid=>`
       <div class="threshold-row">
-        <div class="threshold-stage-label">
-          <div class="threshold-stage-dot" style="background:${STAGE_COLORS_ALERTS[sid]}"></div>
-          <span style="color:${STAGE_COLORS_ALERTS[sid]}">${sid}</span>
-          <span style="font-size:10px;font-weight:400;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${STAGE_SHORT_LABELS[sid]}</span>
-        </div>
-        <div class="threshold-input-wrap">
-          <span class="threshold-input-label">⚠</span>
-          <input id="thr_y_${sid}" class="threshold-input" type="number" min="1" max="365"
-            value="${thr[sid]?.yellow||DEFAULT_ALERT_THRESHOLDS[sid].yellow}"
-            oninput="validateThresholds('${sid}')">
-          <span class="threshold-unit">días</span>
-        </div>
-        <div class="threshold-input-wrap red-wrap">
-          <span class="threshold-input-label">🔴</span>
-          <input id="thr_r_${sid}" class="threshold-input" type="number" min="1" max="365"
-            value="${thr[sid]?.red||DEFAULT_ALERT_THRESHOLDS[sid].red}"
-            oninput="validateThresholds('${sid}')">
-          <span class="threshold-unit">días</span>
-        </div>
+        <div class="threshold-stage-label"><div class="threshold-stage-dot" style="background:${STAGE_COLORS_ALERTS[sid]}"></div><span style="color:${STAGE_COLORS_ALERTS[sid]}">${sid}</span><span style="font-size:10px;font-weight:400;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${STAGE_SHORT_LABELS[sid]}</span></div>
+        <div class="threshold-input-wrap"><span class="threshold-input-label">⚠</span><input id="thr_y_${sid}" class="threshold-input" type="number" min="1" max="365" value="${thr[sid]?.yellow||DEFAULT_ALERT_THRESHOLDS[sid].yellow}" oninput="validateThresholds('${sid}')"><span class="threshold-unit">días</span></div>
+        <div class="threshold-input-wrap red-wrap"><span class="threshold-input-label">🔴</span><input id="thr_r_${sid}" class="threshold-input" type="number" min="1" max="365" value="${thr[sid]?.red||DEFAULT_ALERT_THRESHOLDS[sid].red}" oninput="validateThresholds('${sid}')"><span class="threshold-unit">días</span></div>
       </div>`).join('')}`;
   document.getElementById('alertConfigModal').classList.add('open');
 };
-
-window.validateThresholds=function(sid){
-  const y=parseInt(document.getElementById('thr_y_'+sid)?.value)||0;
-  const rEl=document.getElementById('thr_r_'+sid);if(!rEl)return;
-  const r=parseInt(rEl.value)||0;
-  if(y>=r){rEl.value=y+7;rEl.style.color='var(--red)';setTimeout(()=>{rEl.style.color='';},600);}
-};
-
-window.saveAlertThresholds=function(){
-  const thresholds={};
-  Object.keys(DEFAULT_ALERT_THRESHOLDS).forEach(sid=>{
-    const y=parseInt(document.getElementById('thr_y_'+sid)?.value)||DEFAULT_ALERT_THRESHOLDS[sid].yellow;
-    const r=parseInt(document.getElementById('thr_r_'+sid)?.value)||DEFAULT_ALERT_THRESHOLDS[sid].red;
-    thresholds[sid]={yellow:Math.min(y,r-1),red:r};
-  });
-  localStorage.setItem('funnel_alert_thresholds',JSON.stringify(thresholds));
-  ALERT_THRESHOLDS=thresholds;
-  closeAlertConfig();
-  renderDashboard();
-};
-
-window.resetAlertDefaults=function(){
-  localStorage.removeItem('funnel_alert_thresholds');
-  ALERT_THRESHOLDS={...DEFAULT_ALERT_THRESHOLDS};
-  openAlertConfig();
-};
-
-window.closeAlertConfig=function(){
-  document.getElementById('alertConfigModal').classList.remove('open');
-};
-/* ════════════════════════════════════════════════════════════════════════════
+window.validateThresholds=function(sid){const y=parseInt(document.getElementById('thr_y_'+sid)?.value)||0;const rEl=document.getElementById('thr_r_'+sid);if(!rEl)return;const r=parseInt(rEl.value)||0;if(y>=r){rEl.value=y+7;rEl.style.color='var(--red)';setTimeout(()=>{rEl.style.color='';},600);}};
+window.saveAlertThresholds=function(){const thresholds={};Object.keys(DEFAULT_ALERT_THRESHOLDS).forEach(sid=>{const y=parseInt(document.getElementById('thr_y_'+sid)?.value)||DEFAULT_ALERT_THRESHOLDS[sid].yellow;const r=parseInt(document.getElementById('thr_r_'+sid)?.value)||DEFAULT_ALERT_THRESHOLDS[sid].red;thresholds[sid]={yellow:Math.min(y,r-1),red:r};});localStorage.setItem('funnel_alert_thresholds',JSON.stringify(thresholds));ALERT_THRESHOLDS=thresholds;closeAlertConfig();renderDashboard();};
+window.resetAlertDefaults=function(){localStorage.removeItem('funnel_alert_thresholds');ALERT_THRESHOLDS={...DEFAULT_ALERT_THRESHOLDS};openAlertConfig();};
+window.closeAlertConfig=function(){document.getElementById('alertConfigModal').classList.remove('open');};
+/* ════════════════════════════════════════════════════════
    END ALERT MODULE
-   ════════════════════════════════════════════════════════════════════════════ */
+   ════════════════════════════════════════════════════════ */
 
-// Hook into renderDashboard to also render chart
+// Hook renderDashboard to also render alert panel
 const _origRenderDashboard = renderDashboard;
-renderDashboard = function(...args) {
+renderDashboard = function(...args){
+  const result = _origRenderDashboard(...args);
   renderAlertPanel(leads);
-  return _origRenderDashboard(...args);
+  return result;
 };
-// Shadow the original so direct calls also trigger alert panel
-const _alertWrapped = true;
+
+
 
 // ── AUTH FUNCTIONS ────────────────────────────────────────────────────────────
 window.doLogin = async () => {
@@ -1771,15 +1687,13 @@ Footer" style="display:none">
 </div>
 
 
-<!-- MODAL ALERT CONFIG ─────────────────────────────────────────────────────── -->
+<!-- MODAL ALERT CONFIG -->
 <div class="modal-overlay" id="alertConfigModal" onclick="if(event.target===this)closeAlertConfig()">
   <div class="modal" style="max-width:720px">
     <button class="modal-close" onclick="closeAlertConfig()">✕</button>
     <div style="margin-bottom:24px">
       <div class="modal-lead-name">⚙️ Umbrales de Alerta por Etapa</div>
-      <div style="font-size:13px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:4px">
-        Define cuántos días sin avance generan alerta. <span style="color:var(--alert-yellow-text)">Amarillo = atención</span> · <span style="color:var(--alert-red-text)">Rojo = urgente</span>.
-      </div>
+      <div style="font-size:13px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:4px">Define cuántos días sin avance generan alerta. <span style="color:var(--alert-yellow-text)">⚠ Amarillo = atención</span> · <span style="color:var(--alert-red-text)">🔴 Rojo = urgente</span>.</div>
     </div>
     <div class="threshold-grid" id="thresholdGrid"></div>
     <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border)">
@@ -1789,6 +1703,5 @@ Footer" style="display:none">
     </div>
   </div>
 </div>
-
 </body>
 </html>
