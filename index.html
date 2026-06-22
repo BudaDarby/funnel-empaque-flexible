@@ -232,6 +232,7 @@ textarea.form-input{resize:vertical;min-height:80px}
   <div class="header-actions">
     <input class="search-input" id="globalSearch" placeholder="Buscar lead...">
     <span id="headerUser" style="font-size:12px;color:var(--text2);font-family:'Roboto Mono',monospace;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    <button id="btnVPReport" onclick="generateVPReport()" style="display:none;background:linear-gradient(135deg,#1a1d2e,#2d3154);color:#fff;border:none;padding:8px 16px;border-radius:7px;font-family:'Roboto Mono',monospace;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.04em;transition:all .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">📋 VP Report</button>
     <button class="btn btn-ghost" onclick="doLogout()" style="font-size:12px;padding:7px 14px">Salir</button>
     <button class="btn btn-primary" id="btnNewMain">+ Nuevo Lead</button>
   </div>
@@ -723,6 +724,9 @@ onAuthStateChanged(auth, user => {
     if(loadScr){ loadScr.classList.remove('hide'); loadScr.style.opacity='1'; loadScr.style.pointerEvents='all'; }
     if(loadMsg)  loadMsg.textContent = 'Cargando datos...';
     if(headerUsr) headerUsr.textContent = user.email;
+    // VP Report button — solo visible para glebron@ternova.group
+    const btnVP = document.getElementById('btnVPReport');
+    if(btnVP) btnVP.style.display = user.email === 'glebron@ternova.group' ? 'block' : 'none';
     startListeners();
   } else {
     if(authScr)  authScr.classList.remove('hide');
@@ -1530,6 +1534,158 @@ window.doLogout=async()=>{if(!confirm('¿Cerrar sesión?'))return;stopListeners(
 document.getElementById('authPassword').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('authEmail').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('authPassword').focus();});
 document.getElementById('globalSearch').addEventListener('input',()=>{if(currentView!=='table')switchView('table');renderTable();});
+
+// ── VP REPORT GENERATOR ───────────────────────────────────────────────────────
+window.generateVPReport = function() {
+  const now      = new Date();
+  const dateStr  = now.toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+  const isoDate  = now.toISOString().split('T')[0];
+
+  // Leads activos + ganados (excluir PERDIDO)
+  const reportLeads = leads
+    .filter(l => l.stage !== 'PERDIDO')
+    .sort((a,b) => {
+      // Orden: activos primero por etapa desc, luego GANADO
+      const order = ['ID10','ID09','ID08','ID07','ID06','ID05','ID04','ID03','ID02','ID01','GANADO'];
+      return order.indexOf(a.stage) - order.indexOf(b.stage);
+    });
+
+  const active  = reportLeads.filter(l => l.stage !== 'GANADO');
+  const won     = reportLeads.filter(l => l.stage === 'GANADO');
+
+  // Métricas de resumen
+  const totalSOM     = active.reduce((s,l) => s+(Number(l.som)||0), 0);
+  const totalPond    = active.reduce((s,l) => s+(Number(l.som)||0)*(PROB[l.stage]||0), 0);
+  const topTierCount = active.filter(l => (Number(l.som)||0) >= TIER_THRESHOLDS.TOP).length;
+  const redAlerts    = active.filter(l => { const a=computeLeadAlert(l); return a?.level==='red'; }).length;
+  const yellowAlerts = active.filter(l => { const a=computeLeadAlert(l); return a?.level==='yellow'; }).length;
+
+  // Helpers
+  const fmt  = v => v ? `$${Number(v).toLocaleString('en-US')}k` : '—';
+  const prob = s => `${((PROB[s]||0)*100).toFixed(0)}%`;
+  const tier = l => { const t=getTierInfo(l); return t?t.label:'Sin SOM'; };
+  const lastBit = l => {
+    const b = l.bitacora;
+    if(!b||!b.length) return '_Sin registros en bitácora._';
+    const last = b[b.length-1];
+    return `> **${last.date}** — ${last.text}`;
+  };
+  const alertStr = l => {
+    const a = computeLeadAlert(l);
+    if(!a||a.level==='ok') return '✅';
+    return a.level==='red' ? `🔴 ${a.days}d` : `⚠️ ${a.days}d`;
+  };
+
+  // Agrupar activos por tier para el resumen ejecutivo
+  const byTier = {
+    top:    active.filter(l=>(Number(l.som)||0)>=TIER_THRESHOLDS.TOP),
+    second: active.filter(l=>{const s=Number(l.som)||0;return s>=TIER_THRESHOLDS.SECOND&&s<TIER_THRESHOLDS.TOP;}),
+    review: active.filter(l=>{const s=Number(l.som)||0;return s>0&&s<TIER_THRESHOLDS.SECOND;}),
+    nosom:  active.filter(l=>!Number(l.som)),
+  };
+
+  // ── Construir el MD ────────────────────────────────────────────────────────
+  let md = `# Reporte de Estatus del Funnel — Empaque Flexible
+**Fecha:** ${dateStr}  
+**Preparado por:** Guillermo Lebrón · Líder Innovación & Business Development  
+**Alcance:** CARICAM + México
+
+---
+
+## Resumen Ejecutivo
+
+| Métrica | Valor |
+|---|---|
+| Leads activos en funnel | **${active.length}** |
+| SOM total (activos) | **${fmt(totalSOM)}** |
+| SOM ponderado por probabilidad | **${fmt(Math.round(totalPond))}** |
+| Leads Top Tier (SOM ≥ $1,000k) | **${topTierCount}** |
+| Alertas críticas 🔴 | **${redAlerts}** |
+| Alertas en atención ⚠️ | **${yellowAlerts}** |
+| Leads ganados (activos) | **${won.length}** |
+
+---
+
+## Clasificación por Tier
+
+### ⭐ Top Tier — SOM ≥ $1,000k (${byTier.top.length} leads)
+
+${byTier.top.length === 0 ? '_Sin leads en este tier._' : byTier.top.map(l =>
+`**${l.name}** · ${l.stage} · ${l.owner||'—'} · SOM: ${fmt(l.som)} · Prob: ${prob(l.stage)} · Alerta: ${alertStr(l)}  
+${lastBit(l)}`
+).join('\n\n')}
+
+### 🔷 Second Tier — SOM $500k–$999k (${byTier.second.length} leads)
+
+${byTier.second.length === 0 ? '_Sin leads en este tier._' : byTier.second.map(l =>
+`**${l.name}** · ${l.stage} · ${l.owner||'—'} · SOM: ${fmt(l.som)} · Prob: ${prob(l.stage)} · Alerta: ${alertStr(l)}  
+${lastBit(l)}`
+).join('\n\n')}
+
+---
+
+## Detalle por Lead Activo
+
+${active.map((l,i) => {
+  const st   = STAGES.find(s=>s.id===l.stage)||STAGES[0];
+  const days = l.startDate ? dBetween(l.startDate) : null;
+  const som  = Number(l.som)||0;
+  const pond = (som*(PROB[l.stage]||0)).toFixed(0);
+  const tp   = (som*(Number(l.margen)||0)/100).toFixed(0);
+  return `### ${String(i+1).padStart(2,'0')}. ${l.name}
+
+| Campo | Valor |
+|---|---|
+| Etapa | \`${st.label}\` |
+| Owner | ${l.owner||'—'} |
+| Tipo | ${l.type==='growth'?'Growth':'New Business'} |
+| Tier | ${tier(l)} |
+| TAM | ${fmt(l.tam)} |
+| SOM | ${fmt(l.som)} |
+| SOM Ponderado | $${pond}k |
+| Margen | ${l.margen?l.margen+'%':'—'} |
+| TP Estimado | ${Number(tp)>0?'$'+tp+'k':'—'} |
+| Probabilidad | ${prob(l.stage)} |
+| Alerta estancamiento | ${alertStr(l)} |
+| Días en funnel | ${days!==null?days+'d':'—'} |
+| Contactos | ${l.contacts||'—'} |
+
+**Última bitácora:**  
+${lastBit(l)}
+
+`;
+}).join('---\n\n')}
+
+${won.length > 0 ? `---
+
+## ✅ Ganados (en periodo activo)
+
+${won.map(l => `- **${l.name}** · Owner: ${l.owner||'—'} · SOM: ${fmt(l.som)} · ${dBetween(l.startDate)||'—'}d en funnel`).join('\n')}
+
+` : ''}---
+
+## Notas para el VP
+
+Este reporte fue generado automáticamente desde el Funnel Manager de Empaque Flexible.  
+Los valores de SOM y margen son estimaciones del equipo comercial al momento de este corte.  
+Para exploración interactiva, acceder al Funnel Manager en: **funnel-empaque-flexible.web.app**
+
+> _Generado el ${isoDate} — Funnel Manager v2 · Empaque Flexible · Innovación_
+`;
+
+  // Descargar el archivo .md
+  const blob = new Blob([md], {type:'text/markdown;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `VP_Report_Funnel_${isoDate}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showSync('ok', `VP Report generado ✓ (${reportLeads.length} leads)`);
+};
+// ── END VP REPORT ─────────────────────────────────────────────────────────────
 </script>
 
 <div id="appFooter" style="display:none;text-align:center;padding:24px 32px;border-top:1px solid var(--border);font-size:12px;color:var(--text3);font-family:'Roboto Mono',monospace;background:var(--surface)">
