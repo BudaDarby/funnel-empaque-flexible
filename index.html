@@ -127,13 +127,18 @@ textarea.form-input{resize:vertical;min-height:80px}
 .inner-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:24px}
 .inner-tab{padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;transition:all .2s}
 .inner-tab.active{color:var(--accent3);border-bottom-color:var(--accent3)}
-
 .goget-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:0;position:relative;min-width:0}
 .goget-bars{width:100%;display:flex;gap:3px;align-items:flex-end;height:180px}
 .goget-bar{flex:1;border-radius:4px 4px 0 0;transition:all .5s;min-height:2px;cursor:default;position:relative}
 .goget-bar:hover::after{content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;font-family:'Roboto Mono',monospace;white-space:nowrap;z-index:10;margin-bottom:4px}
 .goget-month-label{font-size:10px;font-family:'Roboto Mono',monospace;color:var(--text2);text-align:center;margin-top:6px;white-space:nowrap}
 .goget-month-delta{font-size:9px;font-family:'Roboto Mono',monospace;text-align:center}
+
+/* ── TIER BADGES ── */
+.tier-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-family:'Roboto Mono',monospace;font-weight:600;white-space:nowrap;border:1px solid}
+.tier-top{background:rgba(255,190,11,.15);border-color:rgba(255,190,11,.5);color:#b45309}
+.tier-second{background:rgba(79,70,229,.12);border-color:rgba(79,70,229,.4);color:#4f46e5}
+.tier-review{background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.35);color:#dc2626}
 
 /* ── AUTH SCREEN ── */
 #authScreen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -166,22 +171,12 @@ textarea.form-input{resize:vertical;min-height:80px}
 ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:#eef0f5}::-webkit-scrollbar-thumb{background:#c5cad8;border-radius:3px}
 @media(max-width:768px){header{padding:14px 16px}.main{padding:20px 16px}.form-grid{grid-template-columns:1fr}}
 
-/* ══ ALERT MODULE ══════════════════════════════════════════════════════════ */
+/* ══ ALERT MODULE (kept for config modal, removed from dashboard display) ══ */
 :root{--alert-yellow-bg:rgba(180,83,9,0.08);--alert-yellow-border:rgba(180,83,9,0.3);--alert-yellow-text:#b45309;--alert-red-bg:rgba(220,38,38,0.08);--alert-red-border:rgba(220,38,38,0.3);--alert-red-text:#dc2626;--alert-ok-bg:rgba(13,122,95,0.08);--alert-ok-border:rgba(13,122,95,0.2);--alert-ok-text:#0d7a5f}
 .alert-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;font-family:'Roboto Mono',monospace;font-size:11px;font-weight:600;white-space:nowrap;border:1px solid}
 .alert-badge.yellow{background:var(--alert-yellow-bg);border-color:var(--alert-yellow-border);color:var(--alert-yellow-text)}.alert-badge.red{background:var(--alert-red-bg);border-color:var(--alert-red-border);color:var(--alert-red-text)}.alert-badge.ok{background:var(--alert-ok-bg);border-color:var(--alert-ok-border);color:var(--alert-ok-text)}
 .alert-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}.alert-badge.yellow .alert-dot{background:var(--alert-yellow-text)}.alert-badge.red .alert-dot{background:var(--alert-red-text);animation:pulse-dot 1s infinite}.alert-badge.ok .alert-dot{background:var(--alert-ok-text)}
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
-.alert-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:28px}
-.alert-panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
-.alert-panel-title{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'Roboto Mono',monospace}
-.alert-summary-chips{display:flex;gap:8px;flex-wrap:wrap}
-.alert-chip{padding:4px 12px;border-radius:20px;font-size:12px;font-family:'Roboto Mono',monospace;font-weight:600;border:1px solid}
-.alert-chip.red{background:var(--alert-red-bg);border-color:var(--alert-red-border);color:var(--alert-red-text)}.alert-chip.yellow{background:var(--alert-yellow-bg);border-color:var(--alert-yellow-border);color:var(--alert-yellow-text)}.alert-chip.ok{background:var(--alert-ok-bg);border-color:var(--alert-ok-border);color:var(--alert-ok-text)}
-.alert-list{display:flex;flex-direction:column;gap:8px}
-.alert-row{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:8px;border:1px solid;cursor:pointer;transition:filter .15s}.alert-row:hover{filter:brightness(.96)}.alert-row.red{background:var(--alert-red-bg);border-color:var(--alert-red-border)}.alert-row.yellow{background:var(--alert-yellow-bg);border-color:var(--alert-yellow-border)}
-.alert-row-icon{font-size:16px;flex-shrink:0}.alert-row-name{font-weight:700;font-size:13px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.alert-row-meta{font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text2);flex-shrink:0}.alert-row-days{font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;flex-shrink:0;min-width:52px;text-align:right}.alert-row.red .alert-row-days{color:var(--alert-red-text)}.alert-row.yellow .alert-row-days{color:var(--alert-yellow-text)}
-.alert-empty{text-align:center;padding:28px;font-family:'Roboto Mono',monospace;font-size:13px;color:var(--alert-ok-text);background:var(--alert-ok-bg);border:1px solid var(--alert-ok-border);border-radius:8px}
 .threshold-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:24px}
 .threshold-row{display:grid;grid-template-columns:180px 1fr 1fr;gap:12px;align-items:center;padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:8px;transition:border-color .2s}.threshold-row:hover{border-color:var(--accent3)}
 .threshold-stage-label{font-family:'Roboto Mono',monospace;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px}.threshold-stage-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
@@ -190,7 +185,6 @@ textarea.form-input{resize:vertical;min-height:80px}
 .threshold-input{background:transparent;border:none;color:var(--text);font-family:'Roboto Mono',monospace;font-size:16px;font-weight:700;width:60px;outline:none;text-align:right}
 .threshold-unit{font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text3);flex-shrink:0}
 @media(max-width:768px){.threshold-row{grid-template-columns:1fr;gap:8px}}
-/* ══ END ALERT MODULE ═══════════════════════════════════════════════════════ */
 </style>
 </head>
 <body>
@@ -218,7 +212,7 @@ textarea.form-input{resize:vertical;min-height:80px}
     <button class="auth-btn" id="authBtn" onclick="doLogin()">Ingresar</button>
     <div class="auth-footer">Acceso restringido · © 2026<br>
       <span style="color:var(--text2)">¿Necesitas acceso? Contacta a </span>
-      <a href="/cdn-cgi/l/email-protection#f0979c9592829f9eb08495829e9f8691de97829f8580" style="color:var(--accent3);text-decoration:none;font-weight:500">Guillermo Lebrón</a>
+      <a href="mailto:glebrón@ternova.com" style="color:var(--accent3);text-decoration:none;font-weight:500">Guillermo Lebrón</a>
     </div>
   </div>
 </div>
@@ -253,12 +247,13 @@ textarea.form-input{resize:vertical;min-height:80px}
 <!-- DASHBOARD -->
 <div class="views active" id="view-dashboard">
   <div class="main">
-    <div id="alertPanelSection"></div>
     <div class="stats-grid" id="statsGrid"></div>
     <div style="margin-bottom:12px">
       <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px">// Métricas Estratégicas · USD (miles)</div>
       <div class="stats-grid" id="strategicGrid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))"></div>
     </div>
+    <div id="tierBreakdown"></div>
+    <div id="teamBreakdown"></div>
     <div class="funnel-container" id="gogetSection">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
         <div>
@@ -316,12 +311,18 @@ textarea.form-input{resize:vertical;min-height:80px}
         <select class="filter-select" id="filterType" onchange="renderTable()">
           <option value="">Todos los tipos</option><option value="new-business">New Business</option><option value="growth">Growth</option>
         </select>
+        <select class="filter-select" id="filterTier" onchange="renderTable()">
+          <option value="">Todos los tiers</option>
+          <option value="top">⭐ Top Tier</option>
+          <option value="second">🔷 Second Tier</option>
+          <option value="review">⚠️ Revisar SOM</option>
+        </select>
       </div>
     </div>
     <div class="table-wrap">
       <table><thead><tr>
         <th>#</th><th>Lead</th><th>Owner</th><th>Etapa</th><th>Tipo</th>
-        <th>TAM</th><th>SOM</th><th>Prob.</th><th>SOM Pond.</th><th>Alerta</th><th>Días Total</th>
+        <th>TAM</th><th>SOM</th><th>Tier</th><th>Prob.</th><th>SOM Pond.</th><th>Alerta</th><th>Días Total</th>
       </tr></thead><tbody id="leadsTableBody"></tbody></table>
     </div>
   </div>
@@ -404,7 +405,6 @@ textarea.form-input{resize:vertical;min-height:80px}
     <div class="modal-section">
       <div class="modal-section-title">💰 Financieros & Capacidad</div>
       <div style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px;text-transform:uppercase;letter-spacing:.08em">// Valores en USD · Volumen en kg</div>
-
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);font-family:'Roboto Mono',monospace;margin-bottom:10px">Precio & Margen</div>
       <div class="form-grid" style="margin-bottom:20px">
         <div class="form-group"><label class="form-label">TP — Throughput (USD/kg)</label><input class="form-input" id="f_tp" type="number" placeholder="0.00"></div>
@@ -417,7 +417,6 @@ textarea.form-input{resize:vertical;min-height:80px}
         </div>
         <div class="form-group"><label class="form-label">Capacidad Venta Anual</label><input class="form-input" id="f_capacidad" placeholder="kg/año"></div>
       </div>
-
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);font-family:'Roboto Mono',monospace;margin-bottom:10px">Mercado — USD / año</div>
       <div class="form-grid" style="margin-bottom:20px">
         <div class="form-group"><label class="form-label">TAM (USD/año)</label><input class="form-input" id="f_tam" type="number" placeholder="0"></div>
@@ -425,7 +424,6 @@ textarea.form-input{resize:vertical;min-height:80px}
         <div class="form-group"><label class="form-label">SOM (USD/año)</label><input class="form-input" id="f_som" type="number" placeholder="0"></div>
         <div class="form-group"><label class="form-label">Volumen Mkt Anual (kg)</label><input class="form-input" id="f_mktVol" type="number" placeholder="0"></div>
       </div>
-
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent3);font-family:'Roboto Mono',monospace;margin-bottom:10px">Volumen — kg / año</div>
       <div class="form-grid">
         <div class="form-group"><label class="form-label">TAM Vol (kg/año)</label><input class="form-input" id="f_tamVol" type="number" placeholder="0"></div>
@@ -560,7 +558,36 @@ textarea.form-input{resize:vertical;min-height:80px}
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
+<!-- MODAL CONTRIBUTORS -->
+<div class="modal-overlay" id="contribModalOverlay" onclick="if(event.target===this)closeContribModal()">
+  <div class="modal" style="max-width:1100px;max-height:88vh">
+    <button class="modal-close" onclick="closeContribModal()">✕</button>
+    <div class="modal-header">
+      <div id="contribModalTitle" class="modal-lead-name">Contribuyentes al Funnel</div>
+      <div id="contribModalSub" style="font-size:13px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:4px"></div>
+    </div>
+    <div id="contribModalBody"></div>
+  </div>
+</div>
+
+<!-- MODAL ALERT CONFIG -->
+<div class="modal-overlay" id="alertConfigModal" onclick="if(event.target===this)closeAlertConfig()">
+  <div class="modal" style="max-width:720px">
+    <button class="modal-close" onclick="closeAlertConfig()">✕</button>
+    <div style="margin-bottom:24px">
+      <div class="modal-lead-name">⚙️ Umbrales de Alerta por Etapa</div>
+      <div style="font-size:13px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:4px">Define cuántos días sin avance generan alerta. <span style="color:var(--alert-yellow-text)">⚠ Amarillo = atención</span> · <span style="color:var(--alert-red-text)">🔴 Rojo = urgente</span>.</div>
+    </div>
+    <div class="threshold-grid" id="thresholdGrid"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border)">
+      <button class="btn btn-ghost" onclick="resetAlertDefaults()">Restaurar defaults</button>
+      <button class="btn btn-ghost" onclick="closeAlertConfig()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveAlertThresholds()">Guardar Umbrales</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -608,6 +635,23 @@ const PROB={ID01:.10,ID02:.10,ID03:.25,ID04:.25,ID05:.50,ID06:.75,ID07:.75,ID08:
 const APROBADAS=['ID06','ID07','ID08','ID09','ID10','GANADO'];
 const PC={'nuevo':{bg:'rgba(108,99,255,.15)',color:'#6c63ff'},'primer-toque':{bg:'rgba(0,180,216,.15)',color:'#00b4d8'},'seguimiento-1':{bg:'rgba(255,190,11,.15)',color:'#ffbe0b'},'seguimiento-2':{bg:'rgba(255,159,28,.15)',color:'#ff9f1c'},'seguimiento-3':{bg:'rgba(255,107,53,.15)',color:'#ff6b35'},'calificado':{bg:'rgba(0,212,168,.15)',color:'#00d4a8'},'descartado':{bg:'rgba(255,71,87,.15)',color:'#ff4757'}};
 
+// ── TIER CLASSIFICATION (SOM-based) ─────────────────────────────────────────
+const TIER_THRESHOLDS = { TOP: 1000, SECOND: 500 }; // USD miles
+
+function getTierInfo(lead) {
+  const som = Number(lead.som) || 0;
+  if (som >= TIER_THRESHOLDS.TOP)    return { label:'Top Tier',    cls:'tier-top',    icon:'⭐', key:'top'    };
+  if (som >= TIER_THRESHOLDS.SECOND) return { label:'Second Tier', cls:'tier-second', icon:'🔷', key:'second' };
+  if (som > 0)                        return { label:'Revisar SOM', cls:'tier-review', icon:'⚠️', key:'review' };
+  return null;
+}
+
+function getTierBadgeHTML(lead) {
+  const t = getTierInfo(lead);
+  if (!t) return '<span style="font-family:\'Roboto Mono\',monospace;font-size:11px;color:var(--text3)">—</span>';
+  return `<span class="tier-badge ${t.cls}">${t.icon} ${t.label}</span>`;
+}
+
 // ── STATE ────────────────────────────────────────────────────────────────────
 let leads=[], prospectos=[], currentLeadId=null, currentProspectoId=null, currentEmailType=null, currentView='dashboard';
 
@@ -622,7 +666,6 @@ function showSync(st,msg){
   if(st!=='saving')setTimeout(()=>bar.classList.remove('show'),2500);
 }
 
-
 // ── STARTUP DIAGNOSTICS ──────────────────────────────────────────────────────
 const diag = document.getElementById('loadDiag');
 const setDiag = (msg) => { if(diag) diag.innerHTML = msg; };
@@ -630,14 +673,13 @@ setDiag('Protocolo: ' + window.location.protocol + '<br>Iniciando SDK...');
 setTimeout(() => {
   if(!document.getElementById('loadingScreen').classList.contains('hide')) {
     setDiag('⚠️ Firebase tardando más de 5s.<br>Protocolo: <strong>' + window.location.protocol + '</strong><br>' +
-      (window.location.protocol === 'file:' ? '❌ Abre el archivo desde un servidor (GitHub Pages, localhost), no directamente desde el disco.' : 
+      (window.location.protocol === 'file:' ? '❌ Abre el archivo desde un servidor (GitHub Pages, localhost), no directamente desde el disco.' :
        '❌ Revisa tu conexión a internet o los permisos de Firestore.'));
     document.getElementById('loadMsg').textContent = 'Error de conexión';
   }
 }, 5000);
 
 // ── LISTENERS ────────────────────────────────────────────────────────────────
-// ── AUTH GATE ────────────────────────────────────────────────────────────────
 let leadsUnsub = null, prospectoUnsub = null, gogetUnsub = null;
 
 function startListeners() {
@@ -649,7 +691,6 @@ function startListeners() {
     console.error('Leads error:', err);
     document.getElementById('loadingScreen').classList.add('hide');
     showSync('err','Error Firestore: '+err.code);
-    // Show error in UI
     document.getElementById('loadMsg').textContent = 'Error al cargar datos';
     document.getElementById('loadDiag').innerHTML = '❌ '+err.code+'<br><span style="color:var(--text2)">Intenta cerrar sesión y volver a entrar</span><br><br><button onclick="doLogout()" style="background:var(--accent3);color:#fff;border:none;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:13px">Cerrar sesión</button>';
     document.getElementById('loadingScreen').classList.remove('hide');
@@ -675,20 +716,17 @@ function stopListeners() {
 onAuthStateChanged(auth, user => {
   const authScr   = document.getElementById('authScreen');
   const loadScr   = document.getElementById('loadingScreen');
-  const footer    = document.getElementById('appFooter');
   const headerUsr = document.getElementById('headerUser');
   const loadMsg   = document.getElementById('loadMsg');
   if(user) {
     if(authScr)  authScr.classList.add('hide');
     if(loadScr){ loadScr.classList.remove('hide'); loadScr.style.opacity='1'; loadScr.style.pointerEvents='all'; }
     if(loadMsg)  loadMsg.textContent = 'Cargando datos...';
-    if(footer)   footer.style.display = 'block';
     if(headerUsr) headerUsr.textContent = user.email;
     startListeners();
   } else {
     if(authScr)  authScr.classList.remove('hide');
     if(loadScr)  loadScr.classList.add('hide');
-    if(footer)   footer.style.display = 'none';
     stopListeners();
     leads = []; prospectos = [];
   }
@@ -717,15 +755,11 @@ document.getElementById('btnNewMain').onclick=()=>openModal(null);
 function renderDashboard(){
   const act=leads.filter(l=>l.stage!=='GANADO'&&l.stage!=='PERDIDO');
   const won=leads.filter(l=>l.stage==='GANADO');
-  const lost=leads.filter(l=>l.stage==='PERDIDO');
   const tTAM=act.reduce((s,l)=>s+(Number(l.tam)||0),0);
   const tSAM=act.reduce((s,l)=>s+(Number(l.sam)||0),0);
   const tSOM=act.reduce((s,l)=>s+(Number(l.som)||0),0);
   const opt1=leads.filter(l=>APROBADAS.includes(l.stage)).reduce((s,l)=>s+(Number(l.som)||0),0);
-  const opt2=leads.filter(l=>l.stage!=='PERDIDO').reduce((s,l)=>s+(Number(l.som)||0)*(PROB[l.stage]||0),0);
-  // TP = SOM × Margen%
   const tp1=leads.filter(l=>APROBADAS.includes(l.stage)).reduce((s,l)=>s+(Number(l.som)||0)*(Number(l.margen)||0)/100,0);
-  const tp2=leads.filter(l=>l.stage!=='PERDIDO').reduce((s,l)=>s+(Number(l.som)||0)*(Number(l.margen)||0)/100*(PROB[l.stage]||0),0);
   const META=1078*3;
   const cc=(v,m)=>v>=m?'var(--accent)':v>=m*.6?'var(--warn)':'var(--red)';
   const pb=(v,m,c)=>{const p=Math.min(v/m*100,100).toFixed(0);return `<div style="height:5px;background:var(--border);border-radius:3px;margin:8px 0 5px"><div style="height:100%;width:${p}%;background:${c};border-radius:3px"></div></div><div class="stat-sub">${p}% · Falta $${Math.max(m-v,0).toFixed(0)}k</div>`;};
@@ -734,13 +768,11 @@ function renderDashboard(){
     <div class="stat-card"><div class="stat-label">Activos</div><div class="stat-value">${act.length}</div><div class="stat-sub">en funnel</div></div>
     <div class="stat-card"><div class="stat-label">Ganados</div><div class="stat-value" style="color:var(--accent)">${won.length}</div><div class="stat-sub">cerrados won</div></div>
     <div class="stat-card"><div class="stat-label">Prospectos</div><div class="stat-value" style="color:var(--accent2)">${prospectos.length}</div><div class="stat-sub">pipeline previo</div></div>`;
-  const c1=cc(opt1,META),c2=cc(opt2,META);
-  // TP detail: top contributors for inline display
-  const tpLeads = leads
-    .filter(l=>APROBADAS.includes(l.stage)&&Number(l.som)>0)
-    .map(l=>({...l, tpVal:(Number(l.som)||0)*(Number(l.margen)||0)/100}))
-    .sort((a,b)=>b.tpVal-a.tpVal)
-    .slice(0,5);
+
+  const tpLeads = leads.filter(l=>APROBADAS.includes(l.stage)&&Number(l.som)>0)
+    .map(l=>({...l,tpVal:(Number(l.som)||0)*(Number(l.margen)||0)/100}))
+    .sort((a,b)=>b.tpVal-a.tpVal).slice(0,5);
+  const c1=cc(opt1,META);
 
   document.getElementById('strategicGrid').innerHTML=`
     <div class="stat-card" style="border-color:rgba(255,190,11,.4);cursor:pointer" onclick="openContribModal('opt1')" title="Ver contribuyentes">
@@ -759,9 +791,9 @@ function renderDashboard(){
       </div>
       <div style="display:flex;flex-direction:column;gap:7px">
         ${tpLeads.map(l=>{
-          const pct = tp1>0?(l.tpVal/tp1*100).toFixed(0):0;
-          const barW = tp1>0?Math.min(l.tpVal/tp1*100,100).toFixed(0):0;
-          const st = STAGES.find(s=>s.id===l.stage)||STAGES[0];
+          const pct=tp1>0?(l.tpVal/tp1*100).toFixed(0):0;
+          const barW=tp1>0?Math.min(l.tpVal/tp1*100,100).toFixed(0):0;
+          const st=STAGES.find(s=>s.id===l.stage)||STAGES[0];
           return `<div style="display:flex;align-items:center;gap:10px">
             <span style="font-size:12px;font-weight:600;min-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.name}</span>
             <span class="stage-badge" style="background:${st.color}20;color:${st.color};font-size:10px;padding:2px 7px">${st.short}</span>
@@ -772,15 +804,60 @@ function renderDashboard(){
             <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text3);min-width:32px;text-align:right">${pct}%</span>
           </div>`;
         }).join('')}
-        ${tpLeads.length===0?"<div style=\"color:var(--text3);font-size:12px;font-family:'Roboto Mono',monospace\">Sin datos de margen aún</div>":""}
+        ${tpLeads.length===0?`<div style="color:var(--text3);font-size:12px;font-family:'Roboto Mono',monospace">Sin datos de margen aún</div>`:""}
       </div>
-      <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text3)">Click para ver todos los contribuyentes · ${leads.filter(l=>APROBADAS.includes(l.stage)&&Number(l.margen)>0).length} de ${leads.filter(l=>APROBADAS.includes(l.stage)).length} leads con margen</div>
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text3)">Click para ver todos los contribuyentes</div>
     </div>
     <div class="stat-card"><div class="stat-label">📊 TAM Total</div><div class="stat-value" style="font-size:22px">$${tTAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div><div class="stat-sub">addressable market</div></div>
     <div class="stat-card"><div class="stat-label">📊 SAM Total</div><div class="stat-value" style="color:var(--text2);font-size:22px">$${tSAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div><div class="stat-sub">serviceable market</div></div>
     <div class="stat-card"><div class="stat-label">💰 SOM Total</div><div class="stat-value" style="color:var(--accent);font-size:22px">$${tSOM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div><div class="stat-sub">obtainable market</div></div>`;
 
-  // NB vs Growth breakdown
+  // ── TIER BREAKDOWN ──────────────────────────────────────────────────────────
+  const topTier    = act.filter(l => (Number(l.som)||0) >= TIER_THRESHOLDS.TOP);
+  const secondTier = act.filter(l => { const s=Number(l.som)||0; return s>=TIER_THRESHOLDS.SECOND && s<TIER_THRESHOLDS.TOP; });
+  const reviewTier = act.filter(l => { const s=Number(l.som)||0; return s>0 && s<TIER_THRESHOLDS.SECOND; });
+  const noSom      = act.filter(l => !Number(l.som));
+  const tierSomSum = arr => arr.reduce((s,l)=>s+(Number(l.som)||0),0);
+
+  document.getElementById('tierBreakdown').innerHTML=`
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px;margin-top:8px">// Clasificación por Tier · SOM (USD miles)</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:28px">
+      <div style="background:var(--surface);border:1px solid rgba(255,190,11,.4);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden;cursor:pointer" onclick="filterTableByTier('top')">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ffbe0b,#ff9f1c)"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="tier-badge tier-top">⭐ Top Tier</span>
+          <span style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text2)">SOM ≥ $1,000k</span>
+        </div>
+        <div style="font-size:28px;font-weight:800;color:#b45309">${topTier.length} <span style="font-size:14px;font-weight:400">leads</span></div>
+        <div style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2);margin-top:6px">SOM total: <strong style="color:#b45309">$${tierSomSum(topTier).toLocaleString('en-US')}k</strong></div>
+        <div style="font-size:10px;color:var(--text3);font-family:'Roboto Mono',monospace;margin-top:4px">Click para ver en tabla →</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(79,70,229,.3);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden;cursor:pointer" onclick="filterTableByTier('second')">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent3),#818cf8)"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="tier-badge tier-second">🔷 Second Tier</span>
+          <span style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text2)">SOM $500k–$999k</span>
+        </div>
+        <div style="font-size:28px;font-weight:800;color:var(--accent3)">${secondTier.length} <span style="font-size:14px;font-weight:400">leads</span></div>
+        <div style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2);margin-top:6px">SOM total: <strong style="color:var(--accent3)">$${tierSomSum(secondTier).toLocaleString('en-US')}k</strong></div>
+        <div style="font-size:10px;color:var(--text3);font-family:'Roboto Mono',monospace;margin-top:4px">Click para ver en tabla →</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(220,38,38,.25);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden;cursor:pointer" onclick="filterTableByTier('review')">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),#f87171)"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="tier-badge tier-review">⚠️ Revisar SOM</span>
+          <span style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text2)">SOM &lt; $500k</span>
+        </div>
+        <div style="font-size:28px;font-weight:800;color:var(--red)">${reviewTier.length} <span style="font-size:14px;font-weight:400">leads</span></div>
+        <div style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2);margin-top:6px">
+          Revisar justificación comercial
+          ${noSom.length>0?`<span style="margin-left:8px;color:var(--text3)">· ${noSom.length} sin SOM</span>`:''}
+        </div>
+        <div style="font-size:10px;color:var(--text3);font-family:'Roboto Mono',monospace;margin-top:4px">Click para ver en tabla →</div>
+      </div>
+    </div>`;
+
+  // ── NB vs Growth breakdown ──────────────────────────────────────────────────
   const nbLeads=act.filter(l=>l.type==='new-business');
   const grLeads=act.filter(l=>l.type==='growth');
   const nbTAM=nbLeads.reduce((s,l)=>s+(Number(l.tam)||0),0);
@@ -790,13 +867,6 @@ function renderDashboard(){
   const grSAM=grLeads.reduce((s,l)=>s+(Number(l.sam)||0),0);
   const grSOM=grLeads.reduce((s,l)=>s+(Number(l.som)||0),0);
 
-  // Inject team breakdown section after strategicGrid
-  let teamHtml = document.getElementById('teamBreakdown');
-  if(!teamHtml){
-    const sg=document.getElementById('strategicGrid');
-    const div=document.createElement('div');div.id='teamBreakdown';
-    sg.parentNode.insertBefore(div,sg.nextSibling);
-  }
   document.getElementById('teamBreakdown').innerHTML=`
     <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px;margin-top:8px">// Breakdown por Equipo</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px">
@@ -825,25 +895,38 @@ function renderDashboard(){
         </div>
       </div>
     </div>`;
+
   renderGogetChart();
   const cnts={};STAGES.slice(0,10).forEach(s=>cnts[s.id]=leads.filter(l=>l.stage===s.id).length);
   const mx=Math.max(...Object.values(cnts),1);
   document.getElementById('funnelBars').innerHTML=STAGES.slice(0,10).map(s=>{const c=cnts[s.id]||0,h=Math.max((c/mx)*70+4,4);return `<div class="funnel-bar-wrap"><div class="funnel-bar-count" style="color:${s.color}">${c}</div><div class="funnel-bar" style="height:${h}px;background:${s.color}25;border:1px solid ${s.color}70" onclick="switchView('kanban')"></div><div class="funnel-bar-label">${s.short}</div></div>`;}).join('');
 }
 
+// ── Tier quick-filter helper ─────────────────────────────────────────────────
+window.filterTableByTier = function(tier) {
+  switchView('table');
+  const sel = document.getElementById('filterTier');
+  if(sel) { sel.value = tier; renderTable(); }
+};
+
 // ── TABLE ────────────────────────────────────────────────────────────────────
 window.renderTable = function renderTable(){
   const q=(document.getElementById('globalSearch')?.value||'').toLowerCase();
   const fS=document.getElementById('filterStage')?.value||'';
   const fT=document.getElementById('filterType')?.value||'';
-  const fl=leads.filter(l=>{if(fS&&l.stage!==fS)return false;if(fT&&l.type!==fT)return false;if(q&&!l.name?.toLowerCase().includes(q)&&!(l.owner||'').toLowerCase().includes(q))return false;return true;});
+  const fTier=document.getElementById('filterTier')?.value||'';
+  const fl=leads.filter(l=>{
+    if(fS&&l.stage!==fS)return false;
+    if(fT&&l.type!==fT)return false;
+    if(fTier){ const t=getTierInfo(l); if(!t||t.key!==fTier)return false; }
+    if(q&&!l.name?.toLowerCase().includes(q)&&!(l.owner||'').toLowerCase().includes(q))return false;
+    return true;
+  });
   const tb=document.getElementById('leadsTableBody');
-  if(!fl.length){tb.innerHTML='<tr><td colspan="11"><div class="empty-state"><div class="empty-state-icon">📦</div><div>No hay leads.</div></div></td></tr>';return;}
+  if(!fl.length){tb.innerHTML='<tr><td colspan="12"><div class="empty-state"><div class="empty-state-icon">📦</div><div>No hay leads.</div></div></td></tr>';return;}
   tb.innerHTML=fl.map((l,i)=>{
     const st=STAGES.find(s=>s.id===l.stage)||STAGES[0];
-    const dE=l.stageHistory?.[l.stage]?dBetween(l.stageHistory[l.stage]):null;
     const dT=l.startDate?dBetween(l.startDate):null;
-    const dc=dE===null?'':dE>60?'days-late':dE>30?'days-warn':'days-ok';
     const pb=(PROB[l.stage]||0);
     return `<tr onclick="openModal('${l.id}')">
       <td><span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text3)">#${String(i+1).padStart(2,'0')}</span></td>
@@ -851,7 +934,9 @@ window.renderTable = function renderTable(){
       <td><span class="lead-owner">${l.owner||'—'}</span></td>
       <td><span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.short}</span></td>
       <td><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'New Business'}</span></td>
-      <td class="amount">${fmtM(l.tam)}</td><td class="amount big">${fmtM(l.som)}</td>
+      <td class="amount">${fmtM(l.tam)}</td>
+      <td class="amount big">${fmtM(l.som)}</td>
+      <td>${getTierBadgeHTML(l)}</td>
       <td><span class="days-badge" style="background:rgba(108,99,255,.12);color:var(--accent3)">${(pb*100).toFixed(0)}%</span></td>
       <td class="amount" style="color:var(--warn)">$${((Number(l.som)||0)*pb).toFixed(0)}k</td>
       <td>${getAlertBadgeHTML(l)}</td>
@@ -865,7 +950,7 @@ window.renderKanban = function renderKanban(force){
   const kf=document.getElementById('kanbanFilter')?.value||'';
   document.getElementById('kanbanBoard').innerHTML=STAGES.map(s=>{
     const cards=leads.filter(l=>l.stage===s.id&&(!kf||l.type===kf));
-    return `<div class="kanban-col"><div class="kanban-col-header" style="border-top:3px solid ${s.color}"><div class="kanban-col-title" style="color:${s.color}">${s.short}</div><div class="kanban-col-subtitle">${s.label.replace(/^ID\d+ – /,'').replace(/^Cerrado – /,'')}</div><div class="kanban-col-count">${cards.length} lead${cards.length!==1?'s':''}</div></div><div class="kanban-cards">${cards.length===0?'<div style="text-align:center;padding:20px;font-size:12px;color:var(--text3)">—</div>':cards.map(l=>`<div class="kanban-card" onclick="openModal('${l.id}')"><div class="kanban-card-name">${l.name}</div><div class="kanban-card-meta">${l.owner||'Sin owner'}</div><div style="font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2);margin-top:3px">SOM: ${fmtM(l.som)}${l.precioVenta?' | PV: $'+Number(l.precioVenta).toFixed(2):''}${l.tp?' | TP: $'+Number(l.tp).toFixed(2):''}</div><div style="margin-top:6px;display:flex;gap:6px;align-items:center"><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'NB'}</span>${getAlertBadgeHTML(l)}</div></div>`).join('')}</div></div>`;
+    return `<div class="kanban-col"><div class="kanban-col-header" style="border-top:3px solid ${s.color}"><div class="kanban-col-title" style="color:${s.color}">${s.short}</div><div class="kanban-col-subtitle">${s.label.replace(/^ID\d+ – /,'').replace(/^Cerrado – /,'')}</div><div class="kanban-col-count">${cards.length} lead${cards.length!==1?'s':''}</div></div><div class="kanban-cards">${cards.length===0?'<div style="text-align:center;padding:20px;font-size:12px;color:var(--text3)">—</div>':cards.map(l=>`<div class="kanban-card" onclick="openModal('${l.id}')"><div class="kanban-card-name">${l.name}</div><div class="kanban-card-meta">${l.owner||'Sin owner'}</div><div style="font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2);margin-top:3px">SOM: ${fmtM(l.som)}${l.precioVenta?' | PV: $'+Number(l.precioVenta).toFixed(2):''}${l.tp?' | TP: $'+Number(l.tp).toFixed(2):''}</div><div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'NB'}</span>${getTierBadgeHTML(l)}${getAlertBadgeHTML(l)}</div></div>`).join('')}</div></div>`;
   }).join('');
 };
 
@@ -884,7 +969,8 @@ window.openModal=function(id){
   document.getElementById('modalStickyName').textContent=l?l.name:'Nuevo Lead';
   document.getElementById('btnDelete').style.display=l?'block':'none';
   const cs=l?l.stage:'ID01', st=STAGES.find(s=>s.id===cs)||STAGES[0];
-  const metaHtml=l?`<span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.label}</span><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'New Business'}</span>`:'';
+  const tierBadge = l ? getTierBadgeHTML(l) : '';
+  const metaHtml=l?`<span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.label}</span><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'New Business'}</span>${tierBadge}`:'';
   document.getElementById('modalMeta').innerHTML=metaHtml;
   document.getElementById('modalStickyMeta').innerHTML=metaHtml;
   document.getElementById('stageSelectorEl').innerHTML=STAGES.map(s=>`<div class="stage-option${s.id===cs?' selected':''}" style="${s.id===cs?`background:${s.color};border-color:${s.color}`:''}" onclick="selectStage('${s.id}')" data-stage="${s.id}">${s.short}</div>`).join('');
@@ -939,25 +1025,53 @@ window.addBitacoraEntry=async()=>{
   try{await setDoc(doc(db,'leads',currentLeadId),{bitacora:lead.bitacora},{merge:true});showSync('ok','✓');}catch(e){showSync('err','Error');}
 };
 window.closeModal=()=>document.getElementById('modalOverlay').classList.remove('open');
+
 window.saveLead=async()=>{
   const name=document.getElementById('f_name').value.trim();
   if(!name){alert('Nombre requerido.');return;}
   const btn=document.getElementById('btnSave');btn.disabled=true;btn.textContent='Guardando...';
   showSync('saving','Guardando...');
-  const ns=getSelStage();
+  const ns=document.querySelector('.stage-option.selected')?.dataset.stage||'ID01';
+  const mp=getMonthlyProjectionFromForm();
   try{
     if(currentLeadId){
       const lead=leads.find(l=>l.id===currentLeadId);
       const sh={...(lead.stageHistory||{})},se={...(lead.stageExits||{})};
       if(lead.stage!==ns){se[lead.stage]=today();if(!sh[ns])sh[ns]=today();}
-      await setDoc(doc(db,'leads',currentLeadId),{name,stage:ns,stageHistory:sh,stageExits:se,owner:document.getElementById('f_owner').value,contacts:document.getElementById('f_contacts').value,type:document.getElementById('f_type').value,startDate:document.getElementById('f_startDate').value,goGetDate:document.getElementById('f_goGetDate').value,saleDate:document.getElementById('f_saleDate').value,tp:document.getElementById('f_tp').value,tam:document.getElementById('f_tam').value,sam:document.getElementById('f_sam').value,som:document.getElementById('f_som').value,capacidad:document.getElementById('f_capacidad').value,mktVol:document.getElementById('f_mktVol').value,updatedAt:serverTimestamp()},{merge:true});
+      await setDoc(doc(db,'leads',currentLeadId),{name,stage:ns,stageHistory:sh,stageExits:se,
+        owner:document.getElementById('f_owner').value,contacts:document.getElementById('f_contacts').value,
+        type:document.getElementById('f_type').value,startDate:document.getElementById('f_startDate').value,
+        goGetDate:document.getElementById('f_goGetDate').value,saleDate:document.getElementById('f_saleDate').value,
+        tp:document.getElementById('f_tp').value,precioVenta:document.getElementById('f_precioVenta').value,
+        margen:document.getElementById('f_margen').value,
+        tamVol:document.getElementById('f_tamVol').value,samVol:document.getElementById('f_samVol').value,
+        somVol:document.getElementById('f_somVol').value,capVol:document.getElementById('f_capVol').value,
+        tam:document.getElementById('f_tam').value,sam:document.getElementById('f_sam').value,
+        som:document.getElementById('f_som').value,capacidad:document.getElementById('f_capacidad').value,
+        mktVol:document.getElementById('f_mktVol').value,
+        monthlyProjection:mp,monthlyVolume:getMonthlyVolumeFromForm(),
+        updatedAt:serverTimestamp()},{merge:true});
     }else{
-      await setDoc(doc(db,'leads',Date.now().toString()),{name,stage:ns,owner:document.getElementById('f_owner').value,contacts:document.getElementById('f_contacts').value,type:document.getElementById('f_type').value,startDate:document.getElementById('f_startDate').value||today(),goGetDate:document.getElementById('f_goGetDate').value,saleDate:document.getElementById('f_saleDate').value,tp:document.getElementById('f_tp').value,tam:document.getElementById('f_tam').value,sam:document.getElementById('f_sam').value,som:document.getElementById('f_som').value,capacidad:document.getElementById('f_capacidad').value,mktVol:document.getElementById('f_mktVol').value,stageHistory:{[ns]:today()},stageExits:{},checklists:{},bitacora:[],createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+      await setDoc(doc(db,'leads',Date.now().toString()),{name,stage:ns,
+        owner:document.getElementById('f_owner').value,contacts:document.getElementById('f_contacts').value,
+        type:document.getElementById('f_type').value,startDate:document.getElementById('f_startDate').value||today(),
+        goGetDate:document.getElementById('f_goGetDate').value,saleDate:document.getElementById('f_saleDate').value,
+        tp:document.getElementById('f_tp').value,precioVenta:document.getElementById('f_precioVenta').value,
+        margen:document.getElementById('f_margen').value,
+        tamVol:document.getElementById('f_tamVol').value,samVol:document.getElementById('f_samVol').value,
+        somVol:document.getElementById('f_somVol').value,capVol:document.getElementById('f_capVol').value,
+        tam:document.getElementById('f_tam').value,sam:document.getElementById('f_sam').value,
+        som:document.getElementById('f_som').value,capacidad:document.getElementById('f_capacidad').value,
+        mktVol:document.getElementById('f_mktVol').value,
+        monthlyProjection:mp,monthlyVolume:getMonthlyVolumeFromForm(),
+        stageHistory:{[ns]:today()},stageExits:{},checklists:{},bitacora:[],
+        createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
     }
     showSync('ok','Guardado ✓');closeModal();
   }catch(e){showSync('err','Error');alert(e.message);}
   btn.disabled=false;btn.textContent='Guardar Lead';
 };
+
 window.deleteLead=async()=>{
   if(!currentLeadId||!confirm('¿Eliminar?'))return;
   try{await deleteDoc(doc(db,'leads',currentLeadId));showSync('ok','Eliminado');closeModal();}catch(e){showSync('err','Error');}
@@ -1028,7 +1142,7 @@ window.updateEC=(i,f,v)=>{const p=currentProspectoId?prospectos.find(x=>x.id===c
 window.removeEC=i=>{const p=currentProspectoId?prospectos.find(x=>x.id===currentProspectoId):null;if(p&&p.extraContacts){p.extraContacts.splice(i,1);renderEC(p.extraContacts);}};
 function renderEH(log){
   const el=document.getElementById('emailHistory');if(!el)return;
-  el.innerHTML=log?.length?'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);font-family:\'DM Mono\',monospace;margin-bottom:10px">Historial enviados</div>'+[...log].reverse().map(e=>`<div class="bitacora-entry" style="border-color:var(--accent3)"><div class="bitacora-date">${e.date}</div><div class="bitacora-text" style="font-weight:600">${e.type} — ${e.subject}</div></div>`).join(''):'';
+  el.innerHTML=log?.length?'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);font-family:\'Roboto Mono\',monospace;margin-bottom:10px">Historial enviados</div>'+[...log].reverse().map(e=>`<div class="bitacora-entry" style="border-color:var(--accent3)"><div class="bitacora-date">${e.date}</div><div class="bitacora-text" style="font-weight:600">${e.type} — ${e.subject}</div></div>`).join(''):'';
 }
 function renderPB(p){
   const e=p?.bitacora||[];
@@ -1051,7 +1165,7 @@ HISTORIAL PREVIO: ${prev}
 INSTRUCCIONES: español profesional cercano, máximo 150 palabras, NO frases genéricas, firma: [Tu nombre] | Líder Innovación & Empaque Flexible
 Responde SOLO JSON sin markdown: {"subject":"...","body":"..."}`;
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
     const d=await r.json();
     const parsed=JSON.parse(d.content[0].text.replace(/```json|```/g,'').trim());
     document.getElementById('emailSubject').value=parsed.subject||'';
@@ -1099,15 +1213,12 @@ window.convertToLead=()=>quickConvert(currentProspectoId);
 window.quickConvert=pid=>{const p=prospectos.find(x=>x.id===pid);if(!p)return;closePModal();openModal(null);document.getElementById('f_name').value=p.empresa||'';document.getElementById('f_contacts').value=p.nombre?(p.nombre+(p.cargo?' - '+p.cargo:'')):'';showSync('ok','Datos precargados — completa y guarda');};
 window.closePModal=()=>document.getElementById('pModalOverlay').classList.remove('open');
 
-
 // ── MONTHS CONFIG ────────────────────────────────────────────────────────────
 const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const MONTH_KEYS = ['m01','m02','m03','m04','m05','m06','m07','m08','m09','m10','m11','m12'];
-let gogetMetas = {}; // {m01:53, m02:53, ...} loaded from Firestore
-
+let gogetMetas = {};
 const gogetDocRef = doc(db,'config','goget_metas');
 
-// ── MONTHLY PROJECTION GRID (inside lead modal) ──────────────────────────────
 function renderMonthlyGrid(lead) {
   const mp = lead?.monthlyProjection || {};
   document.getElementById('monthlyProjectionGrid').innerHTML = MONTH_KEYS.map((k,i) => `
@@ -1116,18 +1227,11 @@ function renderMonthlyGrid(lead) {
       <div style="display:flex;align-items:center;gap:4px">
         <span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)">$</span>
         <input id="mp_${k}" type="number" placeholder="0" value="${mp[k]!==undefined?mp[k]:''}"
-          style="background:transparent;border:none;color:var(--accent);font-family:'Roboto Mono',monospace;font-size:16px;font-weight:700;width:100%;outline:none"
-          oninput="updateMonthlyPreview()">
+          style="background:transparent;border:none;color:var(--accent);font-family:'Roboto Mono',monospace;font-size:16px;font-weight:700;width:100%;outline:none">
         <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text3)">k</span>
       </div>
     </div>`).join('');
-  updateMonthlyPreview();
 }
-
-window.updateMonthlyPreview = () => {
-  const total = MONTH_KEYS.reduce((s,k) => s+(Number(document.getElementById('mp_'+k)?.value)||0), 0);
-  // could show total somewhere if desired
-};
 
 function getMonthlyProjectionFromForm() {
   const mp = {};
@@ -1138,48 +1242,6 @@ function getMonthlyProjectionFromForm() {
   return mp;
 }
 
-// ── SAVE MONTHLY PROJECTION WITH LEAD ────────────────────────────────────────
-// Patch saveLead to also save monthlyProjection
-const _origSaveLead = window.saveLead;
-window.saveLead = async function() {
-  // intercept to inject monthlyProjection
-  const name=document.getElementById('f_name').value.trim();
-  if(!name){alert('Nombre requerido.');return;}
-  const btn=document.getElementById('btnSave');btn.disabled=true;btn.textContent='Guardando...';
-  showSync('saving','Guardando...');
-  const ns=document.querySelector('.stage-option.selected')?.dataset.stage||'ID01';
-  const mp = getMonthlyProjectionFromForm();
-  try{
-    if(currentLeadId){
-      const lead=leads.find(l=>l.id===currentLeadId);
-      const sh={...(lead.stageHistory||{})},se={...(lead.stageExits||{})};
-      if(lead.stage!==ns){se[lead.stage]=today();if(!sh[ns])sh[ns]=today();}
-      await setDoc(doc(db,'leads',currentLeadId),{name,stage:ns,stageHistory:sh,stageExits:se,
-        owner:document.getElementById('f_owner').value,contacts:document.getElementById('f_contacts').value,
-        type:document.getElementById('f_type').value,startDate:document.getElementById('f_startDate').value,
-        goGetDate:document.getElementById('f_goGetDate').value,saleDate:document.getElementById('f_saleDate').value,
-        tp:document.getElementById('f_tp').value,precioVenta:document.getElementById('f_precioVenta').value,margen:document.getElementById('f_margen').value,tamVol:document.getElementById('f_tamVol').value,samVol:document.getElementById('f_samVol').value,somVol:document.getElementById('f_somVol').value,capVol:document.getElementById('f_capVol').value,tam:document.getElementById('f_tam').value,
-        sam:document.getElementById('f_sam').value,som:document.getElementById('f_som').value,
-        capacidad:document.getElementById('f_capacidad').value,mktVol:document.getElementById('f_mktVol').value,
-        monthlyProjection:mp,monthlyVolume:getMonthlyVolumeFromForm(),updatedAt:serverTimestamp()},{merge:true});
-    }else{
-      await setDoc(doc(db,'leads',Date.now().toString()),{name,stage:ns,
-        owner:document.getElementById('f_owner').value,contacts:document.getElementById('f_contacts').value,
-        type:document.getElementById('f_type').value,startDate:document.getElementById('f_startDate').value||today(),
-        goGetDate:document.getElementById('f_goGetDate').value,saleDate:document.getElementById('f_saleDate').value,
-        tp:document.getElementById('f_tp').value,precioVenta:document.getElementById('f_precioVenta').value,margen:document.getElementById('f_margen').value,tamVol:document.getElementById('f_tamVol').value,samVol:document.getElementById('f_samVol').value,somVol:document.getElementById('f_somVol').value,capVol:document.getElementById('f_capVol').value,tam:document.getElementById('f_tam').value,
-        sam:document.getElementById('f_sam').value,som:document.getElementById('f_som').value,
-        capacidad:document.getElementById('f_capacidad').value,mktVol:document.getElementById('f_mktVol').value,
-        monthlyProjection:mp,monthlyVolume:getMonthlyVolumeFromForm(),stageHistory:{[ns]:today()},stageExits:{},checklists:{},bitacora:[],
-        createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
-    }
-    showSync('ok','Guardado ✓');closeModal();
-  }catch(e){showSync('err','Error');alert(e.message);}
-  btn.disabled=false;btn.textContent='Guardar Lead';
-};
-
-
-// ── MARGEN AUTO CALC ─────────────────────────────────────────────────────────
 window.calcMargen = () => {
   const pv  = Number(document.getElementById('f_precioVenta')?.value)||0;
   const tp  = Number(document.getElementById('f_tp')?.value)||0;
@@ -1189,7 +1251,6 @@ window.calcMargen = () => {
   }
 };
 
-// ── MONTHLY VOLUME GRID ───────────────────────────────────────────────────────
 function renderMonthlyVolumeGrid(lead) {
   const mv = lead?.monthlyVolume || {};
   const el = document.getElementById('monthlyVolumeGrid');
@@ -1213,52 +1274,39 @@ function getMonthlyVolumeFromForm() {
   });
   return mv;
 }
+
 // ── GOGET CHART ───────────────────────────────────────────────────────────────
 function renderGogetChart() {
-  // Sum monthly projections across all active leads
   const projByMonth = {};
   MONTH_KEYS.forEach(k => projByMonth[k] = 0);
   leads.filter(l=>l.stage!=='PERDIDO').forEach(l => {
     const mp = l.monthlyProjection||{};
     MONTH_KEYS.forEach(k => { projByMonth[k] += Number(mp[k])||0; });
   });
-
   const metas = MONTH_KEYS.map(k => Number(gogetMetas[k])||0);
   const projs  = MONTH_KEYS.map(k => projByMonth[k]);
-
-  // Acumulados
   const metaAcum = [], projAcum = [];
   let mAcc=0, pAcc=0;
-  for(let i=0;i<12;i++){
-    mAcc+=metas[i]; pAcc+=projs[i];
-    metaAcum.push(mAcc); projAcum.push(pAcc);
-  }
-
-  const maxVal = Math.max(...metaAcum, ...projAcum, 1);
+  for(let i=0;i<12;i++){mAcc+=metas[i];pAcc+=projs[i];metaAcum.push(mAcc);projAcum.push(pAcc);}
+  const maxVal = Math.max(...metaAcum,...projAcum,1);
   const chartH = 180;
-
   const cols = MONTH_KEYS.map((k,i) => {
-    const mH = Math.max((metaAcum[i]/maxVal)*chartH, 2);
-    const pH = Math.max((projAcum[i]/maxVal)*chartH, 2);
+    const mH = Math.max((metaAcum[i]/maxVal)*chartH,2);
+    const pH = Math.max((projAcum[i]/maxVal)*chartH,2);
     const ahead = projAcum[i] >= metaAcum[i];
     const delta = projAcum[i] - metaAcum[i];
     const deltaColor = ahead ? 'var(--accent)' : 'var(--red)';
     const deltaStr = (ahead?'+':'') + delta.toFixed(0) + 'k';
     return `<div class="goget-col">
       <div class="goget-bars">
-        <div class="goget-bar" style="height:${mH}px;background:#6c63ff;opacity:.7"
-          data-tip="Meta acum.: $${metaAcum[i].toFixed(0)}k"></div>
-        <div class="goget-bar" style="height:${pH}px;background:${ahead?'var(--accent)':'var(--red)'};opacity:.9"
-          data-tip="Proyección acum.: $${projAcum[i].toFixed(0)}k"></div>
+        <div class="goget-bar" style="height:${mH}px;background:#6c63ff;opacity:.7" data-tip="Meta acum.: $${metaAcum[i].toFixed(0)}k"></div>
+        <div class="goget-bar" style="height:${pH}px;background:${ahead?'var(--accent)':'var(--red)'};opacity:.9" data-tip="Proyección acum.: $${projAcum[i].toFixed(0)}k"></div>
       </div>
       <div class="goget-month-label">${MONTHS[i]}</div>
       <div class="goget-month-delta" style="color:${deltaColor}">${metaAcum[i]>0||projAcum[i]>0?deltaStr:'0'}</div>
     </div>`;
   }).join('');
-
   document.getElementById('gogetChart').innerHTML = cols;
-
-  // Summary bar
   const totalMeta = metaAcum[11];
   const totalProj = projAcum[11];
   const gap = totalProj - totalMeta;
@@ -1266,118 +1314,59 @@ function renderGogetChart() {
   const currMonth = new Date().getMonth();
   const metaYTD = metaAcum[currMonth];
   const projYTD = projAcum[currMonth];
-
   document.getElementById('gogetSummaryBar').innerHTML = `
     <div><div class="stat-label">Meta Anual</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:#6c63ff">$${totalMeta.toFixed(0)}k</div></div>
     <div><div class="stat-label">Proyección Anual</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:${gap>=0?'var(--accent)':'var(--red)'}">$${totalProj.toFixed(0)}k</div></div>
     <div><div class="stat-label">Brecha Anual</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:${gap>=0?'var(--accent)':'var(--red)'}">${gap>=0?'+':''}$${gap.toFixed(0)}k</div></div>
     <div><div class="stat-label">Cobertura Anual</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:${pct>=100?'var(--accent)':pct>=70?'var(--warn)':'var(--red)'}">${pct}%</div></div>
-    <div style="border-left:1px solid var(--border);padding-left:24px"><div class="stat-label">Meta YTD (a la fecha)</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:#6c63ff">$${metaYTD.toFixed(0)}k</div></div>
-    <div><div class="stat-label">Proyección YTD</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:${projYTD>=metaYTD?'var(--accent)':'var(--red)'}">$${projYTD.toFixed(0)}k</div></div>
-  `;
+    <div style="border-left:1px solid var(--border);padding-left:24px"><div class="stat-label">Meta YTD</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:#6c63ff">$${metaYTD.toFixed(0)}k</div></div>
+    <div><div class="stat-label">Proyección YTD</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:${projYTD>=metaYTD?'var(--accent)':'var(--red)'}">$${projYTD.toFixed(0)}k</div></div>`;
 
-  // ── CONTRIBUTORS TABLE ──────────────────────────────────────────────────────
-  const contributors = leads
-    .filter(l => l.stage !== 'PERDIDO')
-    .map(l => {
-      const mp = l.monthlyProjection || {};
-      const total = MONTH_KEYS.reduce((s,k) => s + (Number(mp[k]) || 0), 0);
-      return { ...l, mpTotal: total, mp };
-    })
-    .filter(l => l.mpTotal > 0)
-    .sort((a,b) => b.mpTotal - a.mpTotal);
-
+  const contributors = leads.filter(l=>l.stage!=='PERDIDO').map(l=>{const mp=l.monthlyProjection||{};const total=MONTH_KEYS.reduce((s,k)=>s+(Number(mp[k])||0),0);return{...l,mpTotal:total,mp};}).filter(l=>l.mpTotal>0).sort((a,b)=>b.mpTotal-a.mpTotal);
   const contEl = document.getElementById('gogetContributors');
   if(!contEl) return;
-
-  if(!contributors.length) {
-    contEl.innerHTML = '';
-    return;
-  }
-
-  const stageColor = id => STAGES.find(s=>s.id===id)?.color || '#999';
+  if(!contributors.length){contEl.innerHTML='';return;}
+  const stageColor = id => STAGES.find(s=>s.id===id)?.color||'#999';
   const typeLabel  = t => t==='growth'?'Growth':'New Business';
   const typeCls    = t => t==='growth'?'type-gr':'type-nb';
-
-  contEl.innerHTML = `
-    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:12px;padding-top:16px;border-top:1px solid var(--border)">
-      // Leads contribuyendo al Go-Get
-    </div>
+  contEl.innerHTML=`
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:12px;padding-top:16px;border-top:1px solid var(--border)">// Leads contribuyendo al Go-Get</div>
     <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)">
       <table style="width:100%;border-collapse:collapse">
-        <thead>
-          <tr style="background:var(--surface2)">
-            <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap">Lead</th>
-            <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Etapa</th>
-            <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Tipo</th>
-            ${MONTHS.map(m=>`<th style="padding:10px 8px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap">${m}</th>`).join('')}
-            <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap">Total Año</th>
-          </tr>
-        </thead>
+        <thead><tr style="background:var(--surface2)">
+          <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap">Lead</th>
+          <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Etapa</th>
+          <th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border)">Tier</th>
+          ${MONTHS.map(m=>`<th style="padding:10px 8px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap">${m}</th>`).join('')}
+          <th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap">Total Año</th>
+        </tr></thead>
         <tbody>
-          ${contributors.map((l,i) => {
-            const sc = stageColor(l.stage);
-            const rowBg = i%2===0 ? 'background:var(--surface)' : 'background:var(--surface2)';
-            const monthCells = MONTH_KEYS.map(k => {
-              const v = Number(l.mp[k]);
-              const hasVal = l.mp[k] !== undefined && l.mp[k] !== '';
-              return `<td style="padding:10px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:12px;${hasVal && v>0?'color:var(--accent3);font-weight:600':hasVal && v===0?'color:var(--text3)':'color:var(--text3)'}">
-                ${hasVal ? (v>0?'$'+v+'k':'0') : '—'}
-              </td>`;
-            }).join('');
+          ${contributors.map((l,i)=>{
+            const sc=stageColor(l.stage);
+            const rowBg=i%2===0?'background:var(--surface)':'background:var(--surface2)';
+            const monthCells=MONTH_KEYS.map(k=>{const v=Number(l.mp[k]);const hasVal=l.mp[k]!==undefined&&l.mp[k]!=='';return `<td style="padding:10px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:12px;${hasVal&&v>0?'color:var(--accent3);font-weight:600':hasVal&&v===0?'color:var(--text3)':'color:var(--text3)'}">${hasVal?(v>0?'$'+v+'k':'0'):'—'}</td>`;}).join('');
             return `<tr style="${rowBg};border-bottom:1px solid var(--border);cursor:pointer" onclick="openModal('${l.id}')">
-              <td style="padding:10px 14px">
-                <div style="font-weight:700;font-size:13px;margin-bottom:4px">${l.name}</div>
-                <div style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text2);display:flex;gap:8px;flex-wrap:wrap">
-                  ${l.som?`<span>SOM: <strong style="color:var(--accent3)">$${l.som}k</strong></span>`:''}
-                  ${l.precioVenta?`<span>PV: <strong>$${Number(l.precioVenta).toFixed(2)}/kg</strong></span>`:''}
-                  ${l.margen?`<span>Mg: <strong style="color:var(--accent)">$${l.margen}%</strong></span>`:''}
-                  ${(Number(l.som)&&Number(l.margen))?`<span>TP: <strong style="color:var(--accent2)">$${((Number(l.som)||0)*(Number(l.margen)||0)/100).toFixed(0)}k</strong></span>`:''}
-                </div>
-              </td>
+              <td style="padding:10px 14px"><div style="font-weight:700;font-size:13px;margin-bottom:4px">${l.name}</div><div style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text2);display:flex;gap:8px;flex-wrap:wrap">${l.som?`<span>SOM: <strong style="color:var(--accent3)">$${l.som}k</strong></span>`:''}${l.margen?`<span>Mg: <strong style="color:var(--accent)">${l.margen}%</strong></span>`:''}</div></td>
               <td style="padding:10px 14px"><span class="stage-badge" style="background:${sc}20;color:${sc}">${l.stage}</span></td>
-              <td style="padding:10px 14px"><span class="type-badge ${typeCls(l.type)}">${typeLabel(l.type)}</span></td>
+              <td style="padding:10px 14px">${getTierBadgeHTML(l)}</td>
               ${monthCells}
               <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;color:var(--accent3)">$${l.mpTotal.toFixed(0)}k</td>
             </tr>`;
           }).join('')}
           <tr style="background:var(--surface2);border-top:2px solid var(--border)">
             <td colspan="3" style="padding:10px 14px;font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace;color:var(--text2)">TOTAL PROYECTADO</td>
-            ${MONTH_KEYS.map(k => {
-              const s = contributors.reduce((acc,l)=>acc+(Number(l.mp[k])||0),0);
-              return `<td style="padding:10px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:12px;font-weight:700;color:${s>0?'var(--accent3)':'var(--text3)'}">
-                ${s>0?'$'+s+'k':'—'}
-              </td>`;
-            }).join('')}
+            ${MONTH_KEYS.map(k=>{const s=contributors.reduce((acc,l)=>acc+(Number(l.mp[k])||0),0);return `<td style="padding:10px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:12px;font-weight:700;color:${s>0?'var(--accent3)':'var(--text3)'}">${s>0?'$'+s+'k':'—'}</td>`;}).join('')}
             <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;color:var(--accent3)">$${contributors.reduce((s,l)=>s+l.mpTotal,0).toFixed(0)}k</td>
           </tr>
           <tr style="background:#f0f4ff;border-top:1px dashed var(--border)">
             <td colspan="3" style="padding:10px 14px;font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace;color:#6c63ff">META MENSUAL</td>
-            ${MONTH_KEYS.map((k,i) => {
-              const metaVal = Number(gogetMetas[k])||0;
-              return `<td style="padding:10px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:12px;font-weight:700;color:${metaVal>0?'#6c63ff':'var(--text3)'}">
-                ${metaVal>0?'$'+metaVal+'k':'—'}
-              </td>`;
-            }).join('')}
+            ${MONTH_KEYS.map((k,i)=>{const metaVal=Number(gogetMetas[k])||0;return `<td style="padding:10px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:12px;font-weight:700;color:${metaVal>0?'#6c63ff':'var(--text3)'}">${metaVal>0?'$'+metaVal+'k':'—'}</td>`;}).join('')}
             <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;color:#6c63ff">$${MONTH_KEYS.reduce((s,k)=>s+(Number(gogetMetas[k])||0),0).toFixed(0)}k</td>
           </tr>
           <tr style="background:#fff8f0;border-top:1px dashed rgba(212,82,10,.2)">
             <td colspan="3" style="padding:8px 14px;font-size:11px;font-weight:700;font-family:'Roboto Mono',monospace;color:var(--accent2)">DELTA (PROY - META)</td>
-            ${MONTH_KEYS.map(k => {
-              const proj = contributors.reduce((acc,l)=>acc+(Number(l.mp[k])||0),0);
-              const meta = Number(gogetMetas[k])||0;
-              const delta = proj - meta;
-              const hasBoth = proj>0||meta>0;
-              return `<td style="padding:8px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;color:${delta>=0?'var(--accent)':'var(--red)'}">
-                ${hasBoth?(delta>=0?'+':'')+delta.toFixed(0)+'k':'—'}
-              </td>`;
-            }).join('')}
-            ${(() => {
-              const totalProj = contributors.reduce((s,l)=>s+l.mpTotal,0);
-              const totalMeta = MONTH_KEYS.reduce((s,k)=>s+(Number(gogetMetas[k])||0),0);
-              const d = totalProj - totalMeta;
-              return `<td style="padding:8px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;font-weight:800;color:${d>=0?'var(--accent)':'var(--red)'}">${d>=0?'+':''}$${d.toFixed(0)}k</td>`;
-            })()}
+            ${MONTH_KEYS.map(k=>{const proj=contributors.reduce((acc,l)=>acc+(Number(l.mp[k])||0),0);const meta=Number(gogetMetas[k])||0;const delta=proj-meta;const hasBoth=proj>0||meta>0;return `<td style="padding:8px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;color:${delta>=0?'var(--accent)':'var(--red)'}">${hasBoth?(delta>=0?'+':'')+delta.toFixed(0)+'k':'—'}</td>`;}).join('')}
+            ${(()=>{const totalProj=contributors.reduce((s,l)=>s+l.mpTotal,0);const totalMeta=MONTH_KEYS.reduce((s,k)=>s+(Number(gogetMetas[k])||0),0);const d=totalProj-totalMeta;return `<td style="padding:8px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;font-weight:800;color:${d>=0?'var(--accent)':'var(--red)'}">${d>=0?'+':''}$${d.toFixed(0)}k</td>`;})()}
           </tr>
         </tbody>
       </table>
@@ -1398,83 +1387,51 @@ window.openGogetConfig = () => {
     </div>`).join('');
   document.getElementById('gogetModalOverlay').classList.add('open');
 };
-
 window.saveGogetMetas = async () => {
   const metas = {};
   MONTH_KEYS.forEach(k => { const v=Number(document.getElementById('gm_'+k)?.value)||0; if(v) metas[k]=v; });
   showSync('saving','Guardando metas...');
-  try {
-    await setDoc(gogetDocRef, metas);
-    showSync('ok','Metas guardadas ✓');
-    closeGogetModal();
-  } catch(e) { showSync('err','Error al guardar'); }
+  try { await setDoc(gogetDocRef, metas); showSync('ok','Metas guardadas ✓'); closeGogetModal(); }
+  catch(e) { showSync('err','Error al guardar'); }
 };
-
 window.closeGogetModal = () => document.getElementById('gogetModalOverlay').classList.remove('open');
 
 // ── CONTRIBUTORS MODAL ───────────────────────────────────────────────────────
 window.openContribModal = function(type) {
   let filtered, title, sub, isTP=false;
-  if(type==='opt1'||type==='tp1') {
-    filtered = leads.filter(l => APROBADAS.includes(l.stage));
-  } else {
-    filtered = leads.filter(l => l.stage !== 'PERDIDO');
-  }
+  if(type==='opt1'||type==='tp1') filtered = leads.filter(l=>APROBADAS.includes(l.stage));
+  else filtered = leads.filter(l=>l.stage!=='PERDIDO');
   if(type==='opt1'){ title='⚡ Opción 1 — Conservador (ID06+)'; sub='Leads con aprobación técnica · SOM directo'; }
   else if(type==='opt2'){ title='🎯 Opción 2 — Esperado (Ponderado)'; sub='Todos los leads activos · SOM × Probabilidad por etapa'; }
   else if(type==='tp1'){ title='🔥 TP Conservador — ID06+'; sub='SOM × Margen% · Throughput directo'; isTP=true; }
   else { title='🔥 TP Esperado — Ponderado'; sub='SOM × Margen% × Probabilidad por etapa'; isTP=true; }
-
-  if(isTP) {
-    filtered = filtered.sort((a,b) => {
-      const tpA = (Number(a.som)||0)*(Number(a.margen)||0)/100;
-      const tpB = (Number(b.som)||0)*(Number(b.margen)||0)/100;
-      return tpB - tpA;
-    });
-  } else {
-    filtered = filtered.sort((a,b) => (Number(b.som)||0)-(Number(a.som)||0));
-  }
-  document.getElementById('contribModalTitle').textContent = title;
-  document.getElementById('contribModalSub').textContent   = sub;
-
-  const isOpt2type = (type==='opt2'||type==='tp2');
-  const total = filtered.reduce((s,l) => {
-    const som  = Number(l.som)||0;
-    const mg   = Number(l.margen)||0;
-    const prob = PROB[l.stage]||0;
-    if(isTP) return s + som*(mg/100)*(isOpt2type?prob:1);
-    return s + (isOpt2type ? som*prob : som);
-  }, 0);
-
-  const thStyle = "padding:10px 12px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap";
-  const thStyleL = "padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap";
-  const accentCol = isTP ? 'var(--accent2)' : 'var(--accent3)';
-
-  document.getElementById('contribModalBody').innerHTML = `
+  if(isTP) filtered=filtered.sort((a,b)=>{const tA=(Number(a.som)||0)*(Number(a.margen)||0)/100;const tB=(Number(b.som)||0)*(Number(b.margen)||0)/100;return tB-tA;});
+  else filtered=filtered.sort((a,b)=>(Number(b.som)||0)-(Number(a.som)||0));
+  document.getElementById('contribModalTitle').textContent=title;
+  document.getElementById('contribModalSub').textContent=sub;
+  const isOpt2type=(type==='opt2'||type==='tp2');
+  const total=filtered.reduce((s,l)=>{const som=Number(l.som)||0;const mg=Number(l.margen)||0;const prob=PROB[l.stage]||0;if(isTP)return s+som*(mg/100)*(isOpt2type?prob:1);return s+(isOpt2type?som*prob:som);},0);
+  const thStyle="padding:10px 12px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap";
+  const thStyleL="padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:'Roboto Mono',monospace;border-bottom:1px solid var(--border);white-space:nowrap";
+  const accentCol=isTP?'var(--accent2)':'var(--accent3)';
+  document.getElementById('contribModalBody').innerHTML=`
     <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)">
       <table style="width:100%;border-collapse:collapse">
         <thead><tr style="background:var(--surface2)">
-          <th style="${thStyleL}">Lead</th>
-          <th style="${thStyleL}">Etapa</th>
-          <th style="${thStyleL}">Tipo</th>
-          <th style="${thStyle}">SOM</th>
-          <th style="${thStyle}">Margen</th>
-          <th style="${thStyle}">TP Lead</th>
+          <th style="${thStyleL}">Lead</th><th style="${thStyleL}">Etapa</th><th style="${thStyleL}">Tipo</th>
+          <th style="${thStyle}">SOM</th><th style="${thStyle}">Margen</th><th style="${thStyle}">TP Lead</th>
           ${isOpt2type?`<th style="${thStyle}">Prob.</th>`:''}
-          <th style="${thStyle}">Aporte</th>
-          <th style="${thStyle}">% del Total</th>
+          <th style="${thStyle}">Aporte</th><th style="${thStyle}">% del Total</th>
         </tr></thead>
         <tbody>
-          ${filtered.map((l,i) => {
-            const st    = STAGES.find(s=>s.id===l.stage)||STAGES[0];
-            const som   = Number(l.som)||0;
-            const mg    = Number(l.margen)||0;
-            const tp    = som*(mg/100);
-            const prob  = PROB[l.stage]||0;
-            const aporte= isTP ? tp*(isOpt2type?prob:1) : (isOpt2type?som*prob:som);
-            const pct   = total>0?(aporte/total*100).toFixed(1):0;
-            const barW  = total>0?Math.min(aporte/total*100,100).toFixed(0):0;
-            const rowBg = i%2===0?'background:var(--surface)':'background:var(--surface2)';
+          ${filtered.map((l,i)=>{
+            const st=STAGES.find(s=>s.id===l.stage)||STAGES[0];
+            const som=Number(l.som)||0;const mg=Number(l.margen)||0;const tp=som*(mg/100);
+            const prob=PROB[l.stage]||0;
+            const aporte=isTP?tp*(isOpt2type?prob:1):(isOpt2type?som*prob:som);
+            const pct=total>0?(aporte/total*100).toFixed(1):0;
+            const barW=total>0?Math.min(aporte/total*100,100).toFixed(0):0;
+            const rowBg=i%2===0?'background:var(--surface)':'background:var(--surface2)';
             return `<tr style="${rowBg};border-bottom:1px solid var(--border);cursor:pointer" onclick="closeContribModal();openModal('${l.id}')">
               <td style="padding:10px 12px;font-weight:700;font-size:13px">${l.name}<div style="font-size:11px;font-weight:400;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:2px">${l.owner||''}</div></td>
               <td style="padding:10px 12px"><span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.short}</span></td>
@@ -1484,14 +1441,7 @@ window.openContribModal = function(type) {
               <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--accent2)">${tp>0?'$'+tp.toFixed(0)+'k':'—'}</td>
               ${isOpt2type?`<td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--accent3)">${(prob*100).toFixed(0)}%</td>`:''}
               <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;font-weight:700;color:${accentCol}">$${aporte.toFixed(0)}k</td>
-              <td style="padding:10px 12px;min-width:90px">
-                <div style="display:flex;align-items:center;gap:6px">
-                  <div style="flex:1;height:5px;background:var(--border);border-radius:3px;min-width:40px">
-                    <div style="width:${barW}%;height:100%;background:${accentCol};border-radius:3px"></div>
-                  </div>
-                  <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text2);width:30px;text-align:right">${pct}%</span>
-                </div>
-              </td>
+              <td style="padding:10px 12px;min-width:90px"><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:5px;background:var(--border);border-radius:3px;min-width:40px"><div style="width:${barW}%;height:100%;background:${accentCol};border-radius:3px"></div></div><span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text2);width:30px;text-align:right">${pct}%</span></div></td>
             </tr>`;
           }).join('')}
           <tr style="background:var(--surface2);border-top:2px solid var(--border)">
@@ -1502,15 +1452,12 @@ window.openContribModal = function(type) {
         </tbody>
       </table>
     </div>`;
-
   document.getElementById('contribModalOverlay').classList.add('open');
 };
 window.closeContribModal = () => document.getElementById('contribModalOverlay').classList.remove('open');
 
-
-
 /* ════════════════════════════════════════════════════════
-   ALERT MODULE — Stagnation alerts with configurable thresholds
+   ALERT MODULE — badges only (panel removed from dashboard)
    ════════════════════════════════════════════════════════ */
 const DEFAULT_ALERT_THRESHOLDS = {
   ID01:{yellow:21,red:45},ID02:{yellow:21,red:45},
@@ -1543,48 +1490,6 @@ function getAlertBadgeHTML(lead){
   return`<span class="alert-badge ${a.level}"><span class="alert-dot"></span>${a.level==='red'?'🔴':'⚠'} ${a.days}d</span>`;
 }
 
-function renderAlertPanel(leadsList){
-  const container=document.getElementById('alertPanelSection');
-  if(!container)return;
-  const active=leadsList.filter(l=>l.stage!=='GANADO'&&l.stage!=='PERDIDO');
-  const alerts=active.map(l=>({lead:l,alert:computeLeadAlert(l)})).filter(x=>x.alert&&x.alert.level!=='ok').sort((a,b)=>{if(a.alert.level!==b.alert.level)return a.alert.level==='red'?-1:1;return b.alert.days-a.alert.days;});
-  let red=0,yellow=0,ok=0;
-  active.forEach(l=>{const a=computeLeadAlert(l);if(!a)return;if(a.level==='red')red++;else if(a.level==='yellow')yellow++;else ok++;});
-  container.innerHTML=`<div class="alert-panel">
-    <div class="alert-panel-header">
-      <div class="alert-panel-title">// Alertas de Estancamiento</div>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <div class="alert-summary-chips">
-          <span class="alert-chip red">🔴 ${red} crítico${red!==1?'s':''}</span>
-          <span class="alert-chip yellow">⚠ ${yellow} en atención</span>
-          <span class="alert-chip ok">✓ ${ok} al día</span>
-        </div>
-        <button onclick="openAlertConfig()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:7px;cursor:pointer;font-size:11px;font-family:'Roboto Mono',monospace;font-weight:600" onmouseover="this.style.borderColor='var(--accent3)';this.style.color='var(--accent3)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">⚙️ Umbrales</button>
-      </div>
-    </div>
-    <div class="alert-list">
-      ${alerts.length===0
-        ?'<div class="alert-empty">✓ Todos los leads activos están dentro del tiempo esperado por etapa.</div>'
-        :alerts.map(({lead,alert})=>{
-          const color=STAGE_COLORS_ALERTS[alert.stageId]||'#999';
-          const thr=ALERT_THRESHOLDS[alert.stageId];
-          const overBy=alert.level==='red'?alert.days-thr.red:alert.days-thr.yellow;
-          return`<div class="alert-row ${alert.level}" onclick="openModal('${lead.id}')">
-            <div class="alert-row-icon">${alert.level==='red'?'🔴':'⚠️'}</div>
-            <div style="flex:1;min-width:0"><div class="alert-row-name">${lead.name}</div>
-              <div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">
-                <span style="font-size:11px;font-family:'Roboto Mono',monospace;background:${color}20;color:${color};padding:1px 7px;border-radius:4px;font-weight:700">${alert.stageId}</span>
-                <span style="font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2)">${lead.owner||'Sin owner'}</span>
-              </div>
-            </div>
-            <div class="alert-row-meta">+${overBy}d sobre umbral</div>
-            <div class="alert-row-days">${alert.days}d</div>
-          </div>`;
-        }).join('')}
-    </div>
-  </div>`;
-}
-
 window.openAlertConfig=function(){
   const thr=loadAlertThresholds();
   document.getElementById('thresholdGrid').innerHTML=`
@@ -1605,103 +1510,30 @@ window.validateThresholds=function(sid){const y=parseInt(document.getElementById
 window.saveAlertThresholds=function(){const thresholds={};Object.keys(DEFAULT_ALERT_THRESHOLDS).forEach(sid=>{const y=parseInt(document.getElementById('thr_y_'+sid)?.value)||DEFAULT_ALERT_THRESHOLDS[sid].yellow;const r=parseInt(document.getElementById('thr_r_'+sid)?.value)||DEFAULT_ALERT_THRESHOLDS[sid].red;thresholds[sid]={yellow:Math.min(y,r-1),red:r};});localStorage.setItem('funnel_alert_thresholds',JSON.stringify(thresholds));ALERT_THRESHOLDS=thresholds;closeAlertConfig();renderDashboard();};
 window.resetAlertDefaults=function(){localStorage.removeItem('funnel_alert_thresholds');ALERT_THRESHOLDS={...DEFAULT_ALERT_THRESHOLDS};openAlertConfig();};
 window.closeAlertConfig=function(){document.getElementById('alertConfigModal').classList.remove('open');};
-/* ════════════════════════════════════════════════════════
-   END ALERT MODULE
-   ════════════════════════════════════════════════════════ */
-
-// Hook renderDashboard to also render alert panel
-const _origRenderDashboard = renderDashboard;
-renderDashboard = function(...args){
-  const result = _origRenderDashboard(...args);
-  renderAlertPanel(leads);
-  return result;
-};
-
-
 
 // ── AUTH FUNCTIONS ────────────────────────────────────────────────────────────
 window.doLogin = async () => {
-  const email    = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
-  const btn      = document.getElementById('authBtn');
-  const errEl    = document.getElementById('authError');
-  errEl.style.display = 'none';
-  if(!email || !password){ showAuthError('Por favor ingresa correo y contraseña.'); return; }
-  btn.disabled = true; btn.textContent = 'Verificando...';
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    // onAuthStateChanged will handle the rest
-  } catch(e) {
-    const msgs = {
-      'auth/invalid-email':        'Correo inválido.',
-      'auth/user-not-found':       'Usuario no encontrado.',
-      'auth/wrong-password':       'Contraseña incorrecta.',
-      'auth/invalid-credential':   'Credenciales incorrectas.',
-      'auth/too-many-requests':    'Demasiados intentos. Espera unos minutos.',
-      'auth/user-disabled':        'Este usuario ha sido desactivado.',
-    };
-    showAuthError(msgs[e.code] || 'Error al ingresar. Verifica tus datos.');
-  }
-  btn.disabled = false; btn.textContent = 'Ingresar';
+  const email=document.getElementById('authEmail').value.trim();
+  const password=document.getElementById('authPassword').value;
+  const btn=document.getElementById('authBtn');
+  const errEl=document.getElementById('authError');
+  errEl.style.display='none';
+  if(!email||!password){showAuthError('Por favor ingresa correo y contraseña.');return;}
+  btn.disabled=true;btn.textContent='Verificando...';
+  try{await signInWithEmailAndPassword(auth,email,password);}
+  catch(e){const msgs={'auth/invalid-email':'Correo inválido.','auth/user-not-found':'Usuario no encontrado.','auth/wrong-password':'Contraseña incorrecta.','auth/invalid-credential':'Credenciales incorrectas.','auth/too-many-requests':'Demasiados intentos. Espera unos minutos.','auth/user-disabled':'Este usuario ha sido desactivado.'};showAuthError(msgs[e.code]||'Error al ingresar. Verifica tus datos.');}
+  btn.disabled=false;btn.textContent='Ingresar';
 };
+function showAuthError(msg){const el=document.getElementById('authError');el.textContent=msg;el.style.display='block';}
+window.doLogout=async()=>{if(!confirm('¿Cerrar sesión?'))return;stopListeners();await signOut(auth);};
 
-function showAuthError(msg) {
-  const el = document.getElementById('authError');
-  el.textContent = msg; el.style.display = 'block';
-}
-
-window.doLogout = async () => {
-  if(!confirm('¿Cerrar sesión?')) return;
-  stopListeners();
-  await signOut(auth);
-};
-
-// Enter key on auth inputs
-document.getElementById('authPassword').addEventListener('keydown', e => {
-  if(e.key === 'Enter') doLogin();
-});
-document.getElementById('authEmail').addEventListener('keydown', e => {
-  if(e.key === 'Enter') document.getElementById('authPassword').focus();
-});
-
-document.getElementById('globalSearch').addEventListener('input', () => {
-  if(currentView !== 'table') switchView('table');
-  renderTable();
-});
+document.getElementById('authPassword').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('authEmail').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('authPassword').focus();});
+document.getElementById('globalSearch').addEventListener('input',()=>{if(currentView!=='table')switchView('table');renderTable();});
 </script>
 
-Footer" style="display:none">
-  Desarrollado por <span>Guillermo Lebrón</span> · Líder Innovación & Empaque Flexible · 2026
-</div>
-
-<!-- MODAL CONTRIBUTORS -->
-<div class="modal-overlay" id="contribModalOverlay" onclick="if(event.target===this)closeContribModal()">
-  <div class="modal" style="max-width:1100px;max-height:88vh">
-    <button class="modal-close" onclick="closeContribModal()">✕</button>
-    <div class="modal-header">
-      <div id="contribModalTitle" class="modal-lead-name">Contribuyentes al Funnel</div>
-      <div id="contribModalSub" style="font-size:13px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:4px"></div>
-    </div>
-    <div id="contribModalBody"></div>
-  </div>
-</div>
-
-
-<!-- MODAL ALERT CONFIG -->
-<div class="modal-overlay" id="alertConfigModal" onclick="if(event.target===this)closeAlertConfig()">
-  <div class="modal" style="max-width:720px">
-    <button class="modal-close" onclick="closeAlertConfig()">✕</button>
-    <div style="margin-bottom:24px">
-      <div class="modal-lead-name">⚙️ Umbrales de Alerta por Etapa</div>
-      <div style="font-size:13px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:4px">Define cuántos días sin avance generan alerta. <span style="color:var(--alert-yellow-text)">⚠ Amarillo = atención</span> · <span style="color:var(--alert-red-text)">🔴 Rojo = urgente</span>.</div>
-    </div>
-    <div class="threshold-grid" id="thresholdGrid"></div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border)">
-      <button class="btn btn-ghost" onclick="resetAlertDefaults()">Restaurar defaults</button>
-      <button class="btn btn-ghost" onclick="closeAlertConfig()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveAlertThresholds()">Guardar Umbrales</button>
-    </div>
-  </div>
+<div id="appFooter" style="display:none;text-align:center;padding:24px 32px;border-top:1px solid var(--border);font-size:12px;color:var(--text3);font-family:'Roboto Mono',monospace;background:var(--surface)">
+  Desarrollado por <span style="color:var(--accent3);font-weight:500">Guillermo Lebrón</span> · Líder Innovación & Empaque Flexible · 2026
 </div>
 </body>
 </html>
