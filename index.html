@@ -1611,11 +1611,71 @@ window.generateVPReport = function() {
     nosom:  active.filter(l=>!Number(l.som)),
   };
 
+  // ── Próximas Acciones Críticas ────────────────────────────────────────────
+  const criticalActions = [];
+
+  // Top/Second Tier con alerta roja
+  active.filter(l => {
+    const t = getTierInfo(l);
+    const a = computeLeadAlert(l);
+    return (t?.key==='top'||t?.key==='second') && a?.level==='red';
+  }).forEach(l => {
+    const a = computeLeadAlert(l);
+    criticalActions.push(`🔴 **${l.name}** (${l.stage}, ${tier(l)}) — ${a.days}d sin avance · Owner: ${l.owner||'—'}`);
+  });
+
+  // Top/Second Tier con alerta amarilla
+  active.filter(l => {
+    const t = getTierInfo(l);
+    const a = computeLeadAlert(l);
+    return (t?.key==='top'||t?.key==='second') && a?.level==='yellow';
+  }).forEach(l => {
+    const a = computeLeadAlert(l);
+    criticalActions.push(`⚠️ **${l.name}** (${l.stage}, ${tier(l)}) — ${a.days}d en etapa · Owner: ${l.owner||'—'}`);
+  });
+
+  // Leads en ID06+ con bitácora mayor a 30 días
+  active.filter(l => {
+    const advStages = ['ID06','ID07','ID08','ID09','ID10'];
+    if(!advStages.includes(l.stage)) return false;
+    const b = l.bitacora;
+    if(!b||!b.length) return true;
+    const last = b[b.length-1];
+    const lastDate = last.isoDate || today();
+    return dBetween(lastDate) > 30;
+  }).forEach(l => {
+    const b = l.bitacora;
+    const lastDate = b?.length ? (b[b.length-1].isoDate||'') : '';
+    const days = lastDate ? dBetween(lastDate) : '?';
+    criticalActions.push(`📋 **${l.name}** (${l.stage}) — sin actualización de bitácora hace ${days}d · Owner: ${l.owner||'—'}`);
+  });
+
+  // Leads con deadline explícito "10 de julio" o "25 jun" en última bitácora
+  active.forEach(l => {
+    const b = l.bitacora;
+    if(!b||!b.length) return;
+    const last = b[b.length-1].text||'';
+    if(last.toLowerCase().includes('deadline') || last.toLowerCase().includes('10 de julio') || last.toLowerCase().includes('25 jun')) {
+      // Solo si no está ya en criticalActions
+      if(!criticalActions.some(c => c.includes(l.name))) {
+        criticalActions.push(`📅 **${l.name}** (${l.stage}) — deadline próximo registrado · Owner: ${l.owner||'—'}`);
+      }
+    }
+  });
+
   // ── Construir el MD ────────────────────────────────────────────────────────
   let md = `# Reporte de Estatus del Funnel — Empaque Flexible
 **Fecha:** ${dateStr}  
 **Preparado por:** Guillermo Lebrón · Líder Innovación & Business Development  
 **Alcance:** CARICAM + México
+
+---
+
+## ⚡ Próximas Acciones Críticas
+
+${criticalActions.length === 0
+  ? '_Sin acciones críticas identificadas al momento del reporte._'
+  : criticalActions.map(c => `- ${c}`).join('\n')}
 
 ---
 
@@ -1690,6 +1750,29 @@ ${won.length > 0 ? `---
 ${won.map(l => `- **${l.name}** · Owner: ${l.owner||'—'} · SOM: ${fmt(l.som)} · ${dBetween(l.startDate)||'—'}d en funnel`).join('\n')}
 
 ` : ''}---
+
+## 🔍 Pipeline en Investigación — Prospectos
+
+${(() => {
+  const ps = prospectos.filter(p => p.status !== 'descartado');
+  if(!ps.length) return '_Sin prospectos activos registrados._';
+  const statusLabel = {
+    'nuevo':'Nuevo','primer-toque':'Primer Toque',
+    'seguimiento-1':'Seguimiento 1','seguimiento-2':'Seguimiento 2',
+    'seguimiento-3':'Seguimiento 3','calificado':'Calificado ✓'
+  };
+  const rows = ps
+    .sort((a,b) => {
+      const order = ['calificado','seguimiento-3','seguimiento-2','seguimiento-1','primer-toque','nuevo'];
+      return order.indexOf(a.status) - order.indexOf(b.status);
+    })
+    .map((p,i) =>
+      `| ${String(i+1).padStart(2,'0')} | ${p.empresa||'—'} | ${p.ubicacion||'—'} | ${p.sector||'—'} | ${statusLabel[p.status]||p.status} |`
+    ).join('\n');
+  return `| # | Empresa | Ubicación | Sector | Estado |\n|---|---|---|---|---|\n${rows}\n\n**Total prospectos activos:** ${ps.length} · **Calificados listos para funnel:** ${ps.filter(p=>p.status==='calificado').length}`;
+})()}
+
+---
 
 ## Notas para el VP
 
