@@ -654,7 +654,7 @@ function getTierBadgeHTML(lead) {
 }
 
 // ── STATE ────────────────────────────────────────────────────────────────────
-let leads=[], prospectos=[], currentLeadId=null, currentProspectoId=null, currentEmailType=null, currentView='dashboard';
+let leads=[], prospectos=[], currentLeadId=null, currentProspectoId=null, currentEmailType=null, currentView='dashboard', currentUserEmail=null;
 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
 const today=()=>new Date().toISOString().split('T')[0];
@@ -724,7 +724,8 @@ onAuthStateChanged(auth, user => {
     if(loadScr){ loadScr.classList.remove('hide'); loadScr.style.opacity='1'; loadScr.style.pointerEvents='all'; }
     if(loadMsg)  loadMsg.textContent = 'Cargando datos...';
     if(headerUsr) headerUsr.textContent = user.email;
-    // VP Report button — solo visible para glebron@ternova.group
+    currentUserEmail = user.email;
+    // Controles exclusivos para glebron@ternova.group
     const btnVP = document.getElementById('btnVPReport');
     if(btnVP) btnVP.style.display = user.email === 'glebron@ternova.group' ? 'block' : 'none';
     startListeners();
@@ -1016,9 +1017,35 @@ function renderTimeGrid(lead){
 }
 function renderBit(lead){
   const e=lead?.bitacora||[];
-  document.getElementById('bitacoraEntries').innerHTML=e.length?[...e].reverse().map(x=>`<div class="bitacora-entry"><div class="bitacora-date">${x.date}</div><div class="bitacora-text">${x.text}</div></div>`).join(''):'<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Sin entradas.</div>';
+  const isAdmin = currentUserEmail === 'glebron@ternova.group';
+  // Renderizamos en orden inverso con índice original para poder borrar por posición
+  const entries = e.map((x,i)=>({...x, origIdx:i})).reverse();
+  document.getElementById('bitacoraEntries').innerHTML = entries.length
+    ? entries.map(x=>`
+        <div class="bitacora-entry" style="display:flex;align-items:flex-start;gap:10px">
+          <div style="flex:1">
+            <div class="bitacora-date">${x.date}</div>
+            <div class="bitacora-text">${x.text}</div>
+          </div>
+          ${isAdmin ? `<button onclick="deleteBitEntry(${x.origIdx})" title="Eliminar entrada"
+            style="flex-shrink:0;background:transparent;border:1px solid rgba(220,38,38,.25);color:var(--red);
+            border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;opacity:.6;transition:opacity .2s"
+            onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.6'">✕</button>` : ''}
+        </div>`).join('')
+    : '<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Sin entradas.</div>';
   document.getElementById('newBitacoraEntry').value='';
 }
+window.deleteBitEntry=async(idx)=>{
+  if(currentUserEmail!=='glebron@ternova.group')return;
+  if(!currentLeadId)return;
+  const lead=leads.find(l=>l.id===currentLeadId);
+  if(!lead?.bitacora)return;
+  if(!confirm(`¿Eliminar esta entrada?\n\n"${lead.bitacora[idx]?.text}"`))return;
+  lead.bitacora.splice(idx,1);
+  renderBit(lead);
+  try{await setDoc(doc(db,'leads',currentLeadId),{bitacora:lead.bitacora},{merge:true});showSync('ok','Entrada eliminada ✓');}
+  catch(e){showSync('err','Error al eliminar');}
+};
 window.addBitacoraEntry=async()=>{
   const text=document.getElementById('newBitacoraEntry').value.trim();
   if(!text||!currentLeadId)return;
