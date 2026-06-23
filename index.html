@@ -637,7 +637,7 @@ const APROBADAS=['ID06','ID07','ID08','ID09','ID10','GANADO'];
 const PC={'nuevo':{bg:'rgba(108,99,255,.15)',color:'#6c63ff'},'primer-toque':{bg:'rgba(0,180,216,.15)',color:'#00b4d8'},'seguimiento-1':{bg:'rgba(255,190,11,.15)',color:'#ffbe0b'},'seguimiento-2':{bg:'rgba(255,159,28,.15)',color:'#ff9f1c'},'seguimiento-3':{bg:'rgba(255,107,53,.15)',color:'#ff6b35'},'calificado':{bg:'rgba(0,212,168,.15)',color:'#00d4a8'},'descartado':{bg:'rgba(255,71,87,.15)',color:'#ff4757'}};
 
 // ── TIER CLASSIFICATION (SOM-based) ─────────────────────────────────────────
-const TIER_THRESHOLDS = { TOP: 1000, SECOND: 500 }; // USD miles
+const TIER_THRESHOLDS = { TOP: 1000, SECOND: 300 }; // USD miles
 
 function getTierInfo(lead) {
   const som = Number(lead.som) || 0;
@@ -725,9 +725,10 @@ onAuthStateChanged(auth, user => {
     if(loadMsg)  loadMsg.textContent = 'Cargando datos...';
     if(headerUsr) headerUsr.textContent = user.email;
     currentUserEmail = user.email;
-    // Controles exclusivos para glebron@ternova.group
+    // VP Report button — visible para usuarios autorizados
+    const VP_USERS = ['glebron@ternova.group','drochez@ternova.group','mromano@ternova.group'];
     const btnVP = document.getElementById('btnVPReport');
-    if(btnVP) btnVP.style.display = user.email === 'glebron@ternova.group' ? 'block' : 'none';
+    if(btnVP) btnVP.style.display = VP_USERS.includes(user.email) ? 'block' : 'none';
     startListeners();
   } else {
     if(authScr)  authScr.classList.remove('hide');
