@@ -70,7 +70,7 @@ td{padding:13px 16px;font-size:13px;vertical-align:middle}
 .lead-name{font-weight:700;font-size:14px}.lead-owner{font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)}
 .stage-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-family:'Roboto Mono',monospace;font-weight:500;white-space:nowrap;display:inline-block}
 .type-badge{padding:3px 9px;border-radius:5px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
-.type-nb{background:rgba(0,212,168,.15);color:var(--accent)}.type-gr{background:rgba(255,107,53,.15);color:var(--accent2)}
+.type-nb{background:rgba(108,99,255,.15);color:#5b52e0}.type-gr{background:rgba(13,122,95,.13);color:var(--accent)}.type-mi{background:rgba(212,82,10,.15);color:var(--accent2)}
 .amount{font-family:'Roboto Mono',monospace;font-size:13px}.amount.big{color:var(--accent)}
 .days-badge{font-family:'Roboto Mono',monospace;font-size:12px;padding:3px 8px;border-radius:5px}
 .days-ok{background:rgba(0,212,168,.1);color:var(--accent)}.days-warn{background:rgba(255,190,11,.1);color:var(--warn)}.days-late{background:rgba(255,71,87,.1);color:var(--red)}
@@ -310,7 +310,7 @@ textarea.form-input{resize:vertical;min-height:80px}
           <option value="ID10">ID10</option><option value="GANADO">Ganado</option><option value="PERDIDO">Perdido</option>
         </select>
         <select class="filter-select" id="filterType" onchange="renderTable()">
-          <option value="">Todos los tipos</option><option value="new-business">New Business</option><option value="growth">Growth</option>
+          <option value="">Todos los tipos</option><option value="new-business">New Business</option><option value="growth">Growth</option><option value="monocapa-impreso">Monocapa Impreso</option>
         </select>
         <select class="filter-select" id="filterTier" onchange="renderTable()">
           <option value="">Todos los tiers</option>
@@ -339,6 +339,7 @@ textarea.form-input{resize:vertical;min-height:80px}
           <option value="">Todos los tipos</option>
           <option value="new-business">New Business</option>
           <option value="growth">Growth</option>
+          <option value="monocapa-impreso">Monocapa Impreso</option>
         </select>
       </div>
     </div>
@@ -393,7 +394,7 @@ textarea.form-input{resize:vertical;min-height:80px}
         <div class="form-group"><label class="form-label">Nombre del Lead *</label><input class="form-input" id="f_name" placeholder="Empresa / Proyecto"></div>
         <div class="form-group"><label class="form-label">Owner</label><input class="form-input" id="f_owner" placeholder="Responsable"></div>
         <div class="form-group full"><label class="form-label">Contactos Clave</label><input class="form-input" id="f_contacts" placeholder="Nombre - Cargo, Nombre - Cargo"></div>
-        <div class="form-group"><label class="form-label">Tipo</label><select class="form-input" id="f_type"><option value="new-business">New Business</option><option value="growth">Growth</option></select></div>
+        <div class="form-group"><label class="form-label">Tipo</label><select class="form-input" id="f_type"><option value="new-business">New Business</option><option value="growth">Growth</option><option value="monocapa-impreso">Monocapa Impreso</option></select></div>
         <div class="form-group"><label class="form-label">Fecha Inicio</label><input class="form-input" id="f_startDate" type="date"></div>
         <div class="form-group"><label class="form-label">Fecha Go-Get</label><input class="form-input" id="f_goGetDate" type="date"></div>
         <div class="form-group"><label class="form-label">Fecha Inicio Venta</label><input class="form-input" id="f_saleDate" type="date"></div>
@@ -632,6 +633,21 @@ const CL={
   ID10:['Forecast actualizado','Plan de abastecimiento actualizado'],
   GANADO:[],PERDIDO:[],
 };
+// ── TIPOS DE LEAD (categorías filtrables) ───────────────────────────────────
+// Para agregar otra categoría en el futuro basta con añadir una fila aquí
+// y una opción <option> en los 3 selects (filterType, kanbanFilter, f_type).
+const LEAD_TYPES=[
+  {id:'new-business',      label:'New Business',      short:'NB',       cls:'type-nb', color:'#5b52e0', colorSoft:'#a89cff', border:'rgba(108,99,255,.3)'},
+  {id:'growth',            label:'Growth',            short:'Growth',   cls:'type-gr', color:'#0d7a5f', colorSoft:'#0d7a5f', border:'rgba(13,122,95,.3)'},
+  {id:'monocapa-impreso',  label:'Monocapa Impreso',  short:'Monocapa', cls:'type-mi', color:'#d4520a', colorSoft:'#d4520a', border:'rgba(212,82,10,.3)'},
+];
+const DEFAULT_TYPE='new-business';
+const typeInfo  = t => LEAD_TYPES.find(x=>x.id===t) || LEAD_TYPES[0];
+const typeLabel = t => typeInfo(t).label;
+const typeShort = t => typeInfo(t).short;
+const typeCls   = t => typeInfo(t).cls;
+const typeBadgeHTML = (t,useShort) => `<span class="type-badge ${typeCls(t)}">${useShort?typeShort(t):typeLabel(t)}</span>`;
+
 const PROB={ID01:.10,ID02:.10,ID03:.25,ID04:.25,ID05:.50,ID06:.75,ID07:.75,ID08:.80,ID09:.80,ID10:1,GANADO:1,PERDIDO:0};
 const APROBADAS=['ID06','ID07','ID08','ID09','ID10','GANADO'];
 const PC={'nuevo':{bg:'rgba(108,99,255,.15)',color:'#6c63ff'},'primer-toque':{bg:'rgba(0,180,216,.15)',color:'#00b4d8'},'seguimiento-1':{bg:'rgba(255,190,11,.15)',color:'#ffbe0b'},'seguimiento-2':{bg:'rgba(255,159,28,.15)',color:'#ff9f1c'},'seguimiento-3':{bg:'rgba(255,107,53,.15)',color:'#ff6b35'},'calificado':{bg:'rgba(0,212,168,.15)',color:'#00d4a8'},'descartado':{bg:'rgba(255,71,87,.15)',color:'#ff4757'}};
@@ -863,43 +879,30 @@ function renderDashboard(){
       </div>
     </div>`;
 
-  // ── NB vs Growth breakdown ──────────────────────────────────────────────────
-  const nbLeads=act.filter(l=>l.type==='new-business');
-  const grLeads=act.filter(l=>l.type==='growth');
-  const nbTAM=nbLeads.reduce((s,l)=>s+(Number(l.tam)||0),0);
-  const nbSAM=nbLeads.reduce((s,l)=>s+(Number(l.sam)||0),0);
-  const nbSOM=nbLeads.reduce((s,l)=>s+(Number(l.som)||0),0);
-  const grTAM=grLeads.reduce((s,l)=>s+(Number(l.tam)||0),0);
-  const grSAM=grLeads.reduce((s,l)=>s+(Number(l.sam)||0),0);
-  const grSOM=grLeads.reduce((s,l)=>s+(Number(l.som)||0),0);
+  // ── Breakdown por tipo de lead (dinámico según LEAD_TYPES) ──────────────────
+  const byType = LEAD_TYPES.map(t => {
+    const rows = act.filter(l => (l.type||DEFAULT_TYPE) === t.id);
+    const sum = f => rows.reduce((s,l)=>s+(Number(l[f])||0),0);
+    return { ...t, rows, tam:sum('tam'), sam:sum('sam'), som:sum('som') };
+  });
 
   document.getElementById('teamBreakdown').innerHTML=`
-    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px;margin-top:8px">// Breakdown por Equipo</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px">
-      <div style="background:var(--surface);border:1px solid rgba(168,156,255,.3);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden">
-        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#a89cff,#6c63ff)"></div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-          <span style="background:rgba(108,99,255,.2);color:#a89cff;border-radius:6px;padding:3px 12px;font-size:11px;font-family:'Roboto Mono',monospace;font-weight:700">NEW BUSINESS</span>
-          <span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)">${nbLeads.length} leads activos</span>
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px;margin-top:8px">// Breakdown por Categoría</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:28px">
+      ${byType.map(t=>`
+      <div style="background:var(--surface);border:1px solid ${t.border};border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;cursor:pointer" onclick="filterTableByType('${t.id}')" title="Ver en tabla">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${t.color}"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <span class="type-badge ${t.cls}" style="font-size:11px;padding:3px 12px;font-family:'Roboto Mono',monospace;font-weight:700">${t.label}</span>
+          <span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)">${t.rows.length} leads activos</span>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-          <div><div class="stat-label">TAM</div><div style="font-size:20px;font-weight:800;color:#a89cff">$${nbTAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div></div>
-          <div><div class="stat-label">SAM</div><div style="font-size:20px;font-weight:800;color:var(--text2)">$${nbSAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div></div>
-          <div><div class="stat-label">SOM</div><div style="font-size:20px;font-weight:800;color:#a89cff">$${nbSOM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div></div>
+          <div><div class="stat-label">TAM</div><div style="font-size:20px;font-weight:800;color:${t.color}">$${t.tam.toLocaleString('en-US',{maximumFractionDigits:1})}k</div></div>
+          <div><div class="stat-label">SAM</div><div style="font-size:20px;font-weight:800;color:var(--text2)">$${t.sam.toLocaleString('en-US',{maximumFractionDigits:1})}k</div></div>
+          <div><div class="stat-label">SOM</div><div style="font-size:20px;font-weight:800;color:${t.color}">$${t.som.toLocaleString('en-US',{maximumFractionDigits:1})}k</div></div>
         </div>
-      </div>
-      <div style="background:var(--surface);border:1px solid rgba(0,212,168,.3);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden">
-        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#00d4a8,#52b788)"></div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-          <span style="background:rgba(0,212,168,.15);color:var(--accent);border-radius:6px;padding:3px 12px;font-size:11px;font-family:'Roboto Mono',monospace;font-weight:700">GROWTH</span>
-          <span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)">${grLeads.length} leads activos</span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-          <div><div class="stat-label">TAM</div><div style="font-size:20px;font-weight:800;color:var(--accent)">$${grTAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div></div>
-          <div><div class="stat-label">SAM</div><div style="font-size:20px;font-weight:800;color:var(--text2)">$${grSAM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div></div>
-          <div><div class="stat-label">SOM</div><div style="font-size:20px;font-weight:800;color:var(--accent)">$${grSOM.toLocaleString('en-US',{maximumFractionDigits:1})}k</div></div>
-        </div>
-      </div>
+        <div style="font-size:10px;color:var(--text3);font-family:'Roboto Mono',monospace;margin-top:10px">Click para ver en tabla →</div>
+      </div>`).join('')}
     </div>`;
 
   renderGogetChart();
@@ -915,6 +918,13 @@ window.filterTableByTier = function(tier) {
   if(sel) { sel.value = tier; renderTable(); }
 };
 
+// ── Type quick-filter helper ─────────────────────────────────────────────────
+window.filterTableByType = function(type) {
+  switchView('table');
+  const sel = document.getElementById('filterType');
+  if(sel) { sel.value = type; renderTable(); }
+};
+
 // ── TABLE ────────────────────────────────────────────────────────────────────
 window.renderTable = function renderTable(){
   const q=(document.getElementById('globalSearch')?.value||'').toLowerCase();
@@ -923,7 +933,7 @@ window.renderTable = function renderTable(){
   const fTier=document.getElementById('filterTier')?.value||'';
   const fl=leads.filter(l=>{
     if(fS&&l.stage!==fS)return false;
-    if(fT&&l.type!==fT)return false;
+    if(fT&&(l.type||DEFAULT_TYPE)!==fT)return false;
     if(fTier){ const t=getTierInfo(l); if(!t||t.key!==fTier)return false; }
     if(q&&!l.name?.toLowerCase().includes(q)&&!(l.owner||'').toLowerCase().includes(q))return false;
     return true;
@@ -939,7 +949,7 @@ window.renderTable = function renderTable(){
       <td><div class="lead-name">${l.name}</div><div class="lead-owner">${l.contacts||''}</div></td>
       <td><span class="lead-owner">${l.owner||'—'}</span></td>
       <td><span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.short}</span></td>
-      <td><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'New Business'}</span></td>
+      <td>${typeBadgeHTML(l.type)}</td>
       <td class="amount">${fmtM(l.tam)}</td>
       <td class="amount big">${fmtM(l.som)}</td>
       <td>${getTierBadgeHTML(l)}</td>
@@ -955,8 +965,8 @@ window.renderTable = function renderTable(){
 window.renderKanban = function renderKanban(force){
   const kf=document.getElementById('kanbanFilter')?.value||'';
   document.getElementById('kanbanBoard').innerHTML=STAGES.map(s=>{
-    const cards=leads.filter(l=>l.stage===s.id&&(!kf||l.type===kf));
-    return `<div class="kanban-col"><div class="kanban-col-header" style="border-top:3px solid ${s.color}"><div class="kanban-col-title" style="color:${s.color}">${s.short}</div><div class="kanban-col-subtitle">${s.label.replace(/^ID\d+ – /,'').replace(/^Cerrado – /,'')}</div><div class="kanban-col-count">${cards.length} lead${cards.length!==1?'s':''}</div></div><div class="kanban-cards">${cards.length===0?'<div style="text-align:center;padding:20px;font-size:12px;color:var(--text3)">—</div>':cards.map(l=>`<div class="kanban-card" onclick="openModal('${l.id}')"><div class="kanban-card-name">${l.name}</div><div class="kanban-card-meta">${l.owner||'Sin owner'}</div><div style="font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2);margin-top:3px">SOM: ${fmtM(l.som)}${l.precioVenta?' | PV: $'+Number(l.precioVenta).toFixed(2):''}${l.tp?' | TP: $'+Number(l.tp).toFixed(2):''}</div><div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'NB'}</span>${getTierBadgeHTML(l)}${getAlertBadgeHTML(l)}</div></div>`).join('')}</div></div>`;
+    const cards=leads.filter(l=>l.stage===s.id&&(!kf||(l.type||DEFAULT_TYPE)===kf));
+    return `<div class="kanban-col"><div class="kanban-col-header" style="border-top:3px solid ${s.color}"><div class="kanban-col-title" style="color:${s.color}">${s.short}</div><div class="kanban-col-subtitle">${s.label.replace(/^ID\d+ – /,'').replace(/^Cerrado – /,'')}</div><div class="kanban-col-count">${cards.length} lead${cards.length!==1?'s':''}</div></div><div class="kanban-cards">${cards.length===0?'<div style="text-align:center;padding:20px;font-size:12px;color:var(--text3)">—</div>':cards.map(l=>`<div class="kanban-card" onclick="openModal('${l.id}')"><div class="kanban-card-name">${l.name}</div><div class="kanban-card-meta">${l.owner||'Sin owner'}</div><div style="font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2);margin-top:3px">SOM: ${fmtM(l.som)}${l.precioVenta?' | PV: $'+Number(l.precioVenta).toFixed(2):''}${l.tp?' | TP: $'+Number(l.tp).toFixed(2):''}</div><div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">${typeBadgeHTML(l.type,true)}${getTierBadgeHTML(l)}${getAlertBadgeHTML(l)}</div></div>`).join('')}</div></div>`;
   }).join('');
 };
 
@@ -967,7 +977,7 @@ window.openModal=function(id){
   ['name','owner','contacts','tp','precioVenta','margen','tam','sam','som','capacidad','mktVol','tamVol','samVol','somVol','capVol'].forEach(f=>{
     const el=document.getElementById('f_'+f);if(el)el.value=l?(l[f]||''):'';
   });
-  document.getElementById('f_type').value=l?(l.type||'new-business'):'new-business';
+  document.getElementById('f_type').value=l?(l.type||DEFAULT_TYPE):DEFAULT_TYPE;
   document.getElementById('f_startDate').value=l?(l.startDate||today()):today();
   document.getElementById('f_goGetDate').value=l?(l.goGetDate||''):'';
   document.getElementById('f_saleDate').value=l?(l.saleDate||''):'';
@@ -976,7 +986,7 @@ window.openModal=function(id){
   document.getElementById('btnDelete').style.display=l?'block':'none';
   const cs=l?l.stage:'ID01', st=STAGES.find(s=>s.id===cs)||STAGES[0];
   const tierBadge = l ? getTierBadgeHTML(l) : '';
-  const metaHtml=l?`<span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.label}</span><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'New Business'}</span>${tierBadge}`:'';
+  const metaHtml=l?`<span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.label}</span>${typeBadgeHTML(l.type)}${tierBadge}`:'';
   document.getElementById('modalMeta').innerHTML=metaHtml;
   document.getElementById('modalStickyMeta').innerHTML=metaHtml;
   document.getElementById('stageSelectorEl').innerHTML=STAGES.map(s=>`<div class="stage-option${s.id===cs?' selected':''}" style="${s.id===cs?`background:${s.color};border-color:${s.color}`:''}" onclick="selectStage('${s.id}')" data-stage="${s.id}">${s.short}</div>`).join('');
@@ -1359,8 +1369,6 @@ function renderGogetChart() {
   if(!contEl) return;
   if(!contributors.length){contEl.innerHTML='';return;}
   const stageColor = id => STAGES.find(s=>s.id===id)?.color||'#999';
-  const typeLabel  = t => t==='growth'?'Growth':'New Business';
-  const typeCls    = t => t==='growth'?'type-gr':'type-nb';
   contEl.innerHTML=`
     <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:12px;padding-top:16px;border-top:1px solid var(--border)">// Leads contribuyendo al Go-Get</div>
     <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)">
@@ -1467,7 +1475,7 @@ window.openContribModal = function(type) {
             return `<tr style="${rowBg};border-bottom:1px solid var(--border);cursor:pointer" onclick="closeContribModal();openModal('${l.id}')">
               <td style="padding:10px 12px;font-weight:700;font-size:13px">${l.name}<div style="font-size:11px;font-weight:400;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:2px">${l.owner||''}</div></td>
               <td style="padding:10px 12px"><span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.short}</span></td>
-              <td style="padding:10px 12px"><span class="type-badge type-${l.type||'new-business'}">${l.type==='growth'?'Growth':'NB'}</span></td>
+              <td style="padding:10px 12px">${typeBadgeHTML(l.type,true)}</td>
               <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px">${fmtM(l.som)}</td>
               <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:${mg>0?'var(--accent)':'var(--text3)'}">${mg>0?mg+'%':'—'}</td>
               <td style="padding:10px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--accent2)">${tp>0?'$'+tp.toFixed(0)+'k':'—'}</td>
@@ -1694,6 +1702,19 @@ ${criticalActions.length === 0
 
 ---
 
+## Distribución por Categoría
+
+| Categoría | Leads activos | SOM total | SOM ponderado |
+|---|---|---|---|
+${LEAD_TYPES.map(t => {
+  const rows = active.filter(l => (l.type||DEFAULT_TYPE) === t.id);
+  const som  = rows.reduce((s,l)=>s+(Number(l.som)||0),0);
+  const pond = rows.reduce((s,l)=>s+(Number(l.som)||0)*(PROB[l.stage]||0),0);
+  return `| ${t.label} | **${rows.length}** | ${fmt(som)} | ${fmt(Math.round(pond))} |`;
+}).join('\n')}
+
+---
+
 ## Clasificación por Tier
 
 ### ⭐ Top Tier — SOM ≥ $1,000k (${byTier.top.length} leads)
@@ -1726,7 +1747,7 @@ ${active.map((l,i) => {
 |---|---|
 | Etapa | \`${st.label}\` |
 | Owner | ${l.owner||'—'} |
-| Tipo | ${l.type==='growth'?'Growth':'New Business'} |
+| Tipo | ${typeLabel(l.type)} |
 | Tier | ${tier(l)} |
 | TAM | ${fmt(l.tam)} |
 | SOM | ${fmt(l.som)} |
