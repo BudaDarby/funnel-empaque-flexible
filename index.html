@@ -106,6 +106,14 @@ textarea.form-input{resize:vertical;min-height:80px}
 .stage-selector{display:flex;flex-wrap:wrap;gap:8px}
 .stage-option{padding:7px 14px;border-radius:7px;border:1px solid var(--border);font-size:12px;font-family:'Roboto Mono',monospace;cursor:pointer;transition:all .2s;background:var(--bg);color:var(--text2)}
 .stage-option:hover{border-color:var(--accent);color:var(--accent)}.stage-option.selected{color:#000!important}
+.reason-option{padding:11px 14px;border-radius:8px;border:1px solid var(--border);font-size:12.5px;cursor:pointer;transition:all .2s;background:var(--bg);color:var(--text2);display:flex;align-items:center;gap:11px;line-height:1.35}
+.reason-option:hover{border-color:var(--red);color:var(--text)}
+.reason-option.selected{background:rgba(220,38,38,.07);border-color:var(--red);color:var(--text);font-weight:600}
+.reason-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;position:relative;transition:all .2s}
+.reason-option.selected .reason-radio{border-color:var(--red)}
+.reason-option.selected .reason-radio::after{content:'';position:absolute;inset:2px;border-radius:50%;background:var(--red)}
+.reason-badge{padding:3px 9px;border-radius:5px;font-size:11px;font-weight:600;background:rgba(220,38,38,.1);color:var(--red);display:inline-block;line-height:1.4}
+.reason-missing{padding:3px 9px;border-radius:5px;font-size:11px;font-weight:600;background:rgba(180,83,9,.12);color:var(--warn);display:inline-block}
 .checklist{display:flex;flex-direction:column;gap:8px}
 .check-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border-radius:8px;border:1px solid var(--border);cursor:pointer;transition:border-color .2s}
 .check-item:hover{border-color:var(--accent)}.check-item.done{opacity:.6}
@@ -243,6 +251,7 @@ textarea.form-input{resize:vertical;min-height:80px}
   <div class="nav-tab" data-view="table" onclick="switchView('table')">Leads</div>
   <div class="nav-tab" data-view="kanban" onclick="switchView('kanban')">Kanban</div>
   <div class="nav-tab" data-view="prospectos" onclick="switchView('prospectos')" style="color:var(--accent2)">🎯 Prospectos</div>
+  <div class="nav-tab" data-view="perdidos" onclick="switchView('perdidos')" style="color:var(--red)">❌ Leads Perdidos</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -376,6 +385,38 @@ textarea.form-input{resize:vertical;min-height:80px}
   </div>
 </div>
 
+<!-- LEADS PERDIDOS -->
+<div class="views" id="view-perdidos">
+  <div class="main">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Leads Perdidos</div>
+        <div style="font-size:12px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:4px">Oportunidades cerradas sin éxito · análisis de motivos</div>
+      </div>
+      <div class="filter-row">
+        <select class="filter-select" id="lostFilterReason" onchange="renderPerdidos()">
+          <option value="">Todos los motivos</option>
+        </select>
+        <select class="filter-select" id="lostFilterType" onchange="renderPerdidos()">
+          <option value="">Todas las categorías</option>
+          <option value="new-business">New Business</option>
+          <option value="growth">Growth</option>
+          <option value="monocapa-impreso">Monocapa Impreso</option>
+        </select>
+        <input class="search-input" id="lostSearch" placeholder="Buscar lead perdido..." oninput="renderPerdidos()">
+      </div>
+    </div>
+    <div id="lostStats" class="stats-grid"></div>
+    <div id="lostReasonBreakdown"></div>
+    <div class="table-wrap">
+      <table><thead><tr>
+        <th>#</th><th>Lead</th><th>Owner</th><th>Categoría</th><th>Motivo de Pérdida</th>
+        <th>Detalle</th><th>SOM</th><th>Etapa alcanzada</th><th>Fecha pérdida</th><th>Días en funnel</th>
+      </tr></thead><tbody id="lostTableBody"></tbody></table>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL LEAD -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
@@ -403,6 +444,21 @@ textarea.form-input{resize:vertical;min-height:80px}
     <div class="modal-section">
       <div class="modal-section-title">🎯 Etapa del Funnel</div>
       <div class="stage-selector" id="stageSelectorEl"></div>
+    </div>
+    <div class="modal-section" id="lossSection" style="display:none">
+      <div class="modal-section-title" style="color:var(--red)">❌ Motivo de Pérdida <span style="color:var(--red);font-weight:800">*</span></div>
+      <div style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px">// Obligatorio para guardar un lead en etapa PERDIDO</div>
+      <div style="display:flex;flex-direction:column;gap:8px" id="lossReasonEl"></div>
+      <div class="form-grid" style="margin-top:16px">
+        <div class="form-group full">
+          <label class="form-label">Detalle / Aprendizaje</label>
+          <textarea class="form-input" id="f_lossNote" placeholder="Contexto: competidor, precio objetivo del cliente, condición faltante, qué haría falta para reabrir..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha de Pérdida</label>
+          <input class="form-input" id="f_lossDate" type="date">
+        </div>
+      </div>
     </div>
     <div class="modal-section">
       <div class="modal-section-title">💰 Financieros & Capacidad</div>
@@ -648,6 +704,24 @@ const typeShort = t => typeInfo(t).short;
 const typeCls   = t => typeInfo(t).cls;
 const typeBadgeHTML = (t,useShort) => `<span class="type-badge ${typeCls(t)}">${useShort?typeShort(t):typeLabel(t)}</span>`;
 
+// ── MOTIVOS DE PÉRDIDA ──────────────────────────────────────────────────────
+// Obligatorio al mover un lead a la etapa PERDIDO.
+const LOSS_REASONS=[
+  {id:'potencial-no-acorde', short:'Potencial no acorde', label:'Potencial del negocio no acorde a los requerimientos de crecimiento', icon:'📉', color:'#6c63ff'},
+  {id:'precio',              short:'Precio',              label:'Precio',                                                            icon:'💲', color:'#d4520a'},
+  {id:'sin-respuesta',       short:'Sin respuesta >3m',   label:'Contacto sin respuesta por más de 3 meses',                         icon:'📵', color:'#b45309'},
+  {id:'sin-proyectos',       short:'Sin proyectos',       label:'Sin proyectos para nuevos proveedores',                             icon:'🚪', color:'#5a6278'},
+  {id:'otro',                short:'Otro',                label:'Otro motivo (especificar en el detalle)',                           icon:'📝', color:'#9ba3b8'},
+];
+const reasonInfo  = r => LOSS_REASONS.find(x=>x.id===r) || null;
+const reasonLabel = r => reasonInfo(r)?.label || 'Sin motivo registrado';
+const reasonShort = r => reasonInfo(r)?.short || 'Sin motivo';
+const reasonBadgeHTML = r => {
+  const i = reasonInfo(r);
+  if(!i) return `<span class="reason-missing">⚠️ Sin motivo</span>`;
+  return `<span class="reason-badge" style="background:${i.color}1f;color:${i.color}">${i.icon} ${i.short}</span>`;
+};
+
 const PROB={ID01:.10,ID02:.10,ID03:.25,ID04:.25,ID05:.50,ID06:.75,ID07:.75,ID08:.80,ID09:.80,ID10:1,GANADO:1,PERDIDO:0};
 const APROBADAS=['ID06','ID07','ID08','ID09','ID10','GANADO'];
 const PC={'nuevo':{bg:'rgba(108,99,255,.15)',color:'#6c63ff'},'primer-toque':{bg:'rgba(0,180,216,.15)',color:'#00b4d8'},'seguimiento-1':{bg:'rgba(255,190,11,.15)',color:'#ffbe0b'},'seguimiento-2':{bg:'rgba(255,159,28,.15)',color:'#ff9f1c'},'seguimiento-3':{bg:'rgba(255,107,53,.15)',color:'#ff6b35'},'calificado':{bg:'rgba(0,212,168,.15)',color:'#00d4a8'},'descartado':{bg:'rgba(255,71,87,.15)',color:'#ff4757'}};
@@ -760,6 +834,7 @@ function refresh(){
   else if(currentView==='table')renderTable();
   else if(currentView==='kanban')renderKanban();
   else if(currentView==='prospectos')renderProspectos();
+  else if(currentView==='perdidos')renderPerdidos();
 }
 window.switchView=v=>{
   currentView=v;
@@ -986,15 +1061,40 @@ window.openModal=function(id){
   document.getElementById('btnDelete').style.display=l?'block':'none';
   const cs=l?l.stage:'ID01', st=STAGES.find(s=>s.id===cs)||STAGES[0];
   const tierBadge = l ? getTierBadgeHTML(l) : '';
-  const metaHtml=l?`<span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.label}</span>${typeBadgeHTML(l.type)}${tierBadge}`:'';
+  const metaHtml=l?`<span class="stage-badge" style="background:${st.color}20;color:${st.color}">${st.label}</span>${typeBadgeHTML(l.type)}${tierBadge}${cs==='PERDIDO'?reasonBadgeHTML(l.lossReason):''}`:'';
   document.getElementById('modalMeta').innerHTML=metaHtml;
   document.getElementById('modalStickyMeta').innerHTML=metaHtml;
   document.getElementById('stageSelectorEl').innerHTML=STAGES.map(s=>`<div class="stage-option${s.id===cs?' selected':''}" style="${s.id===cs?`background:${s.color};border-color:${s.color}`:''}" onclick="selectStage('${s.id}')" data-stage="${s.id}">${s.short}</div>`).join('');
+  selectedLossReason = l?.lossReason || '';
+  document.getElementById('f_lossNote').value = l?.lossReasonNote || '';
+  document.getElementById('f_lossDate').value = l?.lossDate || (cs==='PERDIDO'?today():'');
+  renderLossSection(cs);
   renderCL(cs,l);renderTimeGrid(l);renderBit(l);renderMonthlyGrid(l);renderMonthlyVolumeGrid(l);
   document.getElementById('modalOverlay').classList.add('open');
 };
+
+// ── LOSS REASON ──────────────────────────────────────────────────────────────
+let selectedLossReason='';
+function renderLossSection(stage){
+  const sec=document.getElementById('lossSection');
+  if(!sec) return;
+  const isLost = stage==='PERDIDO';
+  sec.style.display = isLost ? 'block' : 'none';
+  if(!isLost) return;
+  if(!document.getElementById('f_lossDate').value) document.getElementById('f_lossDate').value=today();
+  document.getElementById('lossReasonEl').innerHTML=LOSS_REASONS.map(r=>
+    `<div class="reason-option${r.id===selectedLossReason?' selected':''}" onclick="selectLossReason('${r.id}')" data-reason="${r.id}">
+       <div class="reason-radio"></div><div>${r.icon} ${r.label}</div>
+     </div>`).join('');
+}
+window.selectLossReason=id=>{
+  selectedLossReason=id;
+  document.querySelectorAll('.reason-option').forEach(el=>el.classList.toggle('selected',el.dataset.reason===id));
+};
+
 window.selectStage=id=>{
   document.querySelectorAll('.stage-option').forEach(el=>{const s=STAGES.find(s=>s.id===el.dataset.stage),sel=el.dataset.stage===id;el.classList.toggle('selected',sel);el.style.background=sel?s.color:'';el.style.borderColor=sel?s.color:'';});
+  renderLossSection(id);
   renderCL(id,currentLeadId?leads.find(l=>l.id===currentLeadId):null);
 };
 const getSelStage=()=>document.querySelector('.stage-option.selected')?.dataset.stage||'ID01';
@@ -1074,6 +1174,17 @@ window.saveLead=async()=>{
   const btn=document.getElementById('btnSave');btn.disabled=true;btn.textContent='Guardando...';
   showSync('saving','Guardando...');
   const ns=document.querySelector('.stage-option.selected')?.dataset.stage||'ID01';
+  if(ns==='PERDIDO'&&!selectedLossReason){
+    alert('Selecciona el motivo de pérdida antes de guardar.');
+    const ls=document.getElementById('lossSection');
+    if(ls&&ls.scrollIntoView) ls.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  const lossFields = ns==='PERDIDO'
+    ? { lossReason:selectedLossReason,
+        lossReasonNote:document.getElementById('f_lossNote').value.trim(),
+        lossDate:document.getElementById('f_lossDate').value||today() }
+    : { lossReason:'', lossReasonNote:'', lossDate:'' };
   const mp=getMonthlyProjectionFromForm();
   try{
     if(currentLeadId){
@@ -1091,7 +1202,7 @@ window.saveLead=async()=>{
         tam:document.getElementById('f_tam').value,sam:document.getElementById('f_sam').value,
         som:document.getElementById('f_som').value,capacidad:document.getElementById('f_capacidad').value,
         mktVol:document.getElementById('f_mktVol').value,
-        monthlyProjection:mp,monthlyVolume:getMonthlyVolumeFromForm(),
+        monthlyProjection:mp,monthlyVolume:getMonthlyVolumeFromForm(),...lossFields,
         updatedAt:serverTimestamp()},{merge:true});
     }else{
       await setDoc(doc(db,'leads',Date.now().toString()),{name,stage:ns,
@@ -1105,7 +1216,7 @@ window.saveLead=async()=>{
         tam:document.getElementById('f_tam').value,sam:document.getElementById('f_sam').value,
         som:document.getElementById('f_som').value,capacidad:document.getElementById('f_capacidad').value,
         mktVol:document.getElementById('f_mktVol').value,
-        monthlyProjection:mp,monthlyVolume:getMonthlyVolumeFromForm(),
+        monthlyProjection:mp,monthlyVolume:getMonthlyVolumeFromForm(),...lossFields,
         stageHistory:{[ns]:today()},stageExits:{},checklists:{},bitacora:[],
         createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
     }
@@ -1117,6 +1228,90 @@ window.saveLead=async()=>{
 window.deleteLead=async()=>{
   if(!currentLeadId||!confirm('¿Eliminar?'))return;
   try{await deleteDoc(doc(db,'leads',currentLeadId));showSync('ok','Eliminado');closeModal();}catch(e){showSync('err','Error');}
+};
+
+// ── LEADS PERDIDOS ───────────────────────────────────────────────────────────
+window.renderPerdidos=()=>{
+  const tb=document.getElementById('lostTableBody'); if(!tb) return;
+
+  // poblar el select de motivos una sola vez
+  const rSel=document.getElementById('lostFilterReason');
+  if(rSel && rSel.options.length===1){
+    rSel.innerHTML='<option value="">Todos los motivos</option>'
+      + LOSS_REASONS.map(r=>`<option value="${r.id}">${r.icon} ${r.short}</option>`).join('')
+      + '<option value="__none">⚠️ Sin motivo registrado</option>';
+  }
+
+  const all=leads.filter(l=>l.stage==='PERDIDO');
+  const fR=rSel?.value||'', fT=document.getElementById('lostFilterType')?.value||'';
+  const q=(document.getElementById('lostSearch')?.value||'').toLowerCase();
+  const fl=all.filter(l=>{
+    if(fR==='__none'){ if(reasonInfo(l.lossReason)) return false; }
+    else if(fR && l.lossReason!==fR) return false;
+    if(fT && (l.type||DEFAULT_TYPE)!==fT) return false;
+    if(q && !(l.name||'').toLowerCase().includes(q) && !(l.owner||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const somSum=arr=>arr.reduce((s,l)=>s+(Number(l.som)||0),0);
+  const sinMotivo=all.filter(l=>!reasonInfo(l.lossReason));
+  const activos=leads.filter(l=>l.stage!=='GANADO'&&l.stage!=='PERDIDO').length;
+  const ganados=leads.filter(l=>l.stage==='GANADO').length;
+  const tasa=(ganados+all.length)>0 ? (all.length/(ganados+all.length)*100).toFixed(0) : 0;
+
+  document.getElementById('lostStats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total Perdidos</div><div class="stat-value" style="color:var(--red)">${all.length}</div><div class="stat-sub">${activos} activos en funnel</div></div>
+    <div class="stat-card"><div class="stat-label">SOM Perdido</div><div class="stat-value" style="color:var(--red);font-size:24px">$${somSum(all).toLocaleString('en-US',{maximumFractionDigits:0})}k</div><div class="stat-sub">oportunidad no capturada</div></div>
+    <div class="stat-card"><div class="stat-label">Tasa de Pérdida</div><div class="stat-value" style="color:var(--warn)">${tasa}%</div><div class="stat-sub">sobre cerrados (${ganados} ganados)</div></div>
+    <div class="stat-card"><div class="stat-label">Sin Motivo</div><div class="stat-value" style="color:${sinMotivo.length?'var(--warn)':'var(--accent)'}">${sinMotivo.length}</div><div class="stat-sub">requieren clasificación</div></div>`;
+
+  // breakdown por motivo
+  const groups=LOSS_REASONS.map(r=>{const rows=all.filter(l=>l.lossReason===r.id);return{...r,rows,som:somSum(rows)};})
+    .concat(sinMotivo.length?[{id:'__none',short:'Sin motivo',label:'Sin motivo registrado',icon:'⚠️',color:'#b45309',rows:sinMotivo,som:somSum(sinMotivo)}]:[])
+    .filter(g=>g.rows.length>0).sort((a,b)=>b.rows.length-a.rows.length);
+  const maxN=Math.max(...groups.map(g=>g.rows.length),1);
+
+  document.getElementById('lostReasonBreakdown').innerHTML = !groups.length ? '' : `
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);font-family:'Roboto Mono',monospace;margin-bottom:14px">// Motivos de Pérdida · click para filtrar</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:28px;display:flex;flex-direction:column;gap:12px">
+      ${groups.map(g=>`
+        <div onclick="filterLostByReason('${g.id}')" style="display:flex;align-items:center;gap:12px;cursor:pointer">
+          <span style="font-size:13px;min-width:210px;display:flex;align-items:center;gap:7px">${g.icon} <span style="font-weight:600">${g.short}</span></span>
+          <div style="flex:1;height:9px;background:var(--surface2);border-radius:5px;min-width:60px;overflow:hidden">
+            <div style="width:${(g.rows.length/maxN*100).toFixed(0)}%;height:100%;background:${g.color};border-radius:5px"></div>
+          </div>
+          <span style="font-family:'Roboto Mono',monospace;font-size:13px;font-weight:700;color:${g.color};min-width:60px;text-align:right">${g.rows.length} lead${g.rows.length!==1?'s':''}</span>
+          <span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2);min-width:80px;text-align:right">SOM ${fmtM(g.som)}</span>
+          <span style="font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text3);min-width:42px;text-align:right">${(g.rows.length/all.length*100).toFixed(0)}%</span>
+        </div>`).join('')}
+    </div>`;
+
+  if(!fl.length){
+    tb.innerHTML=`<tr><td colspan="10"><div class="empty-state"><div class="empty-state-icon">${all.length?'🔎':'✅'}</div><div>${all.length?'Ningún lead perdido coincide con el filtro.':'No hay leads perdidos registrados.'}</div></div></td></tr>`;
+    return;
+  }
+
+  tb.innerHTML=fl.sort((a,b)=>(b.lossDate||'').localeCompare(a.lossDate||'')).map((l,i)=>{
+    const reached=l.stageExits?Object.keys(l.stageExits).sort().pop():null;
+    const lastStage=STAGES.find(s=>s.id===reached);
+    const dias=l.startDate?(l.lossDate?dBetween(l.startDate,l.lossDate):dBetween(l.startDate)):null;
+    return `<tr onclick="openModal('${l.id}')">
+      <td><span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text3)">#${String(i+1).padStart(2,'0')}</span></td>
+      <td><div class="lead-name">${l.name}</div><div class="lead-owner">${l.contacts||''}</div></td>
+      <td><span class="lead-owner">${l.owner||'—'}</span></td>
+      <td>${typeBadgeHTML(l.type,true)}</td>
+      <td>${reasonBadgeHTML(l.lossReason)}</td>
+      <td style="max-width:260px;font-size:12px;color:var(--text2)">${l.lossReasonNote?l.lossReasonNote:'<span style="color:var(--text3)">—</span>'}</td>
+      <td class="amount">${fmtM(l.som)}</td>
+      <td>${lastStage?`<span class="stage-badge" style="background:${lastStage.color}20;color:${lastStage.color}">${lastStage.short}</span>`:'<span style="color:var(--text3)">—</span>'}</td>
+      <td><span class="lead-owner">${l.lossDate||'—'}</span></td>
+      <td><span class="days-badge">${dias!==null?dias+'d':'—'}</span></td>
+    </tr>`;
+  }).join('');
+};
+window.filterLostByReason=r=>{
+  const sel=document.getElementById('lostFilterReason');
+  if(sel){ sel.value = sel.value===r ? '' : r; renderPerdidos(); }
 };
 
 // ── PROSPECTOS ────────────────────────────────────────────────────────────────
@@ -1772,6 +1967,30 @@ ${won.length > 0 ? `---
 ${won.map(l => `- **${l.name}** · Owner: ${l.owner||'—'} · SOM: ${fmt(l.som)} · ${dBetween(l.startDate)||'—'}d en funnel`).join('\n')}
 
 ` : ''}---
+
+## ❌ Leads Perdidos — Análisis de Motivos
+
+${(() => {
+  const lost = leads.filter(l => l.stage === 'PERDIDO');
+  if(!lost.length) return '_Sin leads perdidos registrados._';
+  const somSum = a => a.reduce((s,l)=>s+(Number(l.som)||0),0);
+  const groups = LOSS_REASONS
+    .map(r => ({...r, rows: lost.filter(l=>l.lossReason===r.id)}))
+    .concat([{short:'Sin motivo registrado', icon:'⚠️', rows: lost.filter(l=>!reasonInfo(l.lossReason))}])
+    .filter(g => g.rows.length > 0)
+    .sort((a,b) => b.rows.length - a.rows.length);
+  const tbl = groups.map(g =>
+    `| ${g.icon} ${g.short} | **${g.rows.length}** | ${(g.rows.length/lost.length*100).toFixed(0)}% | ${fmt(somSum(g.rows))} |`
+  ).join('\n');
+  const detail = groups.map(g =>
+    `**${g.icon} ${g.short}**\n\n${g.rows.map(l =>
+      `- **${l.name}** · ${l.owner||'—'} · SOM: ${fmt(l.som)} · ${l.lossDate||'fecha n/d'}${l.lossReasonNote?` — _${l.lossReasonNote}_`:''}`
+    ).join('\n')}`
+  ).join('\n\n');
+  return `**Total perdidos:** ${lost.length} · **SOM no capturado:** ${fmt(somSum(lost))}\n\n| Motivo | Leads | % | SOM perdido |\n|---|---|---|---|\n${tbl}\n\n### Detalle\n\n${detail}`;
+})()}
+
+---
 
 ## 🔍 Pipeline en Investigación — Prospectos
 
