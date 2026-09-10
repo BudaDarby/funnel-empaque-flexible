@@ -268,14 +268,13 @@ textarea.form-input{resize:vertical;min-height:80px}
     <div class="funnel-container" id="gogetSection">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
         <div>
-          <div class="funnel-title" style="margin-bottom:4px">// Go-Get · Meta vs Real vs Proyección</div>
+          <div class="funnel-title" style="margin-bottom:4px">// Go-Get · Meta vs Real Acumulado</div>
           <div style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace">USD (miles) · Acumulado mes a mes</div>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
           <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:3px;background:#6c63ff"></div><span style="font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2)">Meta</span></div>
           <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:3px;background:#0d7a5f"></div><span style="font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2)">Real</span></div>
-          <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:3px;background:#d4520a;opacity:.5"></div><span style="font-size:11px;font-family:'Roboto Mono',monospace;color:var(--text2)">Proyección</span></div>
-          <button class="btn btn-ghost" onclick="openGogetConfig()" style="font-size:11px;padding:5px 12px">⚙️ Metas y Real</button>
+          <button class="btn btn-ghost" onclick="openGogetConfig()" style="font-size:11px;padding:5px 12px">⚙️ Configurar metas</button>
         </div>
       </div>
       <div id="gogetChart" style="height:220px;display:flex;align-items:flex-end;gap:6px;position:relative">
@@ -290,9 +289,9 @@ textarea.form-input{resize:vertical;min-height:80px}
       <div class="modal" style="max-width:720px">
         <button class="modal-close" onclick="closeGogetModal()">✕</button>
         <div class="modal-header">
-          <div class="modal-lead-name">⚙️ Metas y Facturación Real</div>
-          <div style="font-size:13px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:4px">Meta por mes y cierre real de cada mes (USD miles)</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:10px;line-height:1.5">Deja el <strong>Real</strong> en blanco mientras el mes no haya cerrado. El acumulado y el semáforo se calculan hasta el último mes con real capturado.</div>
+          <div class="modal-lead-name">⚙️ Configurar Metas Go-Get</div>
+          <div style="font-size:13px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:4px">Meta de facturación por mes (USD miles)</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:10px;line-height:1.5">El <strong>real</strong> no se captura aquí: sale de las proyecciones mensuales de cada lead (fila TOTAL PROYECTADO).</div>
         </div>
         <div id="gogetConfigGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px"></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border)">
@@ -1456,20 +1455,19 @@ window.closePModal=()=>document.getElementById('pModalOverlay').classList.remove
 // ── MONTHS CONFIG ────────────────────────────────────────────────────────────
 const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const MONTH_KEYS = ['m01','m02','m03','m04','m05','m06','m07','m08','m09','m10','m11','m12'];
-// Facturación REAL por mes (se captura en el modal ⚙️ Metas y Real).
-// Se guarda en el mismo documento config/goget_metas con claves r01..r12.
-const REAL_KEYS = MONTH_KEYS.map(k => 'r' + k.slice(1));
+// El REAL de cada mes es la suma de las proyecciones mensuales de los leads
+// (la fila TOTAL PROYECTADO): esa es la facturación que el equipo tiene comprometida.
+// La META es lo que se configura en ⚙️ Configurar metas.
 // Semáforo del cumplimiento acumulado
 const ACUM_THRESHOLDS = { GREEN: 100, AMBER: 90 }; // % sobre meta acumulada
 const acumStatus = pct => pct >= ACUM_THRESHOLDS.GREEN
-  ? {key:'verde', label:'EN VERDE',   color:'#0d7a5f', bg:'rgba(13,122,95,.10)',  border:'rgba(13,122,95,.35)',  icon:'🟢'}
+  ? {key:'verde', label:'EN VERDE',      color:'#0d7a5f', bg:'rgba(13,122,95,.10)', border:'rgba(13,122,95,.35)', icon:'🟢'}
   : pct >= ACUM_THRESHOLDS.AMBER
-  ? {key:'ambar', label:'EN RIESGO',  color:'#b45309', bg:'rgba(180,83,9,.10)',   border:'rgba(180,83,9,.35)',   icon:'🟡'}
+  ? {key:'ambar', label:'EN RIESGO',     color:'#b45309', bg:'rgba(180,83,9,.10)',  border:'rgba(180,83,9,.35)',  icon:'🟡'}
   : {key:'rojo',  label:'FUERA DE META', color:'#dc2626', bg:'rgba(220,38,38,.08)', border:'rgba(220,38,38,.30)', icon:'🔴'};
-// Un mes "cierra" cuando se le captura un valor real (aunque sea 0).
-const hasReal   = i => { const v = gogetMetas[REAL_KEYS[i]]; return v !== undefined && v !== null && v !== ''; };
-const realVal   = i => Number(gogetMetas[REAL_KEYS[i]]) || 0;
-const cutoffIdx = () => { for(let i=11;i>=0;i--) if(hasReal(i)) return i; return -1; };
+// Mes de corte del acumulado. Arranca en el mes en curso y el usuario lo puede mover.
+let acumCut = Math.min(new Date().getMonth(), 11);
+window.setAcumCut = i => { acumCut = Number(i); renderGogetChart(); };
 let gogetMetas = {};
 const gogetDocRef = doc(db,'config','goget_metas');
 
@@ -1531,69 +1529,52 @@ function getMonthlyVolumeFromForm() {
 
 // ── GOGET CHART ───────────────────────────────────────────────────────────────
 function renderGogetChart() {
-  const projByMonth = {};
-  MONTH_KEYS.forEach(k => projByMonth[k] = 0);
+  // REAL de cada mes = suma de las proyecciones mensuales de los leads vivos.
+  // Es exactamente la fila TOTAL PROYECTADO de la tabla de abajo.
+  const realByMonth = {};
+  MONTH_KEYS.forEach(k => realByMonth[k] = 0);
   leads.filter(l=>l.stage!=='PERDIDO').forEach(l => {
     const mp = l.monthlyProjection||{};
-    MONTH_KEYS.forEach(k => { projByMonth[k] += Number(mp[k])||0; });
+    MONTH_KEYS.forEach(k => { realByMonth[k] += Number(mp[k])||0; });
   });
   const metas = MONTH_KEYS.map(k => Number(gogetMetas[k])||0);
-  const projs = MONTH_KEYS.map(k => projByMonth[k]);
-  const reals = MONTH_KEYS.map((k,i) => realVal(i));
-  const cut   = cutoffIdx();                       // último mes con real capturado
-  const metaAcum = [], projAcum = [], realAcum = [];
-  let mAcc=0, pAcc=0, rAcc=0;
-  for(let i=0;i<12;i++){
-    mAcc+=metas[i]; pAcc+=projs[i];
-    if(i<=cut) rAcc+=reals[i];
-    metaAcum.push(mAcc); projAcum.push(pAcc); realAcum.push(rAcc);
-  }
+  const reals = MONTH_KEYS.map(k => realByMonth[k]);
+  const metaAcum = [], realAcum = [];
+  let mAcc=0, rAcc=0;
+  for(let i=0;i<12;i++){ mAcc+=metas[i]; rAcc+=reals[i]; metaAcum.push(mAcc); realAcum.push(rAcc); }
 
-  // ── Chart: meta acum · real acum (hasta el corte) · proyección acum ─────────
-  const maxVal = Math.max(...metaAcum,...projAcum,...realAcum,1);
+  // ── Chart: meta acumulada vs real acumulado ────────────────────────────────
+  const maxVal = Math.max(...metaAcum,...realAcum,1);
   const chartH = 180;
   const cols = MONTH_KEYS.map((k,i) => {
     const mH = Math.max((metaAcum[i]/maxVal)*chartH,2);
-    const pH = Math.max((projAcum[i]/maxVal)*chartH,2);
-    const closed = i<=cut;
-    const rH = closed ? Math.max((realAcum[i]/maxVal)*chartH,2) : 0;
-    // el delta que se muestra bajo el mes es REAL vs META si el mes ya cerró,
-    // y PROYECCIÓN vs META si todavía no.
-    const ref   = closed ? realAcum[i] : projAcum[i];
-    const delta = ref - metaAcum[i];
+    const rH = Math.max((realAcum[i]/maxVal)*chartH,2);
+    const delta = realAcum[i] - metaAcum[i];
     const ahead = delta >= 0;
-    const deltaColor = ahead ? 'var(--accent)' : 'var(--red)';
-    const realBar = closed
-      ? `<div class="goget-bar" style="height:${rH}px;background:${realAcum[i]>=metaAcum[i]?'#0d7a5f':'var(--red)'}" data-tip="Real acum. ${MONTHS[i]}: $${realAcum[i].toFixed(0)}k"></div>`
-      : '';
-    return `<div class="goget-col"${closed?' style="opacity:1"':''}>
+    const isCut = i === acumCut;
+    const future = i > acumCut;
+    return `<div class="goget-col" style="${future?'opacity:.45':''}${isCut?';background:rgba(79,70,229,.06);border-radius:6px':''}">
       <div class="goget-bars">
         <div class="goget-bar" style="height:${mH}px;background:#6c63ff;opacity:.7" data-tip="Meta acum. ${MONTHS[i]}: $${metaAcum[i].toFixed(0)}k"></div>
-        ${realBar}
-        <div class="goget-bar" style="height:${pH}px;background:#d4520a;opacity:.45" data-tip="Proyección acum. ${MONTHS[i]}: $${projAcum[i].toFixed(0)}k"></div>
+        <div class="goget-bar" style="height:${rH}px;background:${ahead?'#0d7a5f':'var(--red)'}" data-tip="Real acum. ${MONTHS[i]}: $${realAcum[i].toFixed(0)}k"></div>
       </div>
-      <div class="goget-month-label" style="${closed?'color:var(--text);font-weight:700':''}">${MONTHS[i]}${closed?'':' ·'}</div>
-      <div class="goget-month-delta" style="color:${deltaColor}">${metaAcum[i]>0||ref>0?(ahead?'+':'')+delta.toFixed(0)+'k':'0'}</div>
+      <div class="goget-month-label" style="${isCut?'color:var(--accent3);font-weight:800':''}">${MONTHS[i]}${isCut?' ◄':''}</div>
+      <div class="goget-month-delta" style="color:${ahead?'var(--accent)':'var(--red)'}">${metaAcum[i]>0||realAcum[i]>0?(ahead?'+':'')+delta.toFixed(0)+'k':'0'}</div>
     </div>`;
   }).join('');
   document.getElementById('gogetChart').innerHTML = cols;
 
-  // ── Panel de avance acumulado a la fecha ───────────────────────────────────
-  renderAcumPanel({metas,reals,projs,metaAcum,realAcum,projAcum,cut});
+  renderAcumPanel({metas,reals,metaAcum,realAcum});
 
   const totalMeta = metaAcum[11];
-  const totalProj = projAcum[11];
-  const gap = totalProj - totalMeta;
-  const pct = totalMeta ? Math.min((totalProj/totalMeta)*100,999).toFixed(0) : 0;
-  // Cierre real acumulado + proyección de los meses que faltan = aterrizaje esperado
-  const restoProj = projs.slice(cut+1).reduce((a,b)=>a+b,0);
-  const aterrizaje = realAcum[11] + restoProj;
+  const totalReal = realAcum[11];
+  const gap = totalReal - totalMeta;
+  const pct = totalMeta ? Math.min((totalReal/totalMeta)*100,999).toFixed(0) : 0;
   document.getElementById('gogetSummaryBar').innerHTML = `
     <div><div class="stat-label">Meta Anual</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:#6c63ff">$${totalMeta.toFixed(0)}k</div></div>
-    <div><div class="stat-label">Proyección Anual</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:${gap>=0?'var(--accent)':'var(--red)'}">$${totalProj.toFixed(0)}k</div></div>
-    <div><div class="stat-label">Brecha Anual</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:${gap>=0?'var(--accent)':'var(--red)'}">${gap>=0?'+':''}$${gap.toFixed(0)}k</div></div>
-    <div><div class="stat-label">Cobertura Anual</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:${pct>=100?'var(--accent)':pct>=70?'var(--warn)':'var(--red)'}">${pct}%</div></div>
-    ${cut>=0?`<div style="border-left:1px solid var(--border);padding-left:24px"><div class="stat-label">Aterrizaje Esperado</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:${aterrizaje>=totalMeta?'var(--accent)':'var(--red)'}">$${aterrizaje.toFixed(0)}k</div><div style="font-size:10px;color:var(--text3);font-family:'Roboto Mono',monospace">real a ${MONTHS[cut]} + proyección</div></div>`:''}`;
+    <div><div class="stat-label">Real Anual</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:${gap>=0?'var(--accent)':'var(--red)'}">$${totalReal.toFixed(0)}k</div></div>
+    <div><div class="stat-label">Brecha Anual</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:${gap>=0?'var(--accent)':'var(--red)'}">${gap>=0?'+':'-'}$${Math.abs(gap).toFixed(0)}k</div></div>
+    <div><div class="stat-label">Cobertura Anual</div><div style="font-size:18px;font-weight:800;font-family:'Roboto Mono',monospace;color:${pct>=100?'var(--accent)':pct>=70?'var(--warn)':'var(--red)'}">${pct}%</div></div>`;
 
   const contributors = leads.filter(l=>l.stage!=='PERDIDO').map(l=>{const mp=l.monthlyProjection||{};const total=MONTH_KEYS.reduce((s,k)=>s+(Number(mp[k])||0),0);return{...l,mpTotal:total,mp};}).filter(l=>l.mpTotal>0).sort((a,b)=>b.mpTotal-a.mpTotal);
   const contEl = document.getElementById('gogetContributors');
@@ -1639,15 +1620,20 @@ function renderGogetChart() {
             ${MONTH_KEYS.map(k=>{const proj=contributors.reduce((acc,l)=>acc+(Number(l.mp[k])||0),0);const meta=Number(gogetMetas[k])||0;const delta=proj-meta;const hasBoth=proj>0||meta>0;return `<td style="padding:8px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;color:${delta>=0?'var(--accent)':'var(--red)'}">${hasBoth?(delta>=0?'+':'')+delta.toFixed(0)+'k':'—'}</td>`;}).join('')}
             ${(()=>{const totalProj=contributors.reduce((s,l)=>s+l.mpTotal,0);const totalMeta=MONTH_KEYS.reduce((s,k)=>s+(Number(gogetMetas[k])||0),0);const d=totalProj-totalMeta;return `<td style="padding:8px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;font-weight:800;color:${d>=0?'var(--accent)':'var(--red)'}">${d>=0?'+':''}$${d.toFixed(0)}k</td>`;})()}
           </tr>
+          <tr style="background:#f0f4ff;border-top:1px dashed var(--border)">
+            <td colspan="3" style="padding:9px 14px;font-size:11px;font-weight:700;font-family:'Roboto Mono',monospace;color:#6c63ff">META ACUMULADA</td>
+            ${(()=>{let a=0;return MONTH_KEYS.map(k=>{a+=Number(gogetMetas[k])||0;return `<td style="padding:9px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;color:${a>0?'#6c63ff':'var(--text3)'}">${a>0?'$'+a.toFixed(0)+'k':'—'}</td>`;}).join('');})()}
+            <td style="padding:9px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;font-weight:800;color:#6c63ff">$${MONTH_KEYS.reduce((s,k)=>s+(Number(gogetMetas[k])||0),0).toFixed(0)}k</td>
+          </tr>
           <tr style="background:#effaf5;border-top:1px dashed rgba(13,122,95,.25)">
-            <td colspan="3" style="padding:10px 14px;font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace;color:#0d7a5f">REAL FACTURADO</td>
-            ${MONTH_KEYS.map((k,i)=>{const closed=hasReal(i);const v=realVal(i);const meta=Number(gogetMetas[k])||0;return `<td style="padding:10px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:12px;font-weight:700;color:${!closed?'var(--text3)':v>=meta?'#0d7a5f':'var(--red)'}">${closed?'$'+v+'k':'—'}</td>`;}).join('')}
-            <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;color:#0d7a5f">$${MONTH_KEYS.reduce((s,k,i)=>s+(hasReal(i)?realVal(i):0),0).toFixed(0)}k</td>
+            <td colspan="3" style="padding:9px 14px;font-size:11px;font-weight:700;font-family:'Roboto Mono',monospace;color:#0d7a5f">REAL ACUMULADO</td>
+            ${(()=>{let a=0,m=0;return MONTH_KEYS.map(k=>{a+=contributors.reduce((acc,l)=>acc+(Number(l.mp[k])||0),0);m+=Number(gogetMetas[k])||0;return `<td style="padding:9px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;color:${a===0?'var(--text3)':a>=m?'#0d7a5f':'var(--red)'}">${a>0?'$'+a.toFixed(0)+'k':'—'}</td>`;}).join('');})()}
+            <td style="padding:9px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;font-weight:800;color:#0d7a5f">$${contributors.reduce((s,l)=>s+l.mpTotal,0).toFixed(0)}k</td>
           </tr>
           <tr style="background:var(--surface2);border-top:1px solid var(--border)">
-            <td colspan="3" style="padding:9px 14px;font-size:11px;font-weight:700;font-family:'Roboto Mono',monospace;color:var(--text2)">ACUMULADO REAL vs META</td>
-            ${(()=>{let ma=0,ra=0;return MONTH_KEYS.map((k,i)=>{ma+=Number(gogetMetas[k])||0;const closed=hasReal(i);if(closed)ra+=realVal(i);const d=ra-ma;return `<td style="padding:9px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;color:${!closed?'var(--text3)':d>=0?'var(--accent)':'var(--red)'}">${closed?(d>=0?'+':'')+d.toFixed(0)+'k':'—'}</td>`;}).join('');})()}
-            ${(()=>{const c=cutoffIdx();if(c<0)return '<td style="padding:9px 14px;text-align:right;font-family:\'Roboto Mono\',monospace;font-size:12px;color:var(--text3)">—</td>';let ma=0,ra=0;for(let i=0;i<=c;i++){ma+=Number(gogetMetas[MONTH_KEYS[i]])||0;ra+=realVal(i);}const pct=ma>0?(ra/ma*100):0;const st=acumStatus(pct);return `<td style="padding:9px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;font-weight:800;color:${st.color}">${st.icon} ${pct.toFixed(0)}%</td>`;})()}
+            <td colspan="3" style="padding:9px 14px;font-size:11px;font-weight:700;font-family:'Roboto Mono',monospace;color:var(--text2)">DELTA ACUMULADO · CUMPL.</td>
+            ${(()=>{let ra=0,ma=0;return MONTH_KEYS.map(k=>{ra+=contributors.reduce((acc,l)=>acc+(Number(l.mp[k])||0),0);ma+=Number(gogetMetas[k])||0;const d=ra-ma;const cp=ma>0?(ra/ma*100):null;return `<td style="padding:9px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;color:${d>=0?'var(--accent)':'var(--red)'}">${(ma>0||ra>0)?(d>=0?'+':'-')+'$'+Math.abs(d).toFixed(0)+'k'+(cp!==null?`<div style="font-size:10px;font-weight:400;color:var(--text3)">${cp.toFixed(0)}%</div>`:''):'—'}</td>`;}).join('');})()}
+            ${(()=>{const ra=contributors.reduce((s,l)=>s+l.mpTotal,0);const ma=MONTH_KEYS.reduce((s,k)=>s+(Number(gogetMetas[k])||0),0);const d=ra-ma;const cp=ma>0?(ra/ma*100):0;const st=acumStatus(ma>0?cp:100);return `<td style="padding:9px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;font-weight:800;color:${st.color}">${st.icon} ${ma>0?cp.toFixed(0)+'%':'—'}</td>`;})()}
           </tr>
         </tbody>
       </table>
@@ -1656,33 +1642,24 @@ function renderGogetChart() {
 
 // ── PANEL: AVANCE ACUMULADO A LA FECHA ───────────────────────────────────────
 const signedK = v => (v<0?'-$':'+$') + Math.abs(v).toFixed(0) + 'k';
-function renderAcumPanel({metas,reals,projs,metaAcum,realAcum,cut}) {
+
+// ── PANEL: ACUMULADO TEÓRICO (META) vs ACUMULADO REAL ───────────────────────
+function renderAcumPanel({metas,reals,metaAcum,realAcum}) {
   const el = document.getElementById('gogetAcumPanel');
   if(!el) return;
+  const c = acumCut;
 
-  if(cut < 0){
-    el.innerHTML = `
-      <div class="funnel-container" style="margin-bottom:28px;border-style:dashed">
-        <div class="funnel-title" style="margin-bottom:8px">// Avance Acumulado vs Meta</div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.6">
-          Aún no hay facturación real capturada. Ábrelo en <strong>⚙️ Metas y Real</strong> y registra el cierre de cada mes;
-          el acumulado y el semáforo se calculan solos a partir del último mes cerrado.
-        </div>
-      </div>`;
-    return;
-  }
-
-  const metaA = metaAcum[cut], realA = realAcum[cut];
+  const metaA = metaAcum[c], realA = realAcum[c];
   const delta = realA - metaA;
-  const pct   = metaA > 0 ? (realA/metaA*100) : (realA>0?999:0);
-  const st    = acumStatus(pct);
+  const pct   = metaA > 0 ? (realA/metaA*100) : (realA>0 ? 999 : 0);
+  const st    = acumStatus(metaA > 0 ? pct : 100);   // sin meta acumulada no hay incumplimiento
 
-  // Desempeño del mes de corte por separado — un mes malo no define el año.
-  const metaM = metas[cut], realM = reals[cut];
+  // El mes por sí solo, para separarlo del acumulado
+  const metaM = metas[c], realM = reals[c];
   const deltaM = realM - metaM;
-  const pctM = metaM > 0 ? (realM/metaM*100) : (realM>0?999:0);
-  const stM  = acumStatus(pctM);
-  const divergente = st.key !== stM.key;
+  const pctM = metaM > 0 ? (realM/metaM*100) : (realM>0 ? 999 : 0);
+  const stM  = acumStatus(metaM > 0 ? pctM : 100);
+  const divergente = metaM > 0 && metaA > 0 && st.key !== stM.key;
 
   const cell = (label,value,color,sub) => `
     <div>
@@ -1691,31 +1668,54 @@ function renderAcumPanel({metas,reals,projs,metaAcum,realAcum,cut}) {
       ${sub?`<div style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace;margin-top:4px">${sub}</div>`:''}
     </div>`;
 
-  const barPct = Math.min(pct,100);
+  const barPct  = Math.min(pct,100);
   const overPct = pct > 100 ? Math.min(pct-100,50) : 0;
+
+  // Tabla mes a mes: meta acumulada vs real acumulado
+  const filas = MONTH_KEYS.map((k,i)=>{
+    const d = realAcum[i]-metaAcum[i], ok = d>=0;
+    const cp = metaAcum[i]>0 ? (realAcum[i]/metaAcum[i]*100) : null;
+    const esCorte = i===c;
+    return `<tr style="${esCorte?'background:rgba(79,70,229,.07);font-weight:700':(i%2?'background:var(--surface2)':'')}${i>c?';opacity:.5':''}">
+      <td style="padding:8px 12px;font-family:'Roboto Mono',monospace;font-size:12px">${MONTHS[i]}${esCorte?' ◄':''}</td>
+      <td style="padding:8px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)">$${metas[i].toFixed(0)}k</td>
+      <td style="padding:8px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)">$${reals[i].toFixed(0)}k</td>
+      <td style="padding:8px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;color:#6c63ff;font-weight:700">$${metaAcum[i].toFixed(0)}k</td>
+      <td style="padding:8px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:13px;color:${ok?'#0d7a5f':'var(--red)'};font-weight:700">$${realAcum[i].toFixed(0)}k</td>
+      <td style="padding:8px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:${ok?'var(--accent)':'var(--red)'};font-weight:700">${metaAcum[i]>0||realAcum[i]>0?signedK(d):'—'}</td>
+      <td style="padding:8px 12px;text-align:right;font-family:'Roboto Mono',monospace;font-size:12px;color:${cp===null?'var(--text3)':cp>=100?'var(--accent)':cp>=ACUM_THRESHOLDS.AMBER?'var(--warn)':'var(--red)'};font-weight:700">${cp===null?'—':cp.toFixed(0)+'%'}</td>
+    </tr>`;
+  }).join('');
+  const th = 'padding:9px 12px;text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-family:\'Roboto Mono\',monospace;border-bottom:1px solid var(--border);white-space:nowrap';
 
   el.innerHTML = `
     <div class="funnel-container" style="margin-bottom:28px;border-color:${st.border};background:${st.bg}">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
         <div>
-          <div class="funnel-title" style="margin-bottom:4px">// Avance Acumulado vs Meta — corte a ${MONTHS[cut]}</div>
-          <div style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace">Ene–${MONTHS[cut]} · USD (miles) · ${cut+1} ${cut===0?'mes cerrado':'meses cerrados'}</div>
+          <div class="funnel-title" style="margin-bottom:6px">// Acumulado Teórico vs Acumulado Real</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace">Corte a</span>
+            <select class="filter-select" style="padding:5px 10px;font-size:12px" onchange="setAcumCut(this.value)">
+              ${MONTHS.map((m,i)=>`<option value="${i}"${i===c?' selected':''}>${m}</option>`).join('')}
+            </select>
+            <span style="font-size:11px;color:var(--text2);font-family:'Roboto Mono',monospace">· Ene–${MONTHS[c]} · USD (miles)</span>
+          </div>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <span style="background:${st.color};color:#fff;border-radius:7px;padding:7px 16px;font-size:13px;font-family:'Roboto Mono',monospace;font-weight:800;letter-spacing:.06em">${st.icon} ${st.label}</span>
-          <span style="font-size:30px;font-weight:800;font-family:'Roboto Mono',monospace;color:${st.color}">${pct.toFixed(0)}%</span>
+          <span style="font-size:30px;font-weight:800;font-family:'Roboto Mono',monospace;color:${st.color}">${metaA>0?pct.toFixed(0)+'%':'—'}</span>
         </div>
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:18px;margin-bottom:20px">
-        ${cell('Meta acumulada','$'+metaA.toFixed(0)+'k','#6c63ff',`Ene–${MONTHS[cut]}`)}
-        ${cell('Real acumulado','$'+realA.toFixed(0)+'k',st.color,'facturación cerrada')}
+        ${cell('Meta acumulada','$'+metaA.toFixed(0)+'k','#6c63ff','compromiso Ene–'+MONTHS[c])}
+        ${cell('Real acumulado','$'+realA.toFixed(0)+'k',delta>=0?'#0d7a5f':'var(--red)','facturación Ene–'+MONTHS[c])}
         ${cell('Delta acumulado',signedK(delta),delta>=0?'var(--accent)':'var(--red)',delta>=0?'por encima de meta':'por debajo de meta')}
-        ${cell('Falta para la meta', delta>=0?'—':'$'+Math.abs(delta).toFixed(0)+'k', delta>=0?'var(--accent)':'var(--warn)', delta>=0?'meta acumulada cubierta':'a recuperar en el año')}
+        ${cell(delta>=0?'Colchón':'Falta para la meta', '$'+Math.abs(delta).toFixed(0)+'k', delta>=0?'var(--accent)':'var(--warn)', delta>=0?'margen sobre el compromiso':'a recuperar')}
       </div>
 
-      <div style="margin-bottom:8px">
-        <div style="height:14px;background:var(--surface2);border-radius:8px;overflow:hidden;display:flex;position:relative;border:1px solid var(--border)">
+      <div style="margin-bottom:20px">
+        <div style="height:14px;background:var(--surface2);border-radius:8px;overflow:hidden;display:flex;border:1px solid var(--border)">
           <div style="width:${barPct.toFixed(1)}%;background:${st.color};height:100%"></div>
           ${overPct>0?`<div style="width:${overPct.toFixed(1)}%;background:${st.color};opacity:.45;height:100%"></div>`:''}
         </div>
@@ -1724,67 +1724,62 @@ function renderAcumPanel({metas,reals,projs,metaAcum,realAcum,cut}) {
         </div>
       </div>
 
-      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:22px;flex-wrap:wrap">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);font-family:'Roboto Mono',monospace;font-weight:700">Mes de ${MONTHS[cut]} por separado</div>
+      <div style="display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:16px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);font-family:'Roboto Mono',monospace;font-weight:700">Solo el mes de ${MONTHS[c]}</div>
         <div style="font-family:'Roboto Mono',monospace;font-size:13px;color:var(--text2)">Meta <strong style="color:#6c63ff">$${metaM.toFixed(0)}k</strong></div>
-        <div style="font-family:'Roboto Mono',monospace;font-size:13px;color:var(--text2)">Real <strong style="color:${stM.color}">$${realM.toFixed(0)}k</strong></div>
+        <div style="font-family:'Roboto Mono',monospace;font-size:13px;color:var(--text2)">Real <strong style="color:${deltaM>=0?'#0d7a5f':'var(--red)'}">$${realM.toFixed(0)}k</strong></div>
         <div style="font-family:'Roboto Mono',monospace;font-size:13px;color:var(--text2)">Delta <strong style="color:${deltaM>=0?'var(--accent)':'var(--red)'}">${signedK(deltaM)}</strong></div>
-        <div style="font-family:'Roboto Mono',monospace;font-size:13px;color:var(--text2)">Cumplimiento <strong style="color:${stM.color}">${pctM.toFixed(0)}%</strong></div>
+        <div style="font-family:'Roboto Mono',monospace;font-size:13px;color:var(--text2)">Cumpl. <strong style="color:${stM.color}">${metaM>0?pctM.toFixed(0)+'%':'—'}</strong></div>
       </div>
 
       ${divergente?`
-      <div style="margin-top:14px;padding:12px 16px;background:var(--surface);border:1px solid ${st.border};border-radius:8px;font-size:12.5px;line-height:1.55;color:var(--text2)">
+      <div style="margin-bottom:16px;padding:12px 16px;background:var(--surface);border:1px solid ${st.border};border-radius:8px;font-size:12.5px;line-height:1.55;color:var(--text2)">
         <strong style="color:${st.color}">Lectura:</strong>
-        ${MONTHS[cut]} cerró ${deltaM>=0?'por encima':'por debajo'} de su meta mensual (${pctM.toFixed(0)}%),
-        pero el acumulado Ene–${MONTHS[cut]} va ${delta>=0?'por encima':'por debajo'} en ${signedK(delta)} (${pct.toFixed(0)}%).
+        ${MONTHS[c]} cerró ${deltaM>=0?'por encima':'por debajo'} de su meta mensual (${pctM.toFixed(0)}%),
+        pero el acumulado Ene–${MONTHS[c]} va ${delta>=0?'por encima':'por debajo'} en ${signedK(delta)} (${pct.toFixed(0)}%).
         ${st.key==='verde'
           ? 'El año sigue en verde: el colchón de los meses anteriores absorbe el cierre bajo.'
           : st.key==='ambar'
-            ? 'El acumulado ya se está comiendo el colchón. Hay margen, pero se requiere recuperación en los próximos meses.'
+            ? 'El colchón se está agotando. Hay margen, pero se requiere recuperación en los próximos meses.'
             : 'El acumulado está fuera de meta. La brecha ya no se explica por un solo mes.'}
       </div>`:''}
+
+      <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface)">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:var(--surface2)">
+            <th style="${th};text-align:left">Mes</th>
+            <th style="${th}">Meta mes</th>
+            <th style="${th}">Real mes</th>
+            <th style="${th}">Meta acum.</th>
+            <th style="${th}">Real acum.</th>
+            <th style="${th}">Delta acum.</th>
+            <th style="${th}">Cumpl. acum.</th>
+          </tr></thead>
+          <tbody>${filas}</tbody>
+        </table>
+      </div>
     </div>`;
 }
 
-
 // ── GOGET CONFIG MODAL ────────────────────────────────────────────────────────
 window.openGogetConfig = () => {
-  document.getElementById('gogetConfigGrid').innerHTML = MONTH_KEYS.map((k,i) => {
-    const rk = REAL_KEYS[i];
-    const closed = hasReal(i);
-    return `
-    <div style="background:var(--bg);border:1px solid ${closed?'rgba(13,122,95,.35)':'var(--border)'};border-radius:8px;padding:12px">
-      <div style="font-size:10px;font-family:'Roboto Mono',monospace;color:var(--text2);text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
-        <span>${MONTHS[i]} 2026</span>${closed?'<span style="color:var(--accent)">✓ cerrado</span>':''}
-      </div>
-      <div style="font-size:9px;font-family:'Roboto Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:.08em">Meta</div>
-      <div style="display:flex;align-items:center;gap:4px;margin-bottom:10px">
-        <span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)">$</span>
-        <input id="gm_${k}" type="number" placeholder="0" value="${gogetMetas[k]??''}"
-          style="background:transparent;border:none;color:#6c63ff;font-family:'Roboto Mono',monospace;font-size:17px;font-weight:700;width:100%;outline:none">
-        <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text3)">k</span>
-      </div>
-      <div style="font-size:9px;font-family:'Roboto Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding-top:8px;border-top:1px solid var(--border)">Real facturado</div>
+  document.getElementById('gogetConfigGrid').innerHTML = MONTH_KEYS.map((k,i) => `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px">
+      <div style="font-size:10px;font-family:'Roboto Mono',monospace;color:var(--text2);text-transform:uppercase;margin-bottom:8px">${MONTHS[i]} 2026</div>
       <div style="display:flex;align-items:center;gap:4px">
         <span style="font-family:'Roboto Mono',monospace;font-size:12px;color:var(--text2)">$</span>
-        <input id="gr_${rk}" type="number" placeholder="—" value="${gogetMetas[rk]??''}"
-          style="background:transparent;border:none;color:#0d7a5f;font-family:'Roboto Mono',monospace;font-size:17px;font-weight:700;width:100%;outline:none">
-        <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text3)">k</span>
+        <input id="gm_${k}" type="number" placeholder="0" value="${gogetMetas[k]??''}"
+          style="background:transparent;border:none;color:#6c63ff;font-family:'Roboto Mono',monospace;font-size:18px;font-weight:700;width:100%;outline:none">
+        <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text3)">k USD</span>
       </div>
-    </div>`;}).join('');
+    </div>`).join('');
   document.getElementById('gogetModalOverlay').classList.add('open');
 };
 window.saveGogetMetas = async () => {
-  const data = {};
-  MONTH_KEYS.forEach(k => { const v=Number(document.getElementById('gm_'+k)?.value)||0; if(v) data[k]=v; });
-  // El real se guarda incluso si es 0: un 0 explícito significa "el mes cerró en cero",
-  // que es distinto de "el mes todavía no cierra" (campo vacío).
-  REAL_KEYS.forEach(rk => {
-    const raw = document.getElementById('gr_'+rk)?.value;
-    if(raw !== undefined && raw !== '') data[rk] = Number(raw)||0;
-  });
-  showSync('saving','Guardando...');
-  try { await setDoc(gogetDocRef, data); showSync('ok','Metas y real guardados ✓'); closeGogetModal(); }
+  const metas = {};
+  MONTH_KEYS.forEach(k => { const v=Number(document.getElementById('gm_'+k)?.value)||0; if(v) metas[k]=v; });
+  showSync('saving','Guardando metas...');
+  try { await setDoc(gogetDocRef, metas); showSync('ok','Metas guardadas ✓'); closeGogetModal(); }
   catch(e) { showSync('err','Error al guardar'); }
 };
 window.closeGogetModal = () => document.getElementById('gogetModalOverlay').classList.remove('open');
@@ -2055,35 +2050,40 @@ ${criticalActions.length === 0
 
 ---
 
-## Avance Acumulado vs Meta
+## Acumulado Teórico vs Acumulado Real
 
 ${(() => {
-  const c = cutoffIdx();
-  if(c < 0) return '_Sin facturación real capturada aún._';
-  let ma=0, ra=0;
-  for(let i=0;i<=c;i++){ ma += Number(gogetMetas[MONTH_KEYS[i]])||0; ra += realVal(i); }
-  const d = ra-ma, pct = ma>0?(ra/ma*100):0, st = acumStatus(pct);
-  const metaM = Number(gogetMetas[MONTH_KEYS[c]])||0, realM = realVal(c);
-  const pctM = metaM>0?(realM/metaM*100):0;
-  const rows = MONTH_KEYS.slice(0,c+1).map((k,i)=>{
-    const m = Number(gogetMetas[k])||0, r = realVal(i);
-    return `| ${MONTHS[i]} | ${fmt(m)} | ${fmt(r)} | ${r-m>=0?'+':''}${fmt(Math.abs(r-m)).replace('$','$')} | ${m>0?(r/m*100).toFixed(0)+'%':'—'} |`;
-  }).join('\n');
-  return `**Estado: ${st.icon} ${st.label} — ${pct.toFixed(0)}% de la meta acumulada (corte a ${MONTHS[c]})**
+  const realByMonth = {};
+  MONTH_KEYS.forEach(k => realByMonth[k]=0);
+  leads.filter(l=>l.stage!=='PERDIDO').forEach(l=>{const mp=l.monthlyProjection||{};MONTH_KEYS.forEach(k=>{realByMonth[k]+=Number(mp[k])||0;});});
+  const metas = MONTH_KEYS.map(k=>Number(gogetMetas[k])||0);
+  const reals = MONTH_KEYS.map(k=>realByMonth[k]);
+  let ma=0, ra=0; const rows=[];
+  for(let i=0;i<12;i++){
+    ma+=metas[i]; ra+=reals[i];
+    const d=ra-ma, cp=ma>0?(ra/ma*100).toFixed(0)+'%':'—';
+    rows.push(`| ${MONTHS[i]} | ${fmt(metas[i])} | ${fmt(reals[i])} | ${fmt(ma)} | ${fmt(ra)} | ${d>=0?'+':'−'}${fmt(Math.abs(d))} | ${cp} |`);
+  }
+  const c = acumCut;
+  let mc=0, rc=0;
+  for(let i=0;i<=c;i++){ mc+=metas[i]; rc+=reals[i]; }
+  const dc=rc-mc, pc=mc>0?(rc/mc*100):0, st=acumStatus(mc>0?pc:100);
+  return `**Corte a ${MONTHS[c]}: ${st.icon} ${st.label} — ${mc>0?pc.toFixed(0)+'%':'sin meta acumulada'}**
 
 | Métrica | Valor |
 |---|---|
-| Meta acumulada Ene–${MONTHS[c]} | **${fmt(ma)}** |
-| Real acumulado Ene–${MONTHS[c]} | **${fmt(ra)}** |
-| Delta acumulado | **${d>=0?'+':'−'}${fmt(Math.abs(d))}** |
-| Cumplimiento acumulado | **${pct.toFixed(0)}%** |
-| Cierre de ${MONTHS[c]} (mes) | ${fmt(realM)} vs meta ${fmt(metaM)} · ${pctM.toFixed(0)}% |
+| Meta acumulada Ene–${MONTHS[c]} | **${fmt(mc)}** |
+| Real acumulado Ene–${MONTHS[c]} | **${fmt(rc)}** |
+| Delta acumulado | **${dc>=0?'+':'−'}${fmt(Math.abs(dc))}** |
+| Mes de ${MONTHS[c]} | ${fmt(reals[c])} vs meta ${fmt(metas[c])} |
 
-### Detalle mensual
+### Detalle mes a mes
 
-| Mes | Meta | Real | Delta | Cumpl. |
-|---|---|---|---|---|
-${rows}`;
+| Mes | Meta mes | Real mes | Meta acum. | Real acum. | Delta acum. | Cumpl. |
+|---|---|---|---|---|---|---|
+${rows.join('\n')}
+
+_Real = suma de las proyecciones mensuales de los leads activos y ganados._`;
 })()}
 
 ---
