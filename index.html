@@ -1596,7 +1596,7 @@ function renderGogetChart() {
           ${contributors.map((l,i)=>{
             const sc=stageColor(l.stage);
             const rowBg=i%2===0?'background:var(--surface)':'background:var(--surface2)';
-            const monthCells=MONTH_KEYS.map(k=>{const v=Number(l.mp[k]);const hasVal=l.mp[k]!==undefined&&l.mp[k]!=='';return `<td style="padding:10px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:12px;${hasVal&&v>0?'color:var(--accent3);font-weight:600':hasVal&&v===0?'color:var(--text3)':'color:var(--text3)'}">${hasVal?(v>0?'$'+v+'k':'0'):'—'}</td>`;}).join('');
+            const monthCells=MONTH_KEYS.map(k=>{const v=Number(l.mp[k]);const hasVal=l.mp[k]!==undefined&&l.mp[k]!=='';return `<td style="padding:10px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:12px;${hasVal&&v>0?'color:var(--accent3);font-weight:600':hasVal&&v===0?'color:var(--text3)':'color:var(--text3)'}">${hasVal?(v>0?'$'+(Math.round(v*100)/100)+'k':'0'):'—'}</td>`;}).join('');
             return `<tr style="${rowBg};border-bottom:1px solid var(--border);cursor:pointer" onclick="openModal('${l.id}')">
               <td style="padding:10px 14px"><div style="font-weight:700;font-size:13px;margin-bottom:4px">${l.name}</div><div style="font-family:'Roboto Mono',monospace;font-size:10px;color:var(--text2);display:flex;gap:8px;flex-wrap:wrap">${l.som?`<span>SOM: <strong style="color:var(--accent3)">$${l.som}k</strong></span>`:''}${l.margen?`<span>Mg: <strong style="color:var(--accent)">${l.margen}%</strong></span>`:''}</div></td>
               <td style="padding:10px 14px"><span class="stage-badge" style="background:${sc}20;color:${sc}">${l.stage}</span></td>
@@ -1607,7 +1607,7 @@ function renderGogetChart() {
           }).join('')}
           <tr style="background:var(--surface2);border-top:2px solid var(--border)">
             <td colspan="3" style="padding:10px 14px;font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace;color:var(--text2)">TOTAL PROYECTADO</td>
-            ${MONTH_KEYS.map(k=>{const s=contributors.reduce((acc,l)=>acc+(Number(l.mp[k])||0),0);return `<td style="padding:10px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:12px;font-weight:700;color:${s>0?'var(--accent3)':'var(--text3)'}">${s>0?'$'+s+'k':'—'}</td>`;}).join('')}
+            ${MONTH_KEYS.map(k=>{const s=contributors.reduce((acc,l)=>acc+(Number(l.mp[k])||0),0);return `<td style="padding:10px 8px;text-align:center;font-family:'Roboto Mono',monospace;font-size:12px;font-weight:700;color:${s>0?'var(--accent3)':'var(--text3)'}">${s>0?'$'+(Math.round(s*100)/100)+'k':'—'}</td>`;}).join('')}
             <td style="padding:10px 14px;text-align:right;font-family:'Roboto Mono',monospace;font-size:14px;font-weight:800;color:var(--accent3)">$${contributors.reduce((s,l)=>s+l.mpTotal,0).toFixed(0)}k</td>
           </tr>
           <tr style="background:#f0f4ff;border-top:1px dashed var(--border)">
